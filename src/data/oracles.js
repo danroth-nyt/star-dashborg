@@ -1148,15 +1148,31 @@ export function generateScene() {
 }
 
 // Generate travel encounter - multi-roll for more permutations
-export function generateTravelEncounter() {
-  const themeRoll = rollDice(npcOracles.travelTheme.length);
-  const actorRoll = rollDice(npcOracles.travelActor.length);
+// First roll d20 + Threat to check if encounter occurs (12+)
+// If successful, roll 2d10 for theme and actor
+export function generateTravelEncounter(threatDie = 1) {
+  const checkRoll = rollDice(20);
+  const total = checkRoll + threatDie;
+  const success = total >= 12;
+  
+  let encounterResult = null;
+  if (success) {
+    const themeRoll = rollDice(npcOracles.travelTheme.length);
+    const actorRoll = rollDice(npcOracles.travelActor.length);
+    encounterResult = {
+      themeRoll,
+      actorRoll,
+      theme: npcOracles.travelTheme[themeRoll - 1],
+      actor: npcOracles.travelActor[actorRoll - 1]
+    };
+  }
   
   return {
-    themeRoll,
-    actorRoll,
-    theme: npcOracles.travelTheme[themeRoll - 1],
-    actor: npcOracles.travelActor[actorRoll - 1]
+    checkRoll,
+    threatDie,
+    total,
+    success,
+    encounter: encounterResult
   };
 }
 

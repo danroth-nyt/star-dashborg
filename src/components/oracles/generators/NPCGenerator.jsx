@@ -6,7 +6,7 @@ import { npcOracles, nameOracles } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
 
 export default function NPCGenerator() {
-  const { addLog } = useGame();
+  const { addLog, gameState } = useGame();
   const [result, setResult] = useState(null);
 
   const handleGenerateNPC = () => {
@@ -16,9 +16,31 @@ export default function NPCGenerator() {
   };
 
   const handleGenerateTravelEncounter = () => {
-    const encounter = generateTravelEncounter();
-    setResult(encounter);
-    addLog(`Travel Encounter: ${encounter.theme} - ${encounter.actor}`, 'mission');
+    const threatDie = gameState.threatDie || 1;
+    const encounterCheck = generateTravelEncounter(threatDie);
+    
+    if (encounterCheck.success) {
+      const result = {
+        theme: encounterCheck.encounter.theme,
+        actor: encounterCheck.encounter.actor,
+        themeRoll: encounterCheck.encounter.themeRoll,
+        actorRoll: encounterCheck.encounter.actorRoll,
+        checkRoll: encounterCheck.checkRoll,
+        total: encounterCheck.total
+      };
+      setResult(result);
+      addLog(`Travel Encounter Check (d20:${encounterCheck.checkRoll} + Threat:${threatDie} = ${encounterCheck.total}) ✓ → ${encounterCheck.encounter.theme} - ${encounterCheck.encounter.actor}`, 'mission');
+    } else {
+      const result = {
+        result: 'No Travel Encounter',
+        detail: `Rolled ${encounterCheck.checkRoll} + ${threatDie} = ${encounterCheck.total}, need 12+`,
+        checkRoll: encounterCheck.checkRoll,
+        total: encounterCheck.total,
+        success: false
+      };
+      setResult(result);
+      addLog(`Travel Encounter Check (d20:${encounterCheck.checkRoll} + Threat:${threatDie} = ${encounterCheck.total}) ✗ No encounter`, 'roll');
+    }
   };
 
   const handleGenerateRebelContact = () => {
