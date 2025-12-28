@@ -9,17 +9,83 @@
 
 export const soloOracles = {
   affirmation: {
-    "1": { result: "Extreme No", detail: "As bad as it can be", size: "Miniscule / One" },
-    "2-3": { result: "No", detail: "It's Gnarly", size: "Small / Pair" },
-    "4-5": { result: "No", detail: "Oof, What Now", size: "Handful (d4+1)" },
-    "6-7": { result: "No", detail: "Could Use a Hand", size: "Several (d6+1)" },
-    "8-9": { result: "No, but", detail: "Average", size: "Several (d6+1)" },
-    "10-11": { result: "Random Event", detail: "Average", size: "Several (d6+2)" },
-    "12-13": { result: "Yes, but", detail: "Average", size: "Several (d6+2)" },
-    "14-15": { result: "Yes", detail: "I've Seen Better", size: "Several (d6+3)" },
-    "16-17": { result: "Yes", detail: "I've Got This", size: "Patrol (d10+5)" },
-    "18-19": { result: "Yes", detail: "The Good Stuff", size: "Unit (d20+10)" },
-    "20": { result: "Extreme Yes", detail: "Top Shelf", size: "Gigantic / Too Many" }
+    "1": { 
+      result: "Extreme No", 
+      detail: "As bad as it can be", 
+      size: "Miniscule / One", 
+      weather: "Electric Storm", 
+      npcReaction: "Immediately Attack" 
+    },
+    "2-3": { 
+      result: "No", 
+      detail: "It's Gnarly", 
+      size: "Small / Pair", 
+      weather: "Ice Storm", 
+      npcReaction: "Hostile" 
+    },
+    "4-5": { 
+      result: "No", 
+      detail: "Oof, What Now", 
+      size: "Handful (d4+1)", 
+      weather: "Blowing Dust", 
+      npcReaction: "Threatening" 
+    },
+    "6-7": { 
+      result: "No", 
+      detail: "Could Use a Hand", 
+      size: "Several (d6+1)", 
+      weather: "Heavy Rain", 
+      npcReaction: "Wary" 
+    },
+    "8-9": { 
+      result: "No, but", 
+      detail: "Average", 
+      size: "Several (d6+1)", 
+      weather: "Drizzling", 
+      npcReaction: "Curious" 
+    },
+    "10-11": { 
+      result: "Random Event", 
+      detail: "Average", 
+      size: "Several (d6+2)", 
+      weather: "Foggy", 
+      npcReaction: "Indifferent" 
+    },
+    "12-13": { 
+      result: "Yes, but", 
+      detail: "Average", 
+      size: "Several (d6+2)", 
+      weather: "Overcast", 
+      npcReaction: "Indifferent" 
+    },
+    "14-15": { 
+      result: "Yes", 
+      detail: "I've Seen Better", 
+      size: "Several (d6+3)", 
+      weather: "A Bit Warm", 
+      npcReaction: "Helpful" 
+    },
+    "16-17": { 
+      result: "Yes", 
+      detail: "I've Got This", 
+      size: "Patrol (d10+5)", 
+      weather: "Sunny", 
+      npcReaction: "Helpful" 
+    },
+    "18-19": { 
+      result: "Yes", 
+      detail: "The Good Stuff", 
+      size: "Unit (d20+10)", 
+      weather: "Comfortable", 
+      npcReaction: "Generous" 
+    },
+    "20": { 
+      result: "Extreme Yes", 
+      detail: "Top Shelf", 
+      size: "Gigantic / Too Many", 
+      weather: "Chilly", 
+      npcReaction: "Willing to Betray" 
+    }
   },
   
   // Roll d20
@@ -957,15 +1023,28 @@ export function generateNPC() {
   };
 }
 
-// Generate planet
+// Generate planet - multi-roll for more permutations
 export function generatePlanet() {
+  const terrainRoll = rollDice(worldOracles.planetTerrain.length);
+  const weatherRoll = rollDice(worldOracles.planetWeather.length);
+  const colorRoll = rollDice(worldOracles.planetColor.length);
+  const populationRoll = rollDice(worldOracles.planetPopulation.length);
+  const controlRoll = rollDice(worldOracles.planetControl.length);
+  const nameRoll = rollDice(nameOracles.planetNames.length);
+  
   return {
-    terrain: rollOnTable(worldOracles.planetTerrain),
-    weather: rollOnTable(worldOracles.planetWeather),
-    color: rollOnTable(worldOracles.planetColor),
-    population: rollOnTable(worldOracles.planetPopulation),
-    control: rollOnTable(worldOracles.planetControl),
-    name: rollOnTable(nameOracles.planetNames)
+    terrainRoll,
+    weatherRoll,
+    colorRoll,
+    populationRoll,
+    controlRoll,
+    nameRoll,
+    terrain: worldOracles.planetTerrain[terrainRoll - 1],
+    weather: worldOracles.planetWeather[weatherRoll - 1],
+    color: worldOracles.planetColor[colorRoll - 1],
+    population: worldOracles.planetPopulation[populationRoll - 1],
+    control: worldOracles.planetControl[controlRoll - 1],
+    name: nameOracles.planetNames[nameRoll - 1]
   };
 }
 

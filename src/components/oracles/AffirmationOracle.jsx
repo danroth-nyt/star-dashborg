@@ -11,7 +11,7 @@ export default function AffirmationOracle() {
   const handleRoll = () => {
     const oracleResult = rollAffirmation();
     setResult(oracleResult);
-    addLog(`Oracle (${oracleResult.roll}): ${oracleResult.result} - ${oracleResult.detail}`, 'roll');
+    addLog(`Oracle (${oracleResult.roll}): ${oracleResult.result} - ${oracleResult.detail} | Size: ${oracleResult.size} | Weather: ${oracleResult.weather} | NPC: ${oracleResult.npcReaction}`, 'roll');
   };
 
   return (

@@ -59,9 +59,26 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
         {result.roll !== undefined && (
           <div className="flex items-center gap-2">
             <span className="text-gray-400 text-sm font-orbitron">ROLL:</span>
-            <span className={cn('text-2xl font-orbitron font-bold', textColors[variant], textGlowColors[variant])}>
-              [{result.roll}]
-            </span>
+            {result.rolls && result.rollMode ? (
+              <div className="flex items-center gap-2">
+                <span className={cn('text-sm font-orbitron', 
+                  result.rollMode === 'advantage' ? 'text-accent-yellow' : 'text-accent-red'
+                )}>
+                  {result.rollMode === 'advantage' ? 'ADV' : 'DIS'}
+                </span>
+                <span className="text-lg font-orbitron text-gray-500">
+                  [{result.rolls.join(', ')}]
+                </span>
+                <span className="text-gray-500">=</span>
+                <span className={cn('text-2xl font-orbitron font-bold', textColors[variant], textGlowColors[variant])}>
+                  [{result.roll}]
+                </span>
+              </div>
+            ) : (
+              <span className={cn('text-2xl font-orbitron font-bold', textColors[variant], textGlowColors[variant])}>
+                [{result.roll}]
+              </span>
+            )}
           </div>
         )}
 
@@ -80,8 +97,49 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           </div>
         )}
 
-        {/* Additional Fields */}
-        {result.detail && (
+        {/* Additional Fields - Two Column Layout for Affirmation Oracle */}
+        {result.detail && result.size && result.weather && result.npcReaction && (
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+            <div className="space-y-1">
+              <div className="text-sm font-orbitron uppercase text-gray-400">
+                DETAIL:
+              </div>
+              <div className="text-base text-text-primary terminal-text">
+                {result.detail}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-sm font-orbitron uppercase text-gray-400">
+                SIZE:
+              </div>
+              <div className="text-base text-text-primary terminal-text">
+                {result.size}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-sm font-orbitron uppercase text-gray-400">
+                WEATHER:
+              </div>
+              <div className="text-base text-text-primary terminal-text">
+                {result.weather}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-sm font-orbitron uppercase text-gray-400">
+                NPC REACTION:
+              </div>
+              <div className="text-base text-text-primary terminal-text">
+                {result.npcReaction}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Fallback for individual fields (backward compatibility) */}
+        {result.detail && !result.weather && (
           <div className="space-y-1">
             <div className="text-sm font-orbitron uppercase text-gray-400">
               DETAIL:
@@ -92,7 +150,7 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           </div>
         )}
 
-        {result.size && (
+        {result.size && !result.weather && (
           <div className="space-y-1">
             <div className="text-sm font-orbitron uppercase text-gray-400">
               SIZE:
@@ -266,28 +324,40 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">TERRAIN:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  TERRAIN{result.terrainRoll ? ` [${result.terrainRoll}]` : ''}:
+                </span>
                 <div className={cn('text-base', textColors[variant])}>{result.terrain}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">WEATHER:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  WEATHER{result.weatherRoll ? ` [${result.weatherRoll}]` : ''}:
+                </span>
                 <div className="text-base text-text-primary">{result.weather}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">COLOR:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  COLOR{result.colorRoll ? ` [${result.colorRoll}]` : ''}:
+                </span>
                 <div className="text-base text-text-primary">{result.color}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">POPULATION:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  POPULATION{result.populationRoll ? ` [${result.populationRoll}]` : ''}:
+                </span>
                 <div className="text-base text-text-primary">{result.population}</div>
               </div>
               <div className="col-span-2">
-                <span className="text-xs font-orbitron uppercase text-gray-400">CONTROL:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  CONTROL{result.controlRoll ? ` [${result.controlRoll}]` : ''}:
+                </span>
                 <div className="text-base text-text-primary">{result.control}</div>
               </div>
               {result.name && (
                 <div className="col-span-2">
-                  <span className="text-xs font-orbitron uppercase text-gray-400">NAME:</span>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    NAME{result.nameRoll ? ` [${result.nameRoll}]` : ''}:
+                  </span>
                   <div className={cn('text-lg font-bold', textColors[variant], textGlowColors[variant])}>
                     {result.name}
                   </div>
