@@ -151,9 +151,9 @@ export default function Dice({
   className 
 }) {
   const variantStyles = {
-    cyan: 'text-accent-cyan hover:shadow-[0_0_20px_rgba(0,240,255,0.6)]',
-    yellow: 'text-accent-yellow hover:shadow-[0_0_20px_rgba(255,252,0,0.6)]',
-    red: 'text-accent-red hover:shadow-[0_0_20px_rgba(255,0,60,0.6)]',
+    cyan: 'text-accent-cyan',
+    yellow: 'text-accent-yellow',
+    red: 'text-accent-red',
   };
 
   return (
