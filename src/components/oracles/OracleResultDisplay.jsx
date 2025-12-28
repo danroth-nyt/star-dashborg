@@ -149,7 +149,7 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           </div>
         )}
 
-        {/* Dangerous Location special formatting - multi-roll results */}
+        {/* Dangerous Location special formatting - multi-roll results with threat */}
         {result.ship && result.base && result.obstacle && result.search && result.shipRoll && (
           <div className="space-y-2">
             <div className="flex gap-2">
@@ -160,9 +160,20 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
               <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[120px]">BASE [{result.baseRoll}]:</span>
               <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.base}</span>
             </div>
+            
+            {/* Threat Roll */}
+            {result.threatRoll !== undefined && (
+              <div className="flex gap-2 items-center">
+                <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[120px]">THREAT [{result.threatRoll}]:</span>
+                <span className={cn('text-base font-bold', result.obstacleTriggered ? 'text-accent-red' : 'text-gray-500')}>
+                  {result.obstacleTriggered ? '⚠ OBSTACLE TRIGGERED' : 'Safe'}
+                </span>
+              </div>
+            )}
+            
             <div className="flex gap-2">
               <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[120px]">OBSTACLE [{result.obstacleRoll}]:</span>
-              <span className={cn('text-base text-accent-red font-bold terminal-text')}>{result.obstacle}</span>
+              <span className={cn('text-base font-bold terminal-text', result.obstacleTriggered ? 'text-accent-red text-glow-red' : 'text-gray-500')}>{result.obstacle}</span>
             </div>
             <div className="flex gap-2">
               <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[120px]">SEARCH [{result.searchRoll}]:</span>

@@ -966,17 +966,24 @@ export function generateTravelEncounter() {
 }
 
 // Roll dangerous location - each column rolls independently for more permutations
-export function rollDangerousLocation() {
+// Threat Die is used to determine if Obstacle is triggered (d20 + Threat >= 12)
+export function rollDangerousLocation(threatDie = 1) {
   const shipRoll = rollDice(20);
   const baseRoll = rollDice(20);
   const obstacleRoll = rollDice(20);
   const searchRoll = rollDice(20);
+  
+  // Roll d20 + Threat. On 12+, obstacle is triggered
+  const threatRoll = rollDice(20) + threatDie;
+  const obstacleTriggered = threatRoll >= 12;
   
   return {
     shipRoll,
     baseRoll,
     obstacleRoll,
     searchRoll,
+    threatRoll,
+    obstacleTriggered,
     ship: dangerousLocations.features[shipRoll - 1].ship,
     base: dangerousLocations.features[baseRoll - 1].base,
     obstacle: dangerousLocations.features[obstacleRoll - 1].obstacle,

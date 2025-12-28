@@ -224,6 +224,8 @@ function MissionsTab() {
 }
 
 function WorldTab() {
+  const { gameState } = useGame();
+  
   return (
     <div className="space-y-4">
       <div className="text-accent-cyan font-orbitron text-lg font-bold uppercase mb-4">
@@ -269,7 +271,7 @@ function WorldTab() {
           table={[]}
           variant="cyan"
           diceType="d20"
-          rollFunction={() => rollDangerousLocation()}
+          rollFunction={() => rollDangerousLocation(gameState.threatDie || 1)}
         />
       </Accordion>
     </div>
