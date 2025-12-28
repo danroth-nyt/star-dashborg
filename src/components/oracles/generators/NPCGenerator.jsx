@@ -42,29 +42,30 @@ export default function NPCGenerator() {
   return (
     <div className="space-y-4">
       {/* Main NPC Generator */}
-      <div className="space-y-2">
-        <Button onClick={handleGenerateNPC} variant="primary" className="w-full">
-          Generate Full NPC
-        </Button>
-        <div className="text-xs text-gray-400 text-center font-orbitron">
-          Role • Species • Motivation • Secret • Trait • Demeanor
-        </div>
+      <Button onClick={handleGenerateNPC} variant="primary" className="w-full text-base py-3">
+        GENERATE FULL NPC
+      </Button>
+      <div className="text-xs text-gray-400 text-center font-orbitron -mt-2">
+        Role • Species • Motivation • Secret • Trait • Demeanor
       </div>
 
-      {/* Quick Generators */}
-      <div className="grid grid-cols-2 gap-2">
-        <Button onClick={handleGenerateTravelEncounter} variant="ghost" className="text-xs py-2">
-          Travel Encounter
-        </Button>
-        <Button onClick={handleGenerateReaction} variant="ghost" className="text-xs py-2">
-          Reaction
-        </Button>
-        <Button onClick={handleGenerateRebelContact} variant="secondary" className="text-xs py-2">
-          Rebel Contact
-        </Button>
-        <Button onClick={handleGenerateWeirdoAlien} variant="secondary" className="text-xs py-2">
-          Weirdo Alien
-        </Button>
+      {/* Quick Generators - Secondary Options */}
+      <div className="pt-2 border-t border-accent-yellow/30">
+        <div className="text-xs text-gray-400 font-orbitron uppercase mb-2">Quick Generators:</div>
+        <div className="grid grid-cols-2 gap-2">
+          <Button onClick={handleGenerateTravelEncounter} variant="ghost" className="text-xs py-2">
+            Travel Encounter
+          </Button>
+          <Button onClick={handleGenerateReaction} variant="ghost" className="text-xs py-2">
+            Reaction
+          </Button>
+          <Button onClick={handleGenerateRebelContact} variant="secondary" className="text-xs py-2">
+            Rebel Contact
+          </Button>
+          <Button onClick={handleGenerateWeirdoAlien} variant="secondary" className="text-xs py-2">
+            Weirdo Alien
+          </Button>
+        </div>
       </div>
 
       {/* Result Display */}

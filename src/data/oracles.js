@@ -933,13 +933,27 @@ export function generateVillain() {
 
 // Generate NPC
 export function generateNPC() {
+  // Multi-roll - each field rolls independently for more permutations
+  const roleRoll = rollDice(npcOracles.npcRoles.length);
+  const speciesRoll = rollDice(npcOracles.npcSpecies.length);
+  const motivationRoll = rollDice(npcOracles.npcMotivations.length);
+  const secretRoll = rollDice(npcOracles.npcSecrets.length);
+  const traitRoll = rollDice(npcOracles.npcTraits.length);
+  const demeanorRoll = rollDice(npcOracles.npcDemeanor.length);
+  
   return {
-    role: rollOnTable(npcOracles.npcRoles),
-    species: rollOnTable(npcOracles.npcSpecies),
-    motivation: rollOnTable(npcOracles.npcMotivations),
-    secret: rollOnTable(npcOracles.npcSecrets),
-    trait: rollOnTable(npcOracles.npcTraits),
-    demeanor: rollOnTable(npcOracles.npcDemeanor)
+    roleRoll,
+    speciesRoll,
+    motivationRoll,
+    secretRoll,
+    traitRoll,
+    demeanorRoll,
+    role: npcOracles.npcRoles[roleRoll - 1],
+    species: npcOracles.npcSpecies[speciesRoll - 1],
+    motivation: npcOracles.npcMotivations[motivationRoll - 1],
+    secret: npcOracles.npcSecrets[secretRoll - 1],
+    trait: npcOracles.npcTraits[traitRoll - 1],
+    demeanor: npcOracles.npcDemeanor[demeanorRoll - 1]
   };
 }
 

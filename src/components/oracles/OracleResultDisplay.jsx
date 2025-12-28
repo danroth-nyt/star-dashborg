@@ -229,32 +229,32 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           </div>
         )}
 
-        {/* NPC special formatting */}
-        {result.role && (
+        {/* NPC special formatting - multi-roll */}
+        {result.role && result.roleRoll && (
           <div className="space-y-2">
             <div className="grid grid-cols-1 gap-2">
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">ROLE:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">ROLE [{result.roleRoll}]:</span>
                 <div className={cn('text-base font-bold', textColors[variant])}>{result.role}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">SPECIES:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">SPECIES [{result.speciesRoll}]:</span>
                 <div className="text-base text-text-primary">{result.species}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">MOTIVATION:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">MOTIVATION [{result.motivationRoll}]:</span>
                 <div className="text-base text-text-primary">{result.motivation}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">SECRET:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">SECRET [{result.secretRoll}]:</span>
                 <div className="text-base text-accent-yellow">{result.secret}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">TRAIT:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">TRAIT [{result.traitRoll}]:</span>
                 <div className="text-base text-text-primary">{result.trait}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">DEMEANOR:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">DEMEANOR [{result.demeanorRoll}]:</span>
                 <div className="text-base text-text-primary">{result.demeanor}</div>
               </div>
             </div>
