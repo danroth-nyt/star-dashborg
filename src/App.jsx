@@ -69,9 +69,21 @@ function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-bg-primary flex items-center justify-center">
-        <div className="text-accent-cyan text-2xl font-orbitron text-glow-cyan">
-          INITIALIZING SESSION...
+      <div className="min-h-screen bg-bg-primary flex items-center justify-center scanlines">
+        <div className="text-center space-y-4">
+          <div className="text-accent-cyan text-3xl font-orbitron text-glow-cyan typewriter">
+            INITIALIZING SESSION
+          </div>
+          <div className="flex justify-center gap-1">
+            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></span>
+            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '150ms' }}></span>
+            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></span>
+          </div>
+          <div className="text-accent-yellow/50 text-sm font-mono mt-6">
+            {'>'} Establishing secure connection...<br />
+            {'>'} Loading rebel systems...<br />
+            {'>'} Syncing mission data...
+          </div>
         </div>
       </div>
     );

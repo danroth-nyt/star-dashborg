@@ -1,0 +1,606 @@
+import { useState, useEffect } from 'react';
+import { cn } from '../../lib/utils';
+
+export default function OracleResultDisplay({ result, variant = 'cyan', className }) {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (result) {
+      setIsVisible(false);
+      setTimeout(() => setIsVisible(true), 50);
+    }
+  }, [result]);
+
+  if (!result) {
+    return null;
+  }
+
+  const borderColors = {
+    cyan: 'border-accent-cyan',
+    yellow: 'border-accent-yellow',
+    red: 'border-accent-red',
+  };
+
+  const textColors = {
+    cyan: 'text-accent-cyan',
+    yellow: 'text-accent-yellow',
+    red: 'text-accent-red',
+  };
+
+  const glowColors = {
+    cyan: 'glow-pulse-cyan',
+    yellow: 'glow-pulse-yellow',
+    red: 'glow-pulse-red',
+  };
+
+  const textGlowColors = {
+    cyan: 'text-glow-cyan',
+    yellow: 'text-glow-yellow',
+    red: 'text-glow-red',
+  };
+
+  return (
+    <div
+      className={cn(
+        'border-3 bg-bg-secondary p-4 scan-effect',
+        borderColors[variant],
+        glowColors[variant],
+        isVisible ? 'fade-in' : 'opacity-0',
+        className
+      )}
+    >
+      <div className="space-y-3">
+        {/* Header */}
+        <div className={cn('text-xs font-orbitron uppercase tracking-wider flicker', textColors[variant])}>
+          ░░░ TRANSMISSION RECEIVED ░░░
+        </div>
+
+        {/* Roll Display */}
+        {result.roll !== undefined && (
+          <div className="flex items-center gap-2">
+            <span className="text-gray-400 text-sm font-orbitron">ROLL:</span>
+            {result.rolls && result.rollMode ? (
+              <div className="flex items-center gap-2">
+                <span className={cn('text-sm font-orbitron', 
+                  result.rollMode === 'advantage' ? 'text-accent-yellow' : 'text-accent-red'
+                )}>
+                  {result.rollMode === 'advantage' ? 'ADV' : 'DIS'}
+                </span>
+                <span className="text-lg font-orbitron text-gray-500">
+                  [{result.rolls.join(', ')}]
+                </span>
+                <span className="text-gray-500">=</span>
+                <span className={cn('text-2xl font-orbitron font-bold', textColors[variant], textGlowColors[variant])}>
+                  [{result.roll}]
+                </span>
+              </div>
+            ) : (
+              <span className={cn('text-2xl font-orbitron font-bold', textColors[variant], textGlowColors[variant])}>
+                [{result.roll}]
+              </span>
+            )}
+          </div>
+        )}
+
+        {/* Divider */}
+        <div className={cn('h-px', borderColors[variant])} style={{ opacity: 0.3 }} />
+
+        {/* Main Result */}
+        {result.result && (
+          <div className="space-y-1">
+            <div className={cn('text-sm font-orbitron uppercase text-gray-400')}>
+              RESULT:
+            </div>
+            <div className={cn('text-xl font-orbitron font-bold typewriter', textColors[variant], textGlowColors[variant])}>
+              {result.result}
+            </div>
+          </div>
+        )}
+
+        {/* Additional Fields - Two Column Layout for Affirmation Oracle */}
+        {result.detail && result.size && result.weather && result.npcReaction && (
+          <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+            <div className="space-y-1">
+              <div className="text-sm font-orbitron uppercase text-gray-400">
+                DETAIL:
+              </div>
+              <div className="text-base text-text-primary terminal-text">
+                {result.detail}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-sm font-orbitron uppercase text-gray-400">
+                SIZE:
+              </div>
+              <div className="text-base text-text-primary terminal-text">
+                {result.size}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-sm font-orbitron uppercase text-gray-400">
+                WEATHER:
+              </div>
+              <div className="text-base text-text-primary terminal-text">
+                {result.weather}
+              </div>
+            </div>
+
+            <div className="space-y-1">
+              <div className="text-sm font-orbitron uppercase text-gray-400">
+                NPC REACTION:
+              </div>
+              <div className="text-base text-text-primary terminal-text">
+                {result.npcReaction}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Fallback for individual fields (backward compatibility) */}
+        {result.detail && !result.weather && (
+          <div className="space-y-1">
+            <div className="text-sm font-orbitron uppercase text-gray-400">
+              DETAIL:
+            </div>
+            <div className="text-lg text-text-primary terminal-text">
+              {result.detail}
+            </div>
+          </div>
+        )}
+
+        {result.size && !result.weather && (
+          <div className="space-y-1">
+            <div className="text-sm font-orbitron uppercase text-gray-400">
+              SIZE:
+            </div>
+            <div className="text-lg text-text-primary terminal-text">
+              {result.size}
+            </div>
+          </div>
+        )}
+
+        {/* Quick Mission special formatting */}
+        {result.action && result.target && (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                ACTION{result.actionRoll ? ` [${result.actionRoll}]` : ''}:
+              </span>
+              <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.action}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                TARGET{result.targetRoll ? ` [${result.targetRoll}]` : ''}:
+              </span>
+              <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.target}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Scene special formatting */}
+        {result.location && result.tone && result.obstacle && (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                LOCATION{result.locationRoll ? ` [${result.locationRoll}]` : ''}:
+              </span>
+              <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.location}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                TONE{result.toneRoll ? ` [${result.toneRoll}]` : ''}:
+              </span>
+              <span className={cn('text-base terminal-text', textColors[variant])}>{result.tone}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                OBSTACLE{result.obstacleRoll ? ` [${result.obstacleRoll}]` : ''}:
+              </span>
+              <span className={cn('text-base text-accent-red terminal-text')}>{result.obstacle}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Travel Encounter special formatting */}
+        {result.theme && result.actor && !result.role && (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                THEME{result.themeRoll ? ` [${result.themeRoll}]` : ''}:
+              </span>
+              <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.theme}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                ACTOR{result.actorRoll ? ` [${result.actorRoll}]` : ''}:
+              </span>
+              <span className={cn('text-base terminal-text', textColors[variant])}>{result.actor}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Dangerous Location special formatting - multi-roll results with threat */}
+        {result.ship && result.base && result.obstacle && result.search && result.shipRoll && (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[120px]">SHIP [{result.shipRoll}]:</span>
+              <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.ship}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[120px]">BASE [{result.baseRoll}]:</span>
+              <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.base}</span>
+            </div>
+            
+            {/* Threat Roll */}
+            {result.threatRoll !== undefined && (
+              <div className="flex gap-2 items-center">
+                <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[120px]">THREAT [{result.threatRoll}]:</span>
+                <span className={cn('text-base font-bold', result.obstacleTriggered ? 'text-accent-red' : 'text-gray-500')}>
+                  {result.obstacleTriggered ? '⚠ OBSTACLE TRIGGERED' : 'Safe'}
+                </span>
+              </div>
+            )}
+            
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[120px]">OBSTACLE [{result.obstacleRoll}]:</span>
+              <span className={cn('text-base font-bold terminal-text', result.obstacleTriggered ? 'text-accent-red text-glow-red' : 'text-gray-500')}>{result.obstacle}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[120px]">SEARCH [{result.searchRoll}]:</span>
+              <span className={cn('text-base text-accent-yellow terminal-text')}>{result.search}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Complex result rendering for compound generators (Detailed Mission) */}
+        {result.type && result.typeRoll && (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                TYPE [{result.typeRoll}]:
+              </span>
+              <span className={cn('text-base terminal-text font-bold', textColors[variant])}>
+                {result.type}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                GOODS [{result.goodsRoll}]:
+              </span>
+              <span className={cn('text-base terminal-text', textColors[variant])}>
+                {result.goods}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                SPOT [{result.spotRoll}]:
+              </span>
+              <span className={cn('text-base terminal-text', textColors[variant])}>
+                {result.spot}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                REWARD [{result.rewardRoll}]:
+              </span>
+              <span className={cn('text-base terminal-text text-accent-yellow')}>
+                {result.reward}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Fallback for old-style mission results without roll numbers */}
+        {result.type && !result.typeRoll && (
+          <div className="space-y-2">
+            {Object.entries(result).map(([key, value]) => {
+              if (key === 'roll') return null;
+              return (
+                <div key={key} className="flex gap-2">
+                  <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                    {key}:
+                  </span>
+                  <span className={cn('text-base terminal-text', textColors[variant])}>
+                    {value}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        )}
+
+        {/* Event oracle special formatting - multi-roll */}
+        {result.verb && result.verbRoll && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">VERB [{result.verbRoll}]:</span>
+                <div className={cn('text-base font-bold', textColors[variant])}>{result.verb}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">SUBJECT [{result.subjectRoll}]:</span>
+                <div className={cn('text-base font-bold', textColors[variant])}>{result.subject}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">DESC [{result.descRoll}]:</span>
+                <div className="text-base text-text-primary">{result.description}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">ACTIVITY [{result.activityRoll}]:</span>
+                <div className="text-base text-text-primary">{result.activity}</div>
+              </div>
+              <div className="col-span-2">
+                <span className="text-xs font-orbitron uppercase text-gray-400">OMEN [{result.omenRoll}]:</span>
+                <div className="text-base text-text-primary">{result.omen}</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* NPC special formatting - multi-roll */}
+        {result.role && result.roleRoll && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-2">
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">ROLE [{result.roleRoll}]:</span>
+                <div className={cn('text-base font-bold', textColors[variant])}>{result.role}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">SPECIES [{result.speciesRoll}]:</span>
+                <div className="text-base text-text-primary">{result.species}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">MOTIVATION [{result.motivationRoll}]:</span>
+                <div className="text-base text-text-primary">{result.motivation}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">SECRET [{result.secretRoll}]:</span>
+                <div className="text-base text-accent-yellow">{result.secret}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">TRAIT [{result.traitRoll}]:</span>
+                <div className="text-base text-text-primary">{result.trait}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">DEMEANOR [{result.demeanorRoll}]:</span>
+                <div className="text-base text-text-primary">{result.demeanor}</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Planet special formatting */}
+        {result.terrain && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  TERRAIN{result.terrainRoll ? ` [${result.terrainRoll}]` : ''}:
+                </span>
+                <div className={cn('text-base', textColors[variant])}>{result.terrain}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  WEATHER{result.weatherRoll ? ` [${result.weatherRoll}]` : ''}:
+                </span>
+                <div className="text-base text-text-primary">{result.weather}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  COLOR{result.colorRoll ? ` [${result.colorRoll}]` : ''}:
+                </span>
+                <div className="text-base text-text-primary">{result.color}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  POPULATION{result.populationRoll ? ` [${result.populationRoll}]` : ''}:
+                </span>
+                <div className="text-base text-text-primary">{result.population}</div>
+              </div>
+              <div className="col-span-2">
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  CONTROL{result.controlRoll ? ` [${result.controlRoll}]` : ''}:
+                </span>
+                <div className="text-base text-text-primary">{result.control}</div>
+              </div>
+              {result.name && (
+                <div className="col-span-2">
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    NAME{result.nameRoll ? ` [${result.nameRoll}]` : ''}:
+                  </span>
+                  <div className={cn('text-lg font-bold', textColors[variant], textGlowColors[variant])}>
+                    {result.name}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Settlement special formatting */}
+        {result.appearance && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-2">
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  APPEARANCE{result.appearanceRoll ? ` [${result.appearanceRoll}]` : ''}:
+                </span>
+                <div className={cn('text-base', textColors[variant])}>{result.appearance}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  KNOWN FOR{result.knownForRoll ? ` [${result.knownForRoll}]` : ''}:
+                </span>
+                <div className="text-base text-text-primary">{result.knownFor}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  STATE{result.currentStateRoll ? ` [${result.currentStateRoll}]` : ''}:
+                </span>
+                <div className="text-base text-text-primary">{result.currentState}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  COMPLICATION{result.complicationRoll ? ` [${result.complicationRoll}]` : ''}:
+                </span>
+                <div className="text-base text-accent-red">{result.complication}</div>
+              </div>
+              {result.name && (
+                <div>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    NAME{result.nameRoll ? ` [${result.nameRoll}]` : ''}:
+                  </span>
+                  <div className={cn('text-lg font-bold', textColors[variant], textGlowColors[variant])}>
+                    {result.name}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Villain special formatting */}
+        {result.villain && !result.visage && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div className="col-span-2">
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  VILLAIN{result.villainRoll ? ` [${result.villainRoll}]` : ''}:
+                </span>
+                <div className={cn('text-lg font-bold', textColors[variant], textGlowColors[variant])}>
+                  {result.villain}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  GOAL{result.goalRoll ? ` [${result.goalRoll}]` : ''}:
+                </span>
+                <div className="text-base text-text-primary">{result.goal}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  PLAN{result.planRoll ? ` [${result.planRoll}]` : ''}:
+                </span>
+                <div className="text-base text-text-primary">{result.plan}</div>
+              </div>
+              <div className="col-span-2">
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  MEANS{result.meansRoll ? ` [${result.meansRoll}]` : ''}:
+                </span>
+                <div className="text-base text-text-primary">{result.means}</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Crime Lord special formatting - multi-roll */}
+        {result.visage && result.visageRoll && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-1 gap-2">
+              {result.name && (
+                <div>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">NAME [{result.nameRoll}]:</span>
+                  <div className={cn('text-lg font-bold', textColors[variant], textGlowColors[variant])}>{result.name}</div>
+                </div>
+              )}
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">VISAGE [{result.visageRoll}]:</span>
+                <div className="text-base text-text-primary">{result.visage}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">WEAPON [{result.weaponRoll}]:</span>
+                <div className="text-base text-accent-red">{result.weapon}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">BASE [{result.baseRoll}]:</span>
+                <div className="text-base text-text-primary">{result.base}</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Monster special formatting - multi-roll */}
+        {result.beast && result.monstrosity && result.weakSpot && result.beastRoll && (
+          <div className="space-y-2">
+            {result.name && (
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">MONSTER NAME:</span>
+                <div className={cn('text-lg font-bold', textColors[variant], textGlowColors[variant])}>{result.name}</div>
+              </div>
+            )}
+            <div>
+              <span className="text-xs font-orbitron uppercase text-gray-400">BEAST ADAPTATION [d6: {result.beastRoll}]:</span>
+              <div className="text-base text-text-primary">{result.beast}</div>
+            </div>
+            <div>
+              <span className="text-xs font-orbitron uppercase text-gray-400">MONSTROSITY [d6: {result.monstrosityRoll}]:</span>
+              <div className="text-base text-text-primary">{result.monstrosity}</div>
+            </div>
+            <div>
+              <span className="text-xs font-orbitron uppercase text-gray-400">WEAK SPOT [d6: {result.weakSpotRoll}]:</span>
+              <div className="text-base text-accent-yellow">{result.weakSpot}</div>
+            </div>
+          </div>
+        )}
+
+        {/* Title Generator special formatting - 4 column rolls */}
+        {result.titleType && result.col1 && result.col2 && result.col3 && result.col4 && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-4 gap-2">
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  [{result.col1Roll}]
+                </span>
+                <div className={cn('text-base font-bold', textColors[variant])}>
+                  {result.col1}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  [{result.col2Roll}]
+                </span>
+                <div className={cn('text-base font-bold', textColors[variant])}>
+                  {result.col2}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  [{result.col3Roll}]
+                </span>
+                <div className={cn('text-base font-bold', textColors[variant])}>
+                  {result.col3}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  [{result.col4Roll}]
+                </span>
+                <div className={cn('text-base font-bold', textColors[variant])}>
+                  {result.col4}
+                </div>
+              </div>
+            </div>
+            
+            {/* Full Title Display */}
+            <div className="pt-2 border-t border-accent-cyan/30">
+              <span className="text-xs font-orbitron uppercase text-gray-400">FULL TITLE:</span>
+              <div className={cn('text-xl font-bold', textColors[variant], textGlowColors[variant])}>
+                {result.col1} {result.col2} {result.col3} {result.col4}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Simple string result */}
+        {typeof result === 'string' && (
+          <div className={cn('text-lg terminal-text', textColors[variant])}>
+            {result}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+

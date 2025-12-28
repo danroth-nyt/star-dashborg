@@ -7,9 +7,14 @@ export default function MissionTrack() {
   const { gameState, updateGameState, addLog } = useGame();
   const [newMissionTitle, setNewMissionTitle] = useState('');
   const [newMissionLength, setNewMissionLength] = useState(6);
+  const [showError, setShowError] = useState(false);
 
   const addMission = () => {
-    if (!newMissionTitle.trim()) return;
+    if (!newMissionTitle.trim()) {
+      setShowError(true);
+      setTimeout(() => setShowError(false), 400);
+      return;
+    }
 
     const newMission = {
       id: Date.now().toString(),
@@ -27,13 +32,13 @@ export default function MissionTrack() {
   };
 
   const updateProgress = (missionId, progress) => {
+    const mission = gameState.missions.find((m) => m.id === missionId);
     const updatedMissions = gameState.missions.map((mission) =>
       mission.id === missionId ? { ...mission, progress } : mission
     );
 
     updateGameState({ missions: updatedMissions });
 
-    const mission = gameState.missions.find((m) => m.id === missionId);
     if (progress === mission.length) {
       addLog(`Mission completed: ${mission.title}`, 'success');
     }
@@ -53,17 +58,19 @@ export default function MissionTrack() {
       <div className="space-y-2">
         <input
           type="text"
-          placeholder="Mission Title"
+          placeholder="Enter mission objective..."
           value={newMissionTitle}
           onChange={(e) => setNewMissionTitle(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && addMission()}
-          className="w-full px-3 py-2 bg-bg-primary border-2 border-accent-cyan text-text-primary focus:outline-none focus:border-accent-yellow font-orbitron"
+          className={`w-full px-3 py-2 bg-bg-primary border-2 border-accent-cyan text-text-primary focus:outline-none focus:border-accent-yellow focus:shadow-[0_0_15px_rgba(255,252,0,0.4)] transition-all duration-300 font-orbitron ${
+            showError ? 'input-shake border-accent-red' : ''
+          }`}
         />
         <div className="flex gap-2">
           <select
             value={newMissionLength}
             onChange={(e) => setNewMissionLength(Number(e.target.value))}
-            className="flex-1 px-3 py-2 bg-bg-primary border-2 border-accent-cyan text-text-primary focus:outline-none focus:border-accent-yellow font-orbitron"
+            className="flex-1 px-3 py-2 bg-bg-primary border-2 border-accent-cyan text-text-primary focus:outline-none focus:border-accent-yellow focus:shadow-[0_0_15px_rgba(255,252,0,0.4)] transition-all duration-300 font-orbitron"
           >
             <option value={4}>4 Steps</option>
             <option value={6}>6 Steps</option>
@@ -80,7 +87,11 @@ export default function MissionTrack() {
       {/* Mission List */}
       <div className="space-y-3">
         {gameState.missions.length === 0 ? (
-          <p className="text-gray-500 text-center italic">No active missions</p>
+          <div className="text-center py-8 space-y-2">
+            <div className="text-accent-cyan/30 text-4xl mb-2">★</div>
+            <p className="text-gray-500 font-orbitron text-sm">NO ACTIVE MISSIONS</p>
+            <p className="text-gray-600 text-xs">Add a mission to track your progress</p>
+          </div>
         ) : (
           gameState.missions.map((mission) => (
             <div key={mission.id} className="bg-bg-primary p-3 border-2 border-accent-cyan">
@@ -100,10 +111,12 @@ export default function MissionTrack() {
                   <button
                     key={i}
                     onClick={() => updateProgress(mission.id, i + 1)}
-                    className={`flex-1 h-6 border-2 transition-all ${
+                    className={`flex-1 h-6 border-2 transition-all duration-200 ${
                       i < mission.progress
-                        ? 'bg-accent-cyan border-accent-cyan'
-                        : 'bg-transparent border-accent-cyan hover:bg-accent-cyan hover:bg-opacity-30'
+                        ? 'bg-accent-cyan border-accent-cyan segment-fill'
+                        : 'bg-transparent border-accent-cyan hover:bg-accent-cyan hover:bg-opacity-30 hover:scale-105'
+                    } ${i === mission.progress - 1 ? 'ripple' : ''} ${
+                      mission.progress === mission.length && i === mission.length - 1 ? 'completion-bounce' : ''
                     }`}
                   />
                 ))}
