@@ -1,5 +1,5 @@
 import { useGame } from '../../context/GameContext';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 // Dice icon components
 const diceIcons = {
@@ -49,12 +49,20 @@ const diceIcons = {
 export default function DiceLog() {
   const { gameState } = useGame();
   const logContainerRef = useRef(null);
+  const [latestLogId, setLatestLogId] = useState(null);
 
   useEffect(() => {
     if (logContainerRef.current) {
       logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
     }
-  }, [gameState.log]);
+    // Track latest entry for animation
+    if (gameState.log.length > 0) {
+      const latest = gameState.log[gameState.log.length - 1];
+      if (latest.id !== latestLogId) {
+        setLatestLogId(latest.id);
+      }
+    }
+  }, [gameState.log, latestLogId]);
 
   const getLogColor = (type) => {
     switch (type) {
@@ -129,36 +137,61 @@ export default function DiceLog() {
   return (
     <div ref={logContainerRef} className="h-full overflow-y-auto space-y-2 font-mono text-sm">
       {gameState.log.length === 0 ? (
-        <p className="text-gray-500 text-center italic">No activity yet...</p>
+        <div className="h-full flex items-center justify-center">
+          <div className="text-center space-y-2">
+            <div className="text-accent-cyan/20 text-3xl font-mono">
+              [ ]<br />
+              {'>'}_
+            </div>
+            <p className="text-gray-500 font-orbitron text-sm">SHIP LOG EMPTY</p>
+            <p className="text-gray-600 text-xs">Activity will appear here</p>
+          </div>
+        </div>
       ) : (
-        gameState.log.slice().reverse().map((entry) => (
-          <div 
-            key={entry.id} 
-            className="border-l-2 border-accent-cyan/50 pl-3 py-1 hover:border-accent-cyan hover:bg-bg-secondary/30 transition-all slide-up"
-          >
-            <div className="flex items-start gap-2">
-              {/* Icon */}
-              <span className={`${getLogColor(entry.type)} mt-0.5 flex-shrink-0`}>
-                {getLogIcon(entry.type, entry.message)}
-              </span>
-              
-              <div className="flex-1 min-w-0">
-                {/* Timestamp */}
-                <span className="text-accent-cyan/60 text-xs mr-2">
-                  {formatTimestamp(entry.timestamp)}
+        gameState.log.slice().reverse().map((entry, index) => {
+          const isLatest = entry.id === latestLogId && index === 0;
+          const prevEntry = index < gameState.log.length - 1 ? gameState.log.slice().reverse()[index + 1] : null;
+          const isSameTypeAsPrev = prevEntry && prevEntry.type === entry.type;
+
+          return (
+            <div 
+              key={entry.id} 
+              className={`border-l-2 pl-3 py-1 hover:border-accent-cyan hover:bg-bg-secondary/30 transition-all duration-200 ${
+                isLatest ? 'log-entry-slide new-entry-pulse' : 'slide-up'
+              } ${
+                isSameTypeAsPrev ? 'border-accent-cyan/30' : 'border-accent-cyan/50 mt-1'
+              }`}
+            >
+              <div className="flex items-start gap-2">
+                {/* Icon */}
+                <span className={`${getLogColor(entry.type)} mt-0.5 flex-shrink-0`}>
+                  {getLogIcon(entry.type, entry.message)}
                 </span>
                 
-                {/* Message */}
-                <span 
-                  className={getLogColor(entry.type)}
-                  dangerouslySetInnerHTML={{ 
-                    __html: entry.type === 'roll' ? formatRollMessage(entry.message) : entry.message 
-                  }}
-                />
+                <div className="flex-1 min-w-0">
+                  {/* Timestamp - color coded by type */}
+                  <span className={`text-xs mr-2 ${
+                    entry.type === 'threat' ? 'text-accent-red/60' :
+                    entry.type === 'danger' ? 'text-accent-red/60' :
+                    entry.type === 'success' ? 'text-accent-cyan/60' :
+                    entry.type === 'mission' ? 'text-accent-yellow/60' :
+                    'text-accent-cyan/60'
+                  }`}>
+                    {formatTimestamp(entry.timestamp)}
+                  </span>
+                  
+                  {/* Message */}
+                  <span 
+                    className={getLogColor(entry.type)}
+                    dangerouslySetInnerHTML={{ 
+                      __html: entry.type === 'roll' ? formatRollMessage(entry.message) : entry.message 
+                    }}
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ))
+          );
+        })
       )}
     </div>
   );

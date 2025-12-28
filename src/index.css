@@ -19,6 +19,22 @@ body {
   color: var(--color-text-primary);
   margin: 0;
   min-height: 100vh;
+  /* Subtle texture/noise for CRT effect */
+  background-image: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 0, 0, 0.03) 2px,
+      rgba(0, 0, 0, 0.03) 4px
+    );
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -49,30 +65,30 @@ h1, h2, h3, h4, h5, h6 {
     z-index: 1000;
   }
 
-  /* Glow effect for accent colors */
+  /* Glow effect for accent colors - enhanced */
   .glow-yellow {
-    box-shadow: 0 0 10px rgba(255, 252, 0, 0.5);
+    box-shadow: 0 0 12px rgba(255, 252, 0, 0.6), 0 0 24px rgba(255, 252, 0, 0.3);
   }
 
   .glow-cyan {
-    box-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.6), 0 0 24px rgba(0, 240, 255, 0.3);
   }
 
   .glow-red {
-    box-shadow: 0 0 10px rgba(255, 0, 60, 0.5);
+    box-shadow: 0 0 12px rgba(255, 0, 60, 0.6), 0 0 24px rgba(255, 0, 60, 0.3);
   }
 
-  /* Text glow */
+  /* Text glow - enhanced */
   .text-glow-yellow {
-    text-shadow: 0 0 10px rgba(255, 252, 0, 0.8);
+    text-shadow: 0 0 10px rgba(255, 252, 0, 0.9), 0 0 20px rgba(255, 252, 0, 0.5);
   }
 
   .text-glow-cyan {
-    text-shadow: 0 0 10px rgba(0, 240, 255, 0.8);
+    text-shadow: 0 0 10px rgba(0, 240, 255, 0.9), 0 0 20px rgba(0, 240, 255, 0.5);
   }
 
   .text-glow-red {
-    text-shadow: 0 0 10px rgba(255, 0, 60, 0.8);
+    text-shadow: 0 0 10px rgba(255, 0, 60, 0.9), 0 0 20px rgba(255, 0, 60, 0.5);
   }
 
   /* Typewriter animation */
@@ -265,16 +281,131 @@ h1, h2, h3, h4, h5, h6 {
     animation: glitch 0.3s ease-in-out;
   }
 
-  /* Dice rolling animations */
-  @keyframes dice-spin {
+  /* Threat Die animations */
+  @keyframes threat-cycle {
     0% {
       transform: rotate(0deg) scale(1);
     }
     50% {
-      transform: rotate(180deg) scale(1.1);
+      transform: rotate(180deg) scale(1.15);
     }
     100% {
       transform: rotate(360deg) scale(1);
+    }
+  }
+
+  .threat-cycle {
+    animation: threat-cycle 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  @keyframes number-flip {
+    0% {
+      transform: rotateX(0deg);
+      opacity: 1;
+    }
+    50% {
+      transform: rotateX(90deg);
+      opacity: 0;
+    }
+    51% {
+      transform: rotateX(-90deg);
+      opacity: 0;
+    }
+    100% {
+      transform: rotateX(0deg);
+      opacity: 1;
+    }
+  }
+
+  .number-flip {
+    animation: number-flip 0.4s ease-out;
+  }
+
+  /* Ripple effect for track segments */
+  @keyframes ripple {
+    0% {
+      transform: scale(0.95);
+      opacity: 0.8;
+    }
+    50% {
+      transform: scale(1.05);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .ripple {
+    animation: ripple 0.3s ease-out;
+  }
+
+  /* Segment fill sweep */
+  @keyframes segment-fill {
+    0% {
+      transform: scaleX(0);
+      transform-origin: left;
+    }
+    100% {
+      transform: scaleX(1);
+      transform-origin: left;
+    }
+  }
+
+  .segment-fill {
+    animation: segment-fill 0.3s ease-out;
+  }
+
+  /* Completion bounce */
+  @keyframes completion-bounce {
+    0%, 100% {
+      transform: scale(1);
+    }
+    25% {
+      transform: scale(1.05);
+    }
+    75% {
+      transform: scale(0.98);
+    }
+  }
+
+  .completion-bounce {
+    animation: completion-bounce 0.4s ease-out;
+  }
+
+  /* Accordion content reveal */
+  @keyframes accordion-reveal {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .accordion-reveal {
+    animation: accordion-reveal 0.25s ease-out;
+  }
+
+  /* Dice rolling animations */
+  @keyframes dice-spin {
+    0% {
+      transform: rotate(0deg) scale(1) rotateY(0deg);
+    }
+    25% {
+      transform: rotate(90deg) scale(1.08) rotateY(90deg);
+    }
+    50% {
+      transform: rotate(180deg) scale(1.15) rotateY(180deg);
+    }
+    75% {
+      transform: rotate(270deg) scale(1.08) rotateY(270deg);
+    }
+    100% {
+      transform: rotate(360deg) scale(1) rotateY(360deg);
     }
   }
 
@@ -296,6 +427,189 @@ h1, h2, h3, h4, h5, h6 {
 
   .dice-idle {
     animation: dice-tumble 3s ease-in-out infinite;
+  }
+
+  /* D100 digit reveal */
+  @keyframes digit-reveal {
+    0% {
+      opacity: 0;
+      transform: translateY(-20px) scale(0.5);
+    }
+    60% {
+      transform: translateY(0) scale(1.1);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  .digit-reveal-1 {
+    animation: digit-reveal 0.3s ease-out;
+  }
+
+  .digit-reveal-2 {
+    animation: digit-reveal 0.3s ease-out 0.1s backwards;
+  }
+
+  .digit-reveal-3 {
+    animation: digit-reveal 0.3s ease-out 0.2s backwards;
+  }
+
+  /* Screen flash for crit/fumble */
+  @keyframes screen-flash-yellow {
+    0%, 100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 0.15;
+    }
+  }
+
+  @keyframes screen-flash-red {
+    0%, 100% {
+      opacity: 0;
+    }
+    50% {
+      opacity: 0.12;
+    }
+  }
+
+  .screen-flash-yellow {
+    animation: screen-flash-yellow 0.4s ease-out;
+  }
+
+  .screen-flash-red {
+    animation: screen-flash-red 0.4s ease-out;
+  }
+
+  /* Recent roll slide in */
+  @keyframes slide-in-recent {
+    from {
+      opacity: 0;
+      transform: translateX(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .slide-in-recent {
+    animation: slide-in-recent 0.3s ease-out;
+  }
+
+  /* Input focus glow */
+  @keyframes input-focus-glow {
+    0% {
+      box-shadow: 0 0 0 0 currentColor;
+    }
+    100% {
+      box-shadow: 0 0 15px 2px currentColor;
+    }
+  }
+
+  /* Input shake for validation */
+  @keyframes input-shake {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    25% {
+      transform: translateX(-8px);
+    }
+    75% {
+      transform: translateX(8px);
+    }
+  }
+
+  .input-shake {
+    animation: input-shake 0.3s ease-out;
+  }
+
+  /* Log entry slide from right */
+  @keyframes log-entry-slide {
+    from {
+      opacity: 0;
+      transform: translateX(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .log-entry-slide {
+    animation: log-entry-slide 0.4s ease-out;
+  }
+
+  /* New entry pulse */
+  @keyframes new-entry-pulse {
+    0%, 100% {
+      background-color: transparent;
+    }
+    50% {
+      background-color: rgba(0, 240, 255, 0.1);
+    }
+  }
+
+  .new-entry-pulse {
+    animation: new-entry-pulse 1s ease-out;
+  }
+
+  /* Scroll shadows - always visible when scrollable */
+  .overflow-auto .scroll-shadow-top {
+    opacity: 0;
+  }
+
+  .overflow-auto .scroll-shadow-bottom {
+    opacity: 0;
+  }
+
+  /* Show top shadow when scrolled down */
+  .overflow-auto[data-scrolled="true"] .scroll-shadow-top {
+    opacity: 0.8 !important;
+  }
+
+  /* Show bottom shadow when more content below */
+  .overflow-auto[data-has-more="true"] .scroll-shadow-bottom {
+    opacity: 0.8 !important;
+  }
+
+  /* Enhance on hover */
+  .overflow-auto:hover .scroll-shadow-top {
+    opacity: 0.9 !important;
+  }
+
+  .overflow-auto:hover .scroll-shadow-bottom {
+    opacity: 0.9 !important;
+  }
+
+  /* Subtle border flicker effect */
+  @keyframes border-flicker {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.92;
+    }
+  }
+
+  .border-flicker {
+    animation: border-flicker 3s ease-in-out infinite;
+  }
+
+  /* Global transition timing for consistency */
+  * {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Enhance panel backgrounds with subtle gradients */
+  .bg-bg-secondary {
+    background: linear-gradient(135deg, #1a1a1a 0%, #161616 100%);
+  }
+
+  .bg-bg-primary {
+    background: linear-gradient(135deg, #0a0a0a 0%, #080808 100%);
   }
 
   /* Result reveal animation */

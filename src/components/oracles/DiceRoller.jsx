@@ -161,8 +161,8 @@ export default function DiceRoller() {
             <div className="flex gap-1">
               {recentRolls.map((roll, idx) => (
                 <span
-                  key={idx}
-                  className="text-accent-cyan font-mono font-bold text-xs"
+                  key={`${roll.label}-${roll.result}-${idx}`}
+                  className="text-accent-cyan font-mono font-bold text-xs slide-in-recent"
                 >
                   {roll.label.replace('D', '')}:{roll.result}
                   {idx < recentRolls.length - 1 && (

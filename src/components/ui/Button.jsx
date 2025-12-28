@@ -8,13 +8,13 @@ export default function Button({
   disabled,
   ...props 
 }) {
-  const baseStyles = 'px-4 py-2 font-orbitron font-bold uppercase text-sm border-3 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseStyles = 'px-4 py-2 font-orbitron font-bold uppercase text-sm border-3 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] active:shadow-inner';
   
   const variants = {
-    primary: 'bg-accent-cyan text-bg-primary border-accent-cyan hover:bg-transparent hover:text-accent-cyan glow-cyan',
-    secondary: 'bg-accent-yellow text-bg-primary border-accent-yellow hover:bg-transparent hover:text-accent-yellow glow-yellow',
-    danger: 'bg-accent-red text-bg-primary border-accent-red hover:bg-transparent hover:text-accent-red glow-red',
-    ghost: 'bg-transparent text-accent-cyan border-accent-cyan hover:bg-accent-cyan hover:text-bg-primary',
+    primary: 'bg-accent-cyan text-bg-primary border-accent-cyan hover:bg-transparent hover:text-accent-cyan glow-cyan hover:shadow-[0_0_15px_rgba(0,240,255,0.6)]',
+    secondary: 'bg-accent-yellow text-bg-primary border-accent-yellow hover:bg-transparent hover:text-accent-yellow glow-yellow hover:shadow-[0_0_15px_rgba(255,252,0,0.6)]',
+    danger: 'bg-accent-red text-bg-primary border-accent-red hover:bg-transparent hover:text-accent-red glow-red hover:shadow-[0_0_15px_rgba(255,0,60,0.6)]',
+    ghost: 'bg-transparent text-accent-cyan border-accent-cyan hover:bg-accent-cyan hover:text-bg-primary hover:shadow-[0_0_15px_rgba(0,240,255,0.6)]',
   };
 
   return (

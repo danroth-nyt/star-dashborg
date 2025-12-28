@@ -2,10 +2,23 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ChevronRight, Play, Dice6, Target, Clock, Scroll, Map, Zap, CheckCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
-import Button from '../ui/Button';
 
 export default function GameFlowDrawer({ isOpen, onClose }) {
   const [expandedStep, setExpandedStep] = useState(null);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!isOpen) return;
+      
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   const gameFlowSteps = [
     {
@@ -271,7 +284,7 @@ function StepCard({ step, isExpanded, onToggle }) {
       <button
         onClick={onToggle}
         className={cn(
-          'w-full p-3 flex items-center justify-between hover:bg-opacity-10 transition-colors',
+          'w-full p-3 flex items-center justify-between hover:bg-opacity-10 transition-all duration-200 active:scale-[0.99]',
           `hover:${colors.bg}`
         )}
       >
@@ -292,7 +305,7 @@ function StepCard({ step, isExpanded, onToggle }) {
         </div>
         <ChevronRight
           className={cn(
-            'w-5 h-5 transition-transform',
+            'w-5 h-5 transition-all duration-300',
             colors.text,
             isExpanded && 'rotate-90'
           )}
@@ -301,7 +314,7 @@ function StepCard({ step, isExpanded, onToggle }) {
 
       {/* Expanded Content */}
       {isExpanded && (
-        <div className={cn('border-t-2 p-4 space-y-3 fade-in', colors.border)}>
+        <div className={cn('border-t-2 p-4 space-y-3 accordion-reveal overflow-hidden', colors.border)}>
           <p className="text-gray-300 text-sm leading-relaxed">
             {step.description}
           </p>
@@ -309,18 +322,19 @@ function StepCard({ step, isExpanded, onToggle }) {
           {step.actions && step.actions.length > 0 && (
             <div className="space-y-2">
               <div className="text-xs font-orbitron uppercase text-gray-400 mb-2">
-                Quick Actions:
+                Quick Actions (Coming Soon):
               </div>
               <div className="grid grid-cols-1 gap-2">
                 {step.actions.map((action, idx) => (
                   <button
                     key={idx}
+                    disabled
                     className={cn(
                       'px-3 py-2 text-xs font-orbitron uppercase border-2 transition-all text-left',
                       colors.border,
                       colors.text,
-                      `hover:${colors.bg}`,
-                      'hover:text-bg-primary'
+                      'opacity-50 cursor-not-allowed',
+                      'hover:opacity-60'
                     )}
                   >
                     {action.label}

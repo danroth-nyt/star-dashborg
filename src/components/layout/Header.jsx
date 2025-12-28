@@ -23,7 +23,7 @@ export default function Header({ roomCode }) {
 
   return (
     <>
-      <header className="border-b-3 border-accent-yellow bg-bg-secondary p-4">
+      <header className="border-b-3 border-accent-yellow bg-bg-secondary p-4 border-flicker">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>

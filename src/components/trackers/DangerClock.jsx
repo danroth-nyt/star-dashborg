@@ -7,9 +7,14 @@ export default function DangerClock() {
   const { gameState, updateGameState, addLog } = useGame();
   const [newClockTitle, setNewClockTitle] = useState('');
   const [newClockSegments, setNewClockSegments] = useState(6);
+  const [showError, setShowError] = useState(false);
 
   const addClock = () => {
-    if (!newClockTitle.trim()) return;
+    if (!newClockTitle.trim()) {
+      setShowError(true);
+      setTimeout(() => setShowError(false), 400);
+      return;
+    }
 
     const newClock = {
       id: Date.now().toString(),
@@ -53,17 +58,19 @@ export default function DangerClock() {
       <div className="space-y-2">
         <input
           type="text"
-          placeholder="Danger Clock Title"
+          placeholder="Enter looming threat..."
           value={newClockTitle}
           onChange={(e) => setNewClockTitle(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && addClock()}
-          className="w-full px-3 py-2 bg-bg-primary border-2 border-accent-red text-text-primary focus:outline-none focus:border-accent-yellow font-orbitron"
+          className={`w-full px-3 py-2 bg-bg-primary border-2 border-accent-red text-text-primary focus:outline-none focus:border-accent-yellow focus:shadow-[0_0_15px_rgba(255,252,0,0.4)] transition-all duration-300 font-orbitron ${
+            showError ? 'input-shake border-accent-red' : ''
+          }`}
         />
         <div className="flex gap-2">
           <select
             value={newClockSegments}
             onChange={(e) => setNewClockSegments(Number(e.target.value))}
-            className="flex-1 px-3 py-2 bg-bg-primary border-2 border-accent-red text-text-primary focus:outline-none focus:border-accent-yellow font-orbitron"
+            className="flex-1 px-3 py-2 bg-bg-primary border-2 border-accent-red text-text-primary focus:outline-none focus:border-accent-yellow focus:shadow-[0_0_15px_rgba(255,252,0,0.4)] transition-all duration-300 font-orbitron"
           >
             <option value={4}>4 Segments</option>
             <option value={6}>6 Segments</option>
@@ -79,7 +86,11 @@ export default function DangerClock() {
       {/* Clock List */}
       <div className="space-y-3">
         {gameState.dangerClocks.length === 0 ? (
-          <p className="text-gray-500 text-center italic">No danger clocks</p>
+          <div className="text-center py-8 space-y-2">
+            <div className="text-accent-red/30 text-4xl mb-2">⚠</div>
+            <p className="text-gray-500 font-orbitron text-sm">NO DANGER CLOCKS</p>
+            <p className="text-gray-600 text-xs">Track looming threats and countdowns</p>
+          </div>
         ) : (
           gameState.dangerClocks.map((clock) => (
             <div key={clock.id} className="bg-bg-primary p-3 border-2 border-accent-red">
@@ -120,14 +131,19 @@ export default function DangerClock() {
                         fill="none"
                         stroke={isFilled ? '#ff003c' : '#333'}
                         strokeWidth="10"
-                        className="cursor-pointer hover:opacity-80 transition-opacity"
+                        className="cursor-pointer hover:opacity-80 transition-all duration-200 hover:stroke-[#ff003c]"
+                        style={{
+                          transition: 'stroke 0.3s ease-out',
+                        }}
                         onClick={() => updateClock(clock.id, i + 1)}
                       />
                     );
                   })}
                 </svg>
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="font-orbitron font-bold text-accent-red text-xl">
+                  <span className={`font-orbitron font-bold text-accent-red text-xl transition-all ${
+                    clock.filled === clock.segments ? 'completion-bounce text-glow-red' : ''
+                  }`}>
                     {clock.filled}/{clock.segments}
                   </span>
                 </div>

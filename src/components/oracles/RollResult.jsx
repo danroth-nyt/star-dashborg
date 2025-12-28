@@ -4,12 +4,14 @@ import { cn } from '../../lib/utils';
 export default function RollResult({ result, diceType, sides, rolls, rollMode, onComplete }) {
   const [isRevealing, setIsRevealing] = useState(true);
   const [showEffect, setShowEffect] = useState(false);
+  const [showFlash, setShowFlash] = useState(false);
 
   const isCrit = sides === 20 && result === 20;
   const isFumble = sides === 20 && result === 1;
   const isHigh = result > sides * 0.75;
   const isLow = result <= sides * 0.25;
   const hasAdvDis = rollMode === 'advantage' || rollMode === 'disadvantage';
+  const isD100 = sides === 100;
 
   useEffect(() => {
     // Reveal animation
@@ -19,8 +21,10 @@ export default function RollResult({ result, diceType, sides, rolls, rollMode, o
       // Trigger special effect for crit/fumble
       if (isCrit || isFumble) {
         setShowEffect(true);
+        setShowFlash(true);
+        setTimeout(() => setShowFlash(false), 400);
       }
-    }, 300);
+    }, isD100 ? 400 : 300);
 
     // Complete callback
     const completeTimer = setTimeout(() => {
@@ -31,7 +35,7 @@ export default function RollResult({ result, diceType, sides, rolls, rollMode, o
       clearTimeout(revealTimer);
       clearTimeout(completeTimer);
     };
-  }, [result, isCrit, isFumble, onComplete]);
+  }, [result, isCrit, isFumble, isD100, onComplete]);
 
   const getVariantColor = () => {
     if (isCrit) return 'text-accent-yellow';
@@ -47,8 +51,19 @@ export default function RollResult({ result, diceType, sides, rolls, rollMode, o
     return 'text-glow-cyan';
   };
 
+  // Split D100 result into digits for staggered reveal
+  const resultDigits = isD100 ? result.toString().padStart(3, '0').split('') : [result.toString()];
+
   return (
     <div className="relative w-full py-3 px-3 bg-bg-secondary/30 backdrop-blur-sm border-2 border-accent-cyan/50 overflow-hidden">
+      {/* Screen flash overlay for crit/fumble */}
+      {showFlash && (
+        <div className={cn(
+          'fixed inset-0 pointer-events-none z-50',
+          isCrit ? 'bg-accent-yellow screen-flash-yellow' : 'bg-accent-red screen-flash-red'
+        )} />
+      )}
+
       {/* Background glow effect */}
       <div className={cn(
         'absolute inset-0 opacity-30 transition-opacity duration-500',
@@ -87,15 +102,29 @@ export default function RollResult({ result, diceType, sides, rolls, rollMode, o
 
         {/* Result number with both rolls if advantage/disadvantage */}
         <div className="text-center">
-          <span className={cn(
-            'font-orbitron font-black transition-all duration-300',
-            'inline-block',
-            isRevealing ? 'text-4xl scale-0 opacity-0' : 'text-5xl scale-100 opacity-100 result-reveal',
-            getVariantColor(),
-            getGlowClass()
-          )}>
-            {result}
-          </span>
+          {isD100 && !isRevealing ? (
+            <span className={cn(
+              'font-orbitron font-black text-5xl',
+              getVariantColor(),
+              getGlowClass()
+            )}>
+              {resultDigits.map((digit, idx) => (
+                <span key={idx} className={`inline-block digit-reveal-${idx + 1}`}>
+                  {digit}
+                </span>
+              ))}
+            </span>
+          ) : (
+            <span className={cn(
+              'font-orbitron font-black transition-all duration-300',
+              'inline-block',
+              isRevealing ? 'text-4xl scale-0 opacity-0' : 'text-5xl scale-100 opacity-100 result-reveal',
+              getVariantColor(),
+              getGlowClass()
+            )}>
+              {result}
+            </span>
+          )}
           
           {/* Show discarded roll when advantage/disadvantage */}
           {!isRevealing && hasAdvDis && rolls && (

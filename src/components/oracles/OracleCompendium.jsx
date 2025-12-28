@@ -104,7 +104,7 @@ export default function OracleCompendium() {
       </div>
 
       {/* Tab Content */}
-      <div className="border-3 border-accent-yellow bg-bg-secondary p-4 min-h-[400px] max-h-[600px] overflow-y-auto">
+      <div className="border-3 border-accent-yellow bg-bg-secondary p-4 overflow-y-auto flex-1">
         {activeTab === 'core' && <CoreOraclesTab />}
         {activeTab === 'missions' && <MissionsTab />}
         {activeTab === 'world' && <WorldTab />}

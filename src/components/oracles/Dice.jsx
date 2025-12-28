@@ -151,9 +151,9 @@ export default function Dice({
   className 
 }) {
   const variantStyles = {
-    cyan: 'text-accent-cyan hover:glow-cyan',
-    yellow: 'text-accent-yellow hover:glow-yellow',
-    red: 'text-accent-red hover:glow-red',
+    cyan: 'text-accent-cyan hover:shadow-[0_0_20px_rgba(0,240,255,0.6)]',
+    yellow: 'text-accent-yellow hover:shadow-[0_0_20px_rgba(255,252,0,0.6)]',
+    red: 'text-accent-red hover:shadow-[0_0_20px_rgba(255,0,60,0.6)]',
   };
 
   return (
@@ -161,9 +161,9 @@ export default function Dice({
       onClick={onClick}
       disabled={isRolling}
       className={cn(
-        'relative aspect-square bg-bg-secondary/50 backdrop-blur-sm',
+        'relative aspect-square bg-transparent',
         'transition-all duration-300 ease-out',
-        'hover:scale-105 hover:bg-bg-secondary/70',
+        'hover:scale-110 active:scale-95',
         'disabled:opacity-50 disabled:cursor-not-allowed',
         'group',
         variantStyles[variant],
@@ -175,12 +175,6 @@ export default function Dice({
       <div className="absolute inset-0 flex items-center justify-center p-2">
         {diceShapes[sides]}
       </div>
-      
-      {/* Glow effect overlay */}
-      <div className={cn(
-        'absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300',
-        'bg-gradient-radial from-current/20 to-transparent'
-      )} />
     </button>
   );
 }
