@@ -4,20 +4,20 @@ const diceShapes = {
   4: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
       <polygon 
-        points="50,10 90,90 10,90" 
+        points="50,15 85,85 15,85" 
         fill="currentColor" 
         fillOpacity="0.1"
         stroke="currentColor" 
         strokeWidth="2"
       />
-      <text x="50" y="70" textAnchor="middle" className="text-2xl font-bold fill-current">4</text>
+      <text x="50" y="68" textAnchor="middle" className="text-2xl font-bold fill-current">4</text>
     </svg>
   ),
   6: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
       <rect 
-        x="20" y="20" 
-        width="60" height="60" 
+        x="15" y="15" 
+        width="70" height="70" 
         fill="currentColor" 
         fillOpacity="0.1"
         stroke="currentColor" 
@@ -30,7 +30,7 @@ const diceShapes = {
   8: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
       <polygon 
-        points="50,15 75,35 75,65 50,85 25,65 25,35" 
+        points="50,10 80,35 80,65 50,90 20,65 20,35" 
         fill="currentColor" 
         fillOpacity="0.1"
         stroke="currentColor" 
@@ -42,7 +42,7 @@ const diceShapes = {
   10: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
       <polygon 
-        points="30,50 50,20 70,50 50,80" 
+        points="25,50 50,15 75,50 50,85" 
         fill="currentColor" 
         fillOpacity="0.1"
         stroke="currentColor" 
@@ -54,39 +54,74 @@ const diceShapes = {
   12: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
       <polygon 
-        points="50,10 70,25 80,45 70,65 50,80 30,65 20,45 30,25" 
+        points="50,10 70,20 82,35 82,65 70,80 50,90 30,80 18,65 18,35 30,20" 
         fill="currentColor" 
         fillOpacity="0.1"
         stroke="currentColor" 
         strokeWidth="2"
       />
-      <text x="50" y="58" textAnchor="middle" className="text-xl font-bold fill-current">12</text>
+      <text x="50" y="56" textAnchor="middle" className="text-xl font-bold fill-current">12</text>
     </svg>
   ),
   20: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
-      <circle 
-        cx="50" cy="50" r="35" 
+      {/* D20 icosahedron shape */}
+      <polygon 
+        points="50,10 72,22 87,25 92,45 87,65 72,78 50,90 28,78 13,65 8,45 13,25 28,22" 
         fill="currentColor" 
         fillOpacity="0.1"
         stroke="currentColor" 
         strokeWidth="2"
       />
-      <text x="50" y="58" textAnchor="middle" className="text-xl font-bold fill-current">20</text>
+      {/* Inner lines to make it look more like a d20 */}
+      <line x1="50" y1="10" x2="28" y2="78" stroke="currentColor" strokeWidth="1" opacity="0.3" />
+      <line x1="50" y1="10" x2="72" y2="78" stroke="currentColor" strokeWidth="1" opacity="0.3" />
+      <line x1="28" y1="22" x2="72" y2="22" stroke="currentColor" strokeWidth="1" opacity="0.3" />
+      <line x1="13" y1="65" x2="87" y2="65" stroke="currentColor" strokeWidth="1" opacity="0.3" />
+      <text x="50" y="56" textAnchor="middle" className="text-xl font-bold fill-current">20</text>
     </svg>
   ),
   100: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
-      <rect 
-        x="15" y="25" 
-        width="70" height="50" 
+      <circle 
+        cx="50" cy="50" r="40" 
         fill="currentColor" 
         fillOpacity="0.1"
         stroke="currentColor" 
         strokeWidth="2"
-        rx="4"
       />
       <text x="50" y="58" textAnchor="middle" className="text-lg font-bold fill-current">100</text>
+    </svg>
+  ),
+  '2d6': (
+    <svg viewBox="0 0 100 100" className="w-full h-full">
+      {/* First die */}
+      <rect 
+        x="15" y="25" 
+        width="32" height="32" 
+        fill="currentColor" 
+        fillOpacity="0.1"
+        stroke="currentColor" 
+        strokeWidth="2"
+        rx="3"
+      />
+      {/* Second die (offset) */}
+      <rect 
+        x="53" y="43" 
+        width="32" height="32" 
+        fill="currentColor" 
+        fillOpacity="0.15"
+        stroke="currentColor" 
+        strokeWidth="2"
+        rx="3"
+      />
+      {/* Dots on first die (showing 2) */}
+      <circle cx="23" cy="33" r="2.5" fill="currentColor" />
+      <circle cx="39" cy="49" r="2.5" fill="currentColor" />
+      {/* Dots on second die (showing 3) */}
+      <circle cx="61" cy="51" r="2.5" fill="currentColor" />
+      <circle cx="69" cy="59" r="2.5" fill="currentColor" />
+      <circle cx="77" cy="67" r="2.5" fill="currentColor" />
     </svg>
   ),
 };

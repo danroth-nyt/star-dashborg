@@ -29,25 +29,25 @@ export default function Dashboard({ roomCode }) {
           </Panel>
         </div>
 
-        {/* Center Column - Journal (3 columns) */}
+        {/* Center Column - Dice Roller & Log (3 columns) */}
         <div className="lg:col-span-3 space-y-4">
+          <Panel title="Dice Roller" variant="yellow">
+            <DiceRoller />
+          </Panel>
+          
           <Panel title="Dice Log" variant="cyan" className="h-[400px]">
             <DiceLog />
           </Panel>
-          
-          <Panel title="Session Journal" variant="yellow" className="h-[400px]">
-            <SessionJournal />
-          </Panel>
-          
-          <Panel title="Dice Roller" variant="cyan">
-            <DiceRoller />
-          </Panel>
         </div>
 
-        {/* Right Column - Oracle Compendium (6 columns - wider!) */}
+        {/* Right Column - Oracle Compendium & Journal (6 columns - wider!) */}
         <div className="lg:col-span-6 space-y-4">
           <Panel title="Oracle Compendium" variant="yellow">
             <OraclePanel />
+          </Panel>
+          
+          <Panel title="Session Journal" variant="cyan" className="h-[400px]">
+            <SessionJournal />
           </Panel>
         </div>
       </div>

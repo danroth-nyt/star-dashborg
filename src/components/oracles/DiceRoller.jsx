@@ -62,7 +62,7 @@ export default function DiceRoller() {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2">
       {/* Result Display Area */}
       {currentResult && (
         <RollResult
@@ -76,7 +76,7 @@ export default function DiceRoller() {
       )}
 
       {/* Dice Grid */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-4 gap-2 max-w-md mx-auto">
         {diceTypes.map(({ sides, label }) => (
           <Dice
             key={sides}
@@ -85,40 +85,35 @@ export default function DiceRoller() {
             variant="cyan"
             isRolling={rolling === label}
             onClick={() => handleRoll(sides, label)}
+            className="max-h-20"
           />
         ))}
         
-        {/* 2D6 button spanning 2 columns */}
-        <button
-          onClick={handle2D6Roll}
-          disabled={rolling === '2D6'}
-          className={`
-            col-span-2 h-20 
-            bg-bg-secondary/50 backdrop-blur-sm
-            border-2 border-accent-yellow
-            text-accent-yellow font-orbitron font-bold text-xl
-            transition-all duration-300
-            hover:scale-105 hover:bg-accent-yellow hover:text-bg-primary hover:glow-yellow
-            disabled:opacity-50 disabled:cursor-not-allowed
-            ${rolling === '2D6' ? 'dice-rolling' : 'dice-idle'}
-          `}
-        >
-          2D6
-        </button>
+        {/* 2D6 dice spanning 2 columns */}
+        <div className="col-span-2">
+          <Dice
+            sides="2d6"
+            label="2D6"
+            variant="yellow"
+            isRolling={rolling === '2D6'}
+            onClick={handle2D6Roll}
+            className="w-full max-h-20"
+          />
+        </div>
       </div>
 
       {/* Recent Rolls */}
       {recentRolls.length > 0 && (
-        <div className="pt-3 border-t border-accent-cyan/30">
-          <div className="flex items-center justify-between text-sm">
+        <div className="pt-2 border-t border-accent-cyan/30">
+          <div className="flex items-center justify-between text-xs">
             <span className="text-accent-cyan/70 font-orbitron uppercase text-xs">
               Recent:
             </span>
-            <div className="flex gap-2">
+            <div className="flex gap-1">
               {recentRolls.map((roll, idx) => (
                 <span
                   key={idx}
-                  className="text-accent-cyan font-mono font-bold"
+                  className="text-accent-cyan font-mono font-bold text-xs"
                 >
                   {roll.label.replace('D', '')}:{roll.result}
                   {idx < recentRolls.length - 1 && (
