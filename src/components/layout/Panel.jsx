@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Minimize2, Maximize2 } from 'lucide-react';
+import { Minimize2, Maximize2, HelpCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-export default function Panel({ title, children, className, variant = 'cyan', defaultCollapsed = false, maxHeightExpanded, minHeightExpanded }) {
+export default function Panel({ title, children, className, variant = 'cyan', defaultCollapsed = false, maxHeightExpanded, minHeightExpanded, onHelpClick }) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
 
   const borderColors = {
@@ -34,20 +34,37 @@ export default function Panel({ title, children, className, variant = 'cyan', de
           !isCollapsed && `border-b-3 ${borderColors[variant]}`
         )}>
           <span className="break-words flex-1">{title}</span>
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className={cn(
-              'ml-2 p-1 hover:bg-current/10 transition-all duration-200 rounded',
-              textColors[variant]
+          <div className="flex items-center gap-1">
+            {onHelpClick && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onHelpClick();
+                }}
+                className={cn(
+                  'p-1 hover:bg-current/10 transition-all duration-200 rounded',
+                  textColors[variant]
+                )}
+                aria-label="Show help"
+              >
+                <HelpCircle className="w-4 h-4" />
+              </button>
             )}
-            aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
-          >
-            {isCollapsed ? (
-              <Maximize2 className="w-4 h-4" />
-            ) : (
-              <Minimize2 className="w-4 h-4" />
-            )}
-          </button>
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className={cn(
+                'p-1 hover:bg-current/10 transition-all duration-200 rounded',
+                textColors[variant]
+              )}
+              aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
+            >
+              {isCollapsed ? (
+                <Maximize2 className="w-4 h-4" />
+              ) : (
+                <Minimize2 className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </div>
       )}
       {!isCollapsed && (

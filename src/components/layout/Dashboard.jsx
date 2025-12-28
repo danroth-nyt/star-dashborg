@@ -9,6 +9,7 @@ import DiceLog from '../journal/DiceLog';
 import SessionJournal from '../journal/SessionJournal';
 import DiceRoller from '../oracles/DiceRoller';
 import OraclePanel from '../oracles/OraclePanel';
+import HelpModal from '../ui/HelpModal';
 
 const PANEL_ORDER_KEY = 'star-dashborg-panel-order';
 
@@ -30,10 +31,27 @@ export default function Dashboard({ roomCode }) {
   const [draggedPanel, setDraggedPanel] = useState(null);
   const [dragOverPanel, setDragOverPanel] = useState(null);
   const [dragOverColumn, setDragOverColumn] = useState(null);
+  const [helpModalOpen, setHelpModalOpen] = useState(false);
+  const [helpModalTab, setHelpModalTab] = useState('threatDie');
 
   useEffect(() => {
     localStorage.setItem(PANEL_ORDER_KEY, JSON.stringify(panels));
   }, [panels]);
+
+  // Keyboard shortcuts for help modal
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      // H or ? key opens help modal (ignore if typing in input/textarea)
+      if ((e.key === 'h' || e.key === 'H' || e.key === '?') && 
+          !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+        e.preventDefault();
+        setHelpModalOpen(true);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   const handleDragStart = (e, panelId) => {
     setDraggedPanel(panelId);
@@ -110,6 +128,11 @@ export default function Dashboard({ roomCode }) {
     setDragOverColumn(null);
   };
 
+  const openHelp = (tab) => {
+    setHelpModalTab(tab);
+    setHelpModalOpen(true);
+  };
+
   const renderPanel = (panel) => {
     const components = {
       ThreatDie: <ThreatDie />,
@@ -164,6 +187,12 @@ export default function Dashboard({ roomCode }) {
             variant={panel.variant}
             maxHeightExpanded={maxHeightExpanded}
             minHeightExpanded={minHeightExpanded}
+            onHelpClick={
+              panel.id === 'threat-die' ? () => openHelp('threatDie') :
+              panel.id === 'mission-tracks' ? () => openHelp('missionTracks') :
+              panel.id === 'danger-clocks' ? () => openHelp('dangerClocks') :
+              undefined
+            }
           >
             {components[panel.component]}
           </Panel>
@@ -214,6 +243,13 @@ export default function Dashboard({ roomCode }) {
           {renderColumnDropZone('right')}
         </div>
       </div>
+
+      {/* Help Modal */}
+      <HelpModal 
+        isOpen={helpModalOpen}
+        onClose={() => setHelpModalOpen(false)}
+        initialTab={helpModalTab}
+      />
     </div>
   );
 }

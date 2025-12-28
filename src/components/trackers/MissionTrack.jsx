@@ -70,12 +70,12 @@ export default function MissionTrack() {
           <select
             value={newMissionLength}
             onChange={(e) => setNewMissionLength(Number(e.target.value))}
-            className="flex-1 px-3 py-2 bg-bg-primary border-2 border-accent-cyan text-text-primary focus:outline-none focus:border-accent-yellow focus:shadow-[0_0_15px_rgba(255,252,0,0.4)] transition-all duration-300 font-orbitron"
+            className="flex-1 px-3 py-2 bg-bg-primary border-2 border-accent-cyan text-text-primary focus:outline-none focus:border-accent-yellow focus:shadow-[0_0_15px_rgba(255,252,0,0.4)] transition-all duration-300 font-orbitron [&>option]:bg-bg-secondary [&>option]:text-text-primary"
           >
-            <option value={4}>4 Steps</option>
-            <option value={6}>6 Steps</option>
-            <option value={8}>8 Steps</option>
-            <option value={10}>10 Steps</option>
+            <option value={4} className="bg-bg-secondary text-text-primary">4 Steps - Easy (DR10)</option>
+            <option value={6} className="bg-bg-secondary text-text-primary">6 Steps - Normal (DR12)</option>
+            <option value={8} className="bg-bg-secondary text-text-primary">8 Steps - Difficult (DR14)</option>
+            <option value={10} className="bg-bg-secondary text-text-primary">10 Steps - Galaxy Saving (DR16)</option>
           </select>
           <Button onClick={addMission} variant="primary" className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
