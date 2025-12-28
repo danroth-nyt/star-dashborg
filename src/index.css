@@ -556,34 +556,6 @@ h1, h2, h3, h4, h5, h6 {
     animation: new-entry-pulse 1s ease-out;
   }
 
-  /* Scroll shadows - always visible when scrollable */
-  .overflow-auto .scroll-shadow-top {
-    opacity: 0;
-  }
-
-  .overflow-auto .scroll-shadow-bottom {
-    opacity: 0;
-  }
-
-  /* Show top shadow when scrolled down */
-  .overflow-auto[data-scrolled="true"] .scroll-shadow-top {
-    opacity: 0.8 !important;
-  }
-
-  /* Show bottom shadow when more content below */
-  .overflow-auto[data-has-more="true"] .scroll-shadow-bottom {
-    opacity: 0.8 !important;
-  }
-
-  /* Enhance on hover */
-  .overflow-auto:hover .scroll-shadow-top {
-    opacity: 0.9 !important;
-  }
-
-  .overflow-auto:hover .scroll-shadow-bottom {
-    opacity: 0.9 !important;
-  }
-
   /* Subtle border flicker effect */
   @keyframes border-flicker {
     0%, 100% {
