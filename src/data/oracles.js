@@ -965,10 +965,23 @@ export function generateTravelEncounter() {
   };
 }
 
-// Roll dangerous location
+// Roll dangerous location - each column rolls independently for more permutations
 export function rollDangerousLocation() {
-  const roll = rollDice(20);
-  return { roll, ...dangerousLocations.features[roll - 1] };
+  const shipRoll = rollDice(20);
+  const baseRoll = rollDice(20);
+  const obstacleRoll = rollDice(20);
+  const searchRoll = rollDice(20);
+  
+  return {
+    shipRoll,
+    baseRoll,
+    obstacleRoll,
+    searchRoll,
+    ship: dangerousLocations.features[shipRoll - 1].ship,
+    base: dangerousLocations.features[baseRoll - 1].base,
+    obstacle: dangerousLocations.features[obstacleRoll - 1].obstacle,
+    search: dangerousLocations.features[searchRoll - 1].search
+  };
 }
 
 // Generate monster name

@@ -149,6 +149,28 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           </div>
         )}
 
+        {/* Dangerous Location special formatting - multi-roll results */}
+        {result.ship && result.base && result.obstacle && result.search && result.shipRoll && (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[120px]">SHIP [{result.shipRoll}]:</span>
+              <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.ship}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[120px]">BASE [{result.baseRoll}]:</span>
+              <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.base}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[120px]">OBSTACLE [{result.obstacleRoll}]:</span>
+              <span className={cn('text-base text-accent-red font-bold terminal-text')}>{result.obstacle}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[120px]">SEARCH [{result.searchRoll}]:</span>
+              <span className={cn('text-base text-accent-yellow terminal-text')}>{result.search}</span>
+            </div>
+          </div>
+        )}
+
         {/* Complex result rendering for compound generators (Detailed Mission) */}
         {result.type && (
           <div className="space-y-2">
