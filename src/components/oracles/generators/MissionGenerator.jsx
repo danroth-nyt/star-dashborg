@@ -40,10 +40,10 @@ export default function MissionGenerator() {
   return (
     <div className="space-y-4">
       {/* Mission Type Selector */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1 sm:gap-2">
         <button
           onClick={() => setMissionType('detailed')}
-          className={`px-2 py-1 text-xs font-orbitron uppercase border-2 transition-colors ${
+          className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
             missionType === 'detailed'
               ? 'bg-accent-cyan text-bg-primary border-accent-cyan'
               : 'bg-transparent text-accent-cyan border-accent-cyan hover:bg-accent-cyan hover:text-bg-primary'
@@ -53,7 +53,7 @@ export default function MissionGenerator() {
         </button>
         <button
           onClick={() => setMissionType('quick')}
-          className={`px-2 py-1 text-xs font-orbitron uppercase border-2 transition-colors ${
+          className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
             missionType === 'quick'
               ? 'bg-accent-cyan text-bg-primary border-accent-cyan'
               : 'bg-transparent text-accent-cyan border-accent-cyan hover:bg-accent-cyan hover:text-bg-primary'
@@ -63,7 +63,7 @@ export default function MissionGenerator() {
         </button>
         <button
           onClick={() => setMissionType('villain')}
-          className={`px-2 py-1 text-xs font-orbitron uppercase border-2 transition-colors ${
+          className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
             missionType === 'villain'
               ? 'bg-accent-red text-bg-primary border-accent-red'
               : 'bg-transparent text-accent-red border-accent-red hover:bg-accent-red hover:text-bg-primary'
@@ -73,7 +73,7 @@ export default function MissionGenerator() {
         </button>
         <button
           onClick={() => setMissionType('scenario')}
-          className={`px-2 py-1 text-xs font-orbitron uppercase border-2 transition-colors ${
+          className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
             missionType === 'scenario'
               ? 'bg-accent-yellow text-bg-primary border-accent-yellow'
               : 'bg-transparent text-accent-yellow border-accent-yellow hover:bg-accent-yellow hover:text-bg-primary'

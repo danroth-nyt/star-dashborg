@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useGame } from '../../context/GameContext';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Target } from 'lucide-react';
 import Button from '../ui/Button';
+import { rollDice } from '../../data/oracles';
 
 export default function MissionTrack() {
   const { gameState, updateGameState, addLog } = useGame();
@@ -52,6 +53,40 @@ export default function MissionTrack() {
     addLog(`Mission removed: ${mission.title}`, 'info');
   };
 
+  const attemptCompletion = (missionId) => {
+    const mission = gameState.missions.find((m) => m.id === missionId);
+    if (!mission) return;
+
+    // Determine DR based on mission length
+    const drMap = {
+      4: 10,   // Short
+      6: 12,   // Average
+      8: 14,   // Long
+      10: 16   // Galaxy Saving
+    };
+    const dr = drMap[mission.length] || 12;
+
+    // Roll D20 + current progress
+    const d20 = rollDice(20);
+    const total = d20 + mission.progress;
+    const success = total >= dr;
+
+    if (success) {
+      addLog(`Mission completion [${d20}] + [${mission.progress}] = ${total} vs DR${dr} ✓ SUCCESS! "${mission.title}" completed!`, 'success');
+      // Remove mission on success
+      updateGameState({
+        missions: gameState.missions.filter((m) => m.id !== missionId),
+      });
+    } else {
+      addLog(`Mission completion [${d20}] + [${mission.progress}] = ${total} vs DR${dr} ✗ FAIL. Remove 1 progress, increase Threat Die.`, 'danger');
+      // Remove 1 progress on fail
+      const updatedMissions = gameState.missions.map((m) =>
+        m.id === missionId ? { ...m, progress: Math.max(0, m.progress - 1) } : m
+      );
+      updateGameState({ missions: updatedMissions });
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Add Mission Form */}
@@ -70,12 +105,12 @@ export default function MissionTrack() {
           <select
             value={newMissionLength}
             onChange={(e) => setNewMissionLength(Number(e.target.value))}
-            className="flex-1 px-3 py-2 bg-bg-primary border-2 border-accent-cyan text-text-primary focus:outline-none focus:border-accent-yellow focus:shadow-[0_0_15px_rgba(255,252,0,0.4)] transition-all duration-300 font-orbitron"
+            className="flex-1 px-3 py-2 bg-bg-primary border-2 border-accent-cyan text-text-primary focus:outline-none focus:border-accent-yellow focus:shadow-[0_0_15px_rgba(255,252,0,0.4)] transition-all duration-300 font-orbitron [&>option]:bg-bg-secondary [&>option]:text-text-primary"
           >
-            <option value={4}>4 Steps</option>
-            <option value={6}>6 Steps</option>
-            <option value={8}>8 Steps</option>
-            <option value={10}>10 Steps</option>
+            <option value={4} className="bg-bg-secondary text-text-primary">Short / Easy (DR10)</option>
+            <option value={6} className="bg-bg-secondary text-text-primary">Average / Normal (DR12)</option>
+            <option value={8} className="bg-bg-secondary text-text-primary">Long / Difficult (DR14)</option>
+            <option value={10} className="bg-bg-secondary text-text-primary">Galaxy Saving (DR16)</option>
           </select>
           <Button onClick={addMission} variant="primary" className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
@@ -120,6 +155,20 @@ export default function MissionTrack() {
                     }`}
                   />
                 ))}
+              </div>
+              
+              {/* Progress Test Button */}
+              <div className="mt-2 flex items-center justify-between text-xs">
+                <span className="text-gray-400 font-orbitron">
+                  Progress: {mission.progress} | DR{mission.length === 4 ? '10' : mission.length === 6 ? '12' : mission.length === 8 ? '14' : '16'}
+                </span>
+                <button
+                  onClick={() => attemptCompletion(mission.id)}
+                  className="px-2 py-1 bg-transparent border-2 border-accent-yellow text-accent-yellow hover:bg-accent-yellow hover:text-bg-primary transition-all font-orbitron font-bold uppercase text-xs flex items-center gap-1"
+                >
+                  <Target className="w-3 h-3" />
+                  Attempt
+                </button>
               </div>
             </div>
           ))

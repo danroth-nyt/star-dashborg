@@ -164,6 +164,16 @@ export const soloOracles = {
     { roll: 18, verb: "Inspect", subject: "Community", description: "Ancient", activity: "Conspiring", omen: "Temperature" },
     { roll: 19, verb: "Protect", subject: "Supply", description: "Grimy", activity: "Escorting", omen: "Blocked" },
     { roll: 20, verb: "Explore", subject: "Vow", description: "Graceful", activity: "Disabling", omen: "Illness" }
+  ],
+
+  // Event Specific (d6) - Roll to determine focus
+  eventSpecific: [
+    "PC Positive",
+    "PC Negative",
+    "Far Away Event",
+    "Relating to current Mission",
+    "NPC Positive",
+    "NPC Negative"
   ]
 };
 
@@ -246,12 +256,36 @@ export const worldOracles = {
 
   // Mishaps (d6)
   generalMishaps: [
-    "Lurking Monster (Dump/Swamp).",
-    "Ambush (Bounty Hunter with Net).",
-    "Inclement Weather (Storms/Acid).",
-    "Stink Bomb (Choking poison/paralysis).",
-    "Tracking Device (Murder Bot inbound).",
-    "A Mystery Unfolds (Go deeper)."
+    { 
+      roll: 1, 
+      title: "LURKING MONSTER", 
+      desc: "The trash chute leads to a swampy dump with an enormous alien beast that eats trash AND people." 
+    },
+    { 
+      roll: 2, 
+      title: "AMBUSH", 
+      desc: "There's a Bounty Hunter with a Net Launcher waiting by the back exit." 
+    },
+    { 
+      roll: 3, 
+      title: "INCLEMENT WEATHER", 
+      desc: "Escaping outside leads into dangerous lightning storms (landslides, low atmosphere, acid floods). Maybe it was better to stay inside?" 
+    },
+    { 
+      roll: 4, 
+      title: "STINK BOMB", 
+      desc: "The explosion used for a distraction erupts in a cloud of choking poison. It spreads quickly, leaving anyone who breathes it in agonising pain (sick, paralyzed, hypnotic visions)." 
+    },
+    { 
+      roll: 5, 
+      title: "TRACKING DEVICE", 
+      desc: "When the Rebels finally get to rest, they realize they've been tagged with a tracking beacon. A deadly Murder Bot is on its way." 
+    },
+    { 
+      roll: 6, 
+      title: "A MYSTERY UNFOLDS", 
+      desc: "Rumors have led the Rebels this far, but the only way to discover the truth is to go deeper inside, where even greater dangers lurk." 
+    }
   ],
 
   // Space Obstacles (d6)
@@ -298,6 +332,40 @@ export const worldOracles = {
   settlementComplication: [
     "Electrical storms", "Flood / Quake", "Creatures", "Crime", "Science",
     "Illness", "Dark omen", "Raiders", "Factional warfare", "Revolt"
+  ],
+
+  // Settlement Extended (d6 each) - Solo Rules p.17
+  settlementLeader: [
+    "Crime Lord",
+    "Galactic Legion",
+    "Elected Leader",
+    "Two separate Gangsters",
+    "Exiled Smuggler",
+    "Space Pirates"
+  ],
+  settlementLandmark: [
+    "Neon obelisk",
+    "Crashed ship",
+    "Dark grey prison building",
+    "Large fountain plaza",
+    "Tall communications tower",
+    "Hill with glass roof"
+  ],
+  settlementRumors: [
+    "Map",
+    "Gear",
+    "Secret information",
+    "Combat",
+    "Hacking",
+    "Uprising"
+  ],
+  settlementHookups: [
+    "Transfer of Bits",
+    "Stolen information",
+    "Disguised Magi",
+    "Weapons cache",
+    "Transport",
+    "Huge refining factory"
   ],
   
   // Planet Details (d10)
@@ -487,6 +555,17 @@ export const nameOracles = {
     "Ger / -atoom", "Nabeck / -rikaant", "Dablar / -ordest", "Grim / -cite",
     "Saar / -tex", "Hyro / -avor", "Popwa / -dorp", "Urvok / Outpost",
     "Vandirg / City", "Tar / Station"
+  ],
+
+  // Split settlement names for multi-roll (d10 each)
+  settlementNamePrefixes: [
+    "Ger", "Nabeck", "Dablar", "Grim", "Saar", 
+    "Hyro", "Popwa", "Urvok", "Vandirg", "Tar"
+  ],
+  
+  settlementNameSuffixes: [
+    "-atoom", "-rikaant", "-ordest", "-cite", "-tex", 
+    "-avor", "-dorp", "Outpost", "City", "Station"
   ],
 
   legionaryNames: [
@@ -946,6 +1025,7 @@ export function rollEventOracle() {
   const descRoll = rollDice(20);
   const activityRoll = rollDice(20);
   const omenRoll = rollDice(20);
+  const specificRoll = rollDice(6);
   
   return {
     roll: verbRoll, // Keep for backward compatibility with logging
@@ -954,19 +1034,44 @@ export function rollEventOracle() {
     descRoll,
     activityRoll,
     omenRoll,
+    specificRoll,
     verb: soloOracles.eventOracle[verbRoll - 1].verb,
     subject: soloOracles.eventOracle[subjectRoll - 1].subject,
     description: soloOracles.eventOracle[descRoll - 1].description,
     activity: soloOracles.eventOracle[activityRoll - 1].activity,
-    omen: soloOracles.eventOracle[omenRoll - 1].omen
+    omen: soloOracles.eventOracle[omenRoll - 1].omen,
+    specific: soloOracles.eventSpecific[specificRoll - 1]
   };
 }
 
 // Roll scene shakeup (d20 + threat modifier)
+// First roll d20 + Threat to check if shakeup occurs (15+)
+// If successful, determine which shakeup happens
 export function rollSceneShakeup(threatDie = 1) {
-  const roll = rollDice(20) + threatDie;
-  const index = Math.min(roll - 1, soloOracles.sceneShakeup.length - 1);
-  return { roll, result: soloOracles.sceneShakeup[index] };
+  const checkRoll = rollDice(20);
+  const total = checkRoll + threatDie;
+  const success = total >= 15;
+  
+  let shakeupResult = null;
+  if (success) {
+    // Roll again on the shakeup table (d20 + Threat)
+    const shakeupD20 = rollDice(20);
+    const shakeupTotal = shakeupD20 + threatDie;
+    const index = Math.min(shakeupTotal - 1, soloOracles.sceneShakeup.length - 1);
+    shakeupResult = {
+      d20: shakeupD20, // Display the d20 roll
+      roll: shakeupTotal, // Total for table lookup
+      result: soloOracles.sceneShakeup[index]
+    };
+  }
+  
+  return { 
+    checkRoll,
+    threatDie,
+    total,
+    success,
+    shakeup: shakeupResult
+  };
 }
 
 // Generate a mission - multi-roll for more permutations
@@ -1077,19 +1182,37 @@ export function generateSettlement() {
   const knownForRoll = rollDice(worldOracles.settlementKnownFor.length);
   const currentStateRoll = rollDice(worldOracles.settlementCurrentState.length);
   const complicationRoll = rollDice(worldOracles.settlementComplication.length);
-  const nameRoll = rollDice(nameOracles.settlementNames.length);
+  const leaderRoll = rollDice(worldOracles.settlementLeader.length);
+  const landmarkRoll = rollDice(worldOracles.settlementLandmark.length);
+  const rumorsRoll = rollDice(worldOracles.settlementRumors.length);
+  const hookupsRoll = rollDice(worldOracles.settlementHookups.length);
+  const namePrefixRoll = rollDice(nameOracles.settlementNamePrefixes.length);
+  const nameSuffixRoll = rollDice(nameOracles.settlementNameSuffixes.length);
+  
+  const prefix = nameOracles.settlementNamePrefixes[namePrefixRoll - 1];
+  const suffix = nameOracles.settlementNameSuffixes[nameSuffixRoll - 1];
+  const name = `${prefix}${suffix}`;
   
   return {
     appearanceRoll,
     knownForRoll,
     currentStateRoll,
     complicationRoll,
-    nameRoll,
+    leaderRoll,
+    landmarkRoll,
+    rumorsRoll,
+    hookupsRoll,
+    namePrefixRoll,
+    nameSuffixRoll,
     appearance: worldOracles.settlementAppearance[appearanceRoll - 1],
     knownFor: worldOracles.settlementKnownFor[knownForRoll - 1],
     currentState: worldOracles.settlementCurrentState[currentStateRoll - 1],
     complication: worldOracles.settlementComplication[complicationRoll - 1],
-    name: nameOracles.settlementNames[nameRoll - 1]
+    leader: worldOracles.settlementLeader[leaderRoll - 1],
+    landmark: worldOracles.settlementLandmark[landmarkRoll - 1],
+    rumors: worldOracles.settlementRumors[rumorsRoll - 1],
+    hookups: worldOracles.settlementHookups[hookupsRoll - 1],
+    name
   };
 }
 
@@ -1110,15 +1233,31 @@ export function generateScene() {
 }
 
 // Generate travel encounter - multi-roll for more permutations
-export function generateTravelEncounter() {
-  const themeRoll = rollDice(npcOracles.travelTheme.length);
-  const actorRoll = rollDice(npcOracles.travelActor.length);
+// First roll d20 + Threat to check if encounter occurs (12+)
+// If successful, roll 2d10 for theme and actor
+export function generateTravelEncounter(threatDie = 1) {
+  const checkRoll = rollDice(20);
+  const total = checkRoll + threatDie;
+  const success = total >= 12;
+  
+  let encounterResult = null;
+  if (success) {
+    const themeRoll = rollDice(npcOracles.travelTheme.length);
+    const actorRoll = rollDice(npcOracles.travelActor.length);
+    encounterResult = {
+      themeRoll,
+      actorRoll,
+      theme: npcOracles.travelTheme[themeRoll - 1],
+      actor: npcOracles.travelActor[actorRoll - 1]
+    };
+  }
   
   return {
-    themeRoll,
-    actorRoll,
-    theme: npcOracles.travelTheme[themeRoll - 1],
-    actor: npcOracles.travelActor[actorRoll - 1]
+    checkRoll,
+    threatDie,
+    total,
+    success,
+    encounter: encounterResult
   };
 }
 
@@ -1131,15 +1270,18 @@ export function rollDangerousLocation(threatDie = 1) {
   const searchRoll = rollDice(20);
   
   // Roll d20 + Threat. On 12+, obstacle is triggered
-  const threatRoll = rollDice(20) + threatDie;
-  const obstacleTriggered = threatRoll >= 12;
+  const threatD20Roll = rollDice(20);
+  const threatTotal = threatD20Roll + threatDie;
+  const obstacleTriggered = threatTotal >= 12;
   
   return {
     shipRoll,
     baseRoll,
     obstacleRoll,
     searchRoll,
-    threatRoll,
+    threatRoll: threatD20Roll, // Display the d20 roll
+    threatTotal, // Store the total for checks
+    threatDie, // Store the threat die value
     obstacleTriggered,
     ship: dangerousLocations.features[shipRoll - 1].ship,
     base: dangerousLocations.features[baseRoll - 1].base,
@@ -1230,5 +1372,51 @@ export function generateCrimeLord() {
     visage: criminalOracles.lordlyVisages[visageRoll - 1],
     weapon: criminalOracles.dastardlyWeapons[weaponRoll - 1],
     base: criminalOracles.criminalBases[baseRoll - 1]
+  };
+}
+
+// ==========================================
+// INDIVIDUAL ROLL FUNCTIONS
+// ==========================================
+
+// Scene individual rolls
+export function rollSceneLocation() {
+  const roll = rollDice(worldOracles.sceneLocation.length);
+  return {
+    roll,
+    result: worldOracles.sceneLocation[roll - 1]
+  };
+}
+
+export function rollSceneTone() {
+  const roll = rollDice(worldOracles.sceneTone.length);
+  return {
+    roll,
+    result: worldOracles.sceneTone[roll - 1]
+  };
+}
+
+export function rollSceneObstacle() {
+  const roll = rollDice(worldOracles.sceneObstacle.length);
+  return {
+    roll,
+    result: worldOracles.sceneObstacle[roll - 1]
+  };
+}
+
+// Settlement name individual rolls
+export function rollSettlementNamePrefix() {
+  const roll = rollDice(nameOracles.settlementNamePrefixes.length);
+  return {
+    roll,
+    result: nameOracles.settlementNamePrefixes[roll - 1]
+  };
+}
+
+export function rollSettlementNameSuffix() {
+  const roll = rollDice(nameOracles.settlementNameSuffixes.length);
+  return {
+    roll,
+    result: nameOracles.settlementNameSuffixes[roll - 1]
   };
 }

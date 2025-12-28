@@ -8,6 +8,7 @@ import NPCGenerator from './generators/NPCGenerator';
 import PlanetGenerator from './generators/PlanetGenerator';
 import MonsterGenerator from './generators/MonsterGenerator';
 import CrimeLordGenerator from './generators/CrimeLordGenerator';
+import SiteExplorer from '../trackers/SiteExplorer';
 import {
   soloOracles,
   missionGenerators,
@@ -26,6 +27,7 @@ import {
   criminalOracles,
   rollOnTable,
   rollDangerousLocation,
+  rollDice,
   generateMonsterName,
   generateEpicTitle,
   generateEpisodeTitle
@@ -86,13 +88,13 @@ export default function OracleCompendium() {
       )}
 
       {/* Tab Navigation */}
-      <div className="grid grid-cols-6 gap-1">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-1">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              'px-2 py-2 border-2 transition-all font-orbitron font-bold uppercase text-xs',
+              'px-1 sm:px-2 py-2 border-2 transition-all font-orbitron font-bold uppercase text-[10px] sm:text-xs leading-tight',
               activeTab === tab.id 
                 ? tabColors[tab.color].active 
                 : tabColors[tab.color].inactive
@@ -113,6 +115,34 @@ export default function OracleCompendium() {
         {activeTab === 'creation' && <CreationTab />}
       </div>
     </div>
+  );
+}
+
+// ==========================================
+// HELPER COMPONENTS
+// ==========================================
+
+function MoraleButton({ morale, label, onCheck }) {
+  const [result, setResult] = useState(null);
+
+  const handleCheck = () => {
+    const checkResult = onCheck(morale);
+    setResult(checkResult);
+    setTimeout(() => setResult(null), 3000);
+  };
+
+  return (
+    <button
+      onClick={handleCheck}
+      className="w-full px-3 py-2 bg-transparent border-2 border-accent-red text-accent-red hover:bg-accent-red hover:text-bg-primary transition-all font-orbitron text-sm flex items-center justify-between"
+    >
+      <span>{label}</span>
+      {result && (
+        <span className={result.success ? 'text-accent-yellow font-bold' : 'text-accent-cyan'}>
+          {result.success ? result.result : 'HOLDS'}
+        </span>
+      )}
+    </button>
   );
 }
 
@@ -151,6 +181,15 @@ function CoreOraclesTab() {
             diceType="d4"
           />
         </div>
+      </Accordion>
+
+      <Accordion title="Broken (When HP Hits 0)" defaultOpen={false}>
+        <OracleTable
+          title="Roll D4 When Broken"
+          table={characterOracles.broken.map(b => b.result)}
+          variant="red"
+          diceType="d4"
+        />
       </Accordion>
 
       <Accordion title="Visual Oracle / Boost (d20)" defaultOpen={false}>
@@ -258,6 +297,11 @@ function WorldTab() {
             table={worldOracles.generalMishaps}
             variant="yellow"
             diceType="d6"
+            formatResult={(result) => ({
+              roll: result.roll,
+              result: result.title,
+              detail: result.desc
+            })}
           />
           <OracleTable
             title="Space Obstacle"
@@ -274,7 +318,11 @@ function WorldTab() {
         </div>
       </Accordion>
 
-      <Accordion title="Dangerous Locations (d20)" defaultOpen={false}>
+      <Accordion title="Site Explorer (Dangerous Locations)" defaultOpen={false}>
+        <SiteExplorer />
+      </Accordion>
+
+      <Accordion title="Dangerous Location Quick Roll" defaultOpen={false}>
         <OracleTable
           title="Ship/Base Location"
           table={[]}
@@ -375,11 +423,49 @@ function CharactersTab() {
 }
 
 function CombatTab() {
+  const { addLog } = useGame();
+
+  const checkMorale = (targetMorale) => {
+    const die1 = rollDice(6);
+    const die2 = rollDice(6);
+    const total = die1 + die2;
+    const success = total > targetMorale;
+
+    if (success) {
+      const resultRoll = rollDice(6);
+      const result = resultRoll <= 4 ? 'FLEES' : 'SURRENDERS';
+      addLog(`Morale Check [${die1}, ${die2}] = ${total} vs ${targetMorale} → FAIL! Enemy ${result}`, 'danger');
+      return { success: true, total, result };
+    } else {
+      addLog(`Morale Check [${die1}, ${die2}] = ${total} vs ${targetMorale} → Holds firm`, 'roll');
+      return { success: false, total };
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="text-accent-red font-orbitron text-lg font-bold uppercase mb-4">
         Combat & Enemies
       </div>
+
+      {/* Morale Check */}
+      <Accordion title="Morale Check (2D6)" defaultOpen={false}>
+        <div className="space-y-3">
+          <p className="text-gray-300 text-sm mb-3">
+            Roll when: Leader killed, Half group eliminated, or Single enemy at 1/3 HP
+          </p>
+          <div className="space-y-2">
+            <MoraleButton morale={6} label="MRL 6 (Foot Soldiers)" onCheck={checkMorale} />
+            <MoraleButton morale={7} label="MRL 7 (Pirates, Minions)" onCheck={checkMorale} />
+            <MoraleButton morale={8} label="MRL 8 (Squad, Gangsters)" onCheck={checkMorale} />
+            <MoraleButton morale={9} label="MRL 9 (Officer, Beasts)" onCheck={checkMorale} />
+            <MoraleButton morale={10} label="MRL 10 (Elite, Leaders)" onCheck={checkMorale} />
+          </div>
+          <p className="text-gray-400 text-xs mt-3">
+            Success (roll &gt; MRL): Roll d6 → 1-4 Flees, 5-6 Surrenders
+          </p>
+        </div>
+      </Accordion>
 
       {/* Enemy Generators - Combined */}
       <Accordion title="Enemy Generators" defaultOpen={true}>

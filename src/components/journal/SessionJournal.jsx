@@ -29,7 +29,7 @@ export default function SessionJournal() {
         placeholder=">> MISSION LOG: Document your journey, decisions, and discoveries..."
         className="flex-1 w-full px-3 py-2 bg-bg-primary border-2 border-accent-yellow text-text-primary focus:outline-none focus:border-accent-cyan focus:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all duration-300 font-mono text-sm resize-none min-h-0"
       />
-      <div className="text-xs text-gray-500 font-orbitron shrink-0 pb-1">
+      <div className="text-xs text-gray-500 font-orbitron shrink-0">
         {localJournal !== gameState.journal ? (
           <span className="text-accent-yellow animate-pulse">● Saving...</span>
         ) : (

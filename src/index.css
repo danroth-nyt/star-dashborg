@@ -113,6 +113,14 @@ h1, h2, h3, h4, h5, h6 {
     animation: typewriter 0.8s steps(40, end);
   }
 
+  /* Mobile override for typewriter - allow text wrapping on small screens */
+  @media (max-width: 640px) {
+    .typewriter {
+      white-space: normal;
+      overflow: visible;
+    }
+  }
+
   .typewriter-cursor {
     border-right: 2px solid var(--color-accent-cyan);
     animation: blink 0.7s step-end infinite;
@@ -556,34 +564,6 @@ h1, h2, h3, h4, h5, h6 {
     animation: new-entry-pulse 1s ease-out;
   }
 
-  /* Scroll shadows - always visible when scrollable */
-  .overflow-auto .scroll-shadow-top {
-    opacity: 0;
-  }
-
-  .overflow-auto .scroll-shadow-bottom {
-    opacity: 0;
-  }
-
-  /* Show top shadow when scrolled down */
-  .overflow-auto[data-scrolled="true"] .scroll-shadow-top {
-    opacity: 0.8 !important;
-  }
-
-  /* Show bottom shadow when more content below */
-  .overflow-auto[data-has-more="true"] .scroll-shadow-bottom {
-    opacity: 0.8 !important;
-  }
-
-  /* Enhance on hover */
-  .overflow-auto:hover .scroll-shadow-top {
-    opacity: 0.9 !important;
-  }
-
-  .overflow-auto:hover .scroll-shadow-bottom {
-    opacity: 0.9 !important;
-  }
-
   /* Subtle border flicker effect */
   @keyframes border-flicker {
     0%, 100% {
@@ -673,5 +653,49 @@ h1, h2, h3, h4, h5, h6 {
   /* Radial gradient utility */
   .bg-gradient-radial {
     background-image: radial-gradient(circle, var(--tw-gradient-stops));
+  }
+
+  /* Help Modal slide-in animation */
+  @keyframes slide-in-right {
+    0% {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    100% {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .slide-in-right {
+    animation: slide-in-right 0.3s ease-out forwards;
+  }
+
+  /* Inline alert pulse animation */
+  @keyframes inline-alert-pulse {
+    0%, 100% {
+      background-color: rgba(255, 0, 60, 0.1);
+    }
+    50% {
+      background-color: rgba(255, 0, 60, 0.15);
+    }
+  }
+
+  .inline-alert-pulse {
+    animation: inline-alert-pulse 2s ease-in-out infinite;
+  }
+
+  /* Intensified danger glow for critical states */
+  @keyframes danger-glow-intense {
+    0%, 100% {
+      box-shadow: 0 0 15px rgba(255, 0, 60, 0.6), 0 0 30px rgba(255, 0, 60, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 25px rgba(255, 0, 60, 0.9), 0 0 50px rgba(255, 0, 60, 0.6);
+    }
+  }
+
+  .danger-glow-intense {
+    animation: danger-glow-intense 1.5s ease-in-out infinite;
   }
 }

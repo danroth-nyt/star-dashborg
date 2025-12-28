@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useGame } from '../../context/GameContext';
-import { Plus, Trash2, Minus, PlusCircle } from 'lucide-react';
+import { Plus, Trash2, Minus, PlusCircle, AlertTriangle } from 'lucide-react';
 import Button from '../ui/Button';
 
 export default function DangerClock() {
@@ -70,11 +70,12 @@ export default function DangerClock() {
           <select
             value={newClockSegments}
             onChange={(e) => setNewClockSegments(Number(e.target.value))}
-            className="flex-1 px-3 py-2 bg-bg-primary border-2 border-accent-red text-text-primary focus:outline-none focus:border-accent-yellow focus:shadow-[0_0_15px_rgba(255,252,0,0.4)] transition-all duration-300 font-orbitron"
+            className="flex-1 px-3 py-2 bg-bg-primary border-2 border-accent-red text-text-primary focus:outline-none focus:border-accent-yellow focus:shadow-[0_0_15px_rgba(255,252,0,0.4)] transition-all duration-300 font-orbitron [&>option]:bg-bg-secondary [&>option]:text-text-primary"
           >
-            <option value={4}>4 Segments</option>
-            <option value={6}>6 Segments</option>
-            <option value={8}>8 Segments</option>
+            <option value={4} className="bg-bg-secondary text-text-primary">4 Segments - Imminent</option>
+            <option value={6} className="bg-bg-secondary text-text-primary">6 Segments - Building</option>
+            <option value={8} className="bg-bg-secondary text-text-primary">8 Segments - Slow Burn</option>
+            <option value={10} className="bg-bg-secondary text-text-primary">10 Segments - Long Game</option>
           </select>
           <Button onClick={addClock} variant="danger" className="flex items-center gap-2">
             <Plus className="w-4 h-4" />
@@ -92,22 +93,25 @@ export default function DangerClock() {
             <p className="text-gray-600 text-xs">Track looming threats and countdowns</p>
           </div>
         ) : (
-          gameState.dangerClocks.map((clock) => (
-            <div key={clock.id} className="bg-bg-primary p-3 border-2 border-accent-red">
-              <div className="flex items-start justify-between mb-2">
-                <h4 className="font-orbitron font-bold text-accent-red">
-                  {clock.title}
-                </h4>
-                <button
-                  onClick={() => deleteClock(clock.id)}
-                  className="text-accent-red hover:text-red-400"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-              
-              {/* Clock visualization */}
-              <div className="relative w-24 h-24 mx-auto my-3">
+          gameState.dangerClocks.map((clock) => {
+            const isFilled = clock.filled === clock.segments;
+            
+            return (
+              <div key={clock.id} className={`bg-bg-primary p-3 border-2 border-accent-red ${isFilled ? 'glow-pulse-red' : ''}`}>
+                <div className="flex items-start justify-between mb-2">
+                  <h4 className="font-orbitron font-bold text-accent-red">
+                    {clock.title}
+                  </h4>
+                  <button
+                    onClick={() => deleteClock(clock.id)}
+                    className="text-accent-red hover:text-red-400"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+                
+                {/* Clock visualization */}
+                <div className="relative w-24 h-24 mx-auto my-3">
                 <svg viewBox="0 0 100 100" className="transform -rotate-90">
                   {/* Background circle */}
                   <circle
@@ -168,8 +172,26 @@ export default function DangerClock() {
                   +1
                 </button>
               </div>
+
+              {/* Inline Alert for Filled Clock */}
+              {isFilled && (
+                <div className="mt-3 border-3 border-accent-red bg-accent-red/10 p-3 inline-alert-pulse">
+                  <div className="flex items-start gap-2">
+                    <AlertTriangle className="w-4 h-4 text-accent-red flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h5 className="font-orbitron font-bold text-accent-red uppercase text-xs">
+                        Danger Triggered!
+                      </h5>
+                      <p className="text-text-primary text-xs mt-1">
+                        The consequence occurs
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

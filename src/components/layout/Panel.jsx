@@ -1,35 +1,9 @@
-import { useState, useRef, useEffect } from 'react';
-import { Minimize2, Maximize2 } from 'lucide-react';
+import { useState } from 'react';
+import { Minimize2, Maximize2, HelpCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-export default function Panel({ title, children, className, variant = 'cyan', defaultCollapsed = false, maxHeightExpanded, minHeightExpanded }) {
+export default function Panel({ title, children, className, variant = 'cyan', defaultCollapsed = false, maxHeightExpanded, minHeightExpanded, onHelpClick }) {
   const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
-  const contentRef = useRef(null);
-  const [scrollState, setScrollState] = useState({ isScrolled: false, hasMore: false });
-
-  useEffect(() => {
-    const element = contentRef.current;
-    if (!element || isCollapsed) return;
-
-    const handleScroll = () => {
-      const isScrolled = element.scrollTop > 10;
-      const hasMore = element.scrollHeight - element.scrollTop - element.clientHeight > 10;
-      setScrollState({ isScrolled, hasMore });
-    };
-
-    // Initial check
-    handleScroll();
-
-    element.addEventListener('scroll', handleScroll);
-    // Check on content changes
-    const observer = new ResizeObserver(handleScroll);
-    observer.observe(element);
-
-    return () => {
-      element.removeEventListener('scroll', handleScroll);
-      observer.disconnect();
-    };
-  }, [isCollapsed]);
 
   const borderColors = {
     cyan: 'border-accent-cyan',
@@ -60,40 +34,48 @@ export default function Panel({ title, children, className, variant = 'cyan', de
           !isCollapsed && `border-b-3 ${borderColors[variant]}`
         )}>
           <span className="break-words flex-1">{title}</span>
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className={cn(
-              'ml-2 p-1 hover:bg-current/10 transition-all duration-200 rounded',
-              textColors[variant]
+          <div className="flex items-center gap-1">
+            {onHelpClick && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onHelpClick();
+                }}
+                className={cn(
+                  'p-1 hover:bg-current/10 transition-all duration-200 rounded',
+                  textColors[variant]
+                )}
+                aria-label="Show help"
+              >
+                <HelpCircle className="w-4 h-4" />
+              </button>
             )}
-            aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
-          >
-            {isCollapsed ? (
-              <Maximize2 className="w-4 h-4" />
-            ) : (
-              <Minimize2 className="w-4 h-4" />
-            )}
-          </button>
+            <button
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className={cn(
+                'p-1 hover:bg-current/10 transition-all duration-200 rounded',
+                textColors[variant]
+              )}
+              aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
+            >
+              {isCollapsed ? (
+                <Maximize2 className="w-4 h-4" />
+              ) : (
+                <Minimize2 className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </div>
       )}
       {!isCollapsed && (
         <div 
-          ref={contentRef}
           className={cn(
-            "p-4 flex-1 overflow-auto relative accordion-reveal",
+            "p-4 flex-1 overflow-auto accordion-reveal relative",
             maxHeightExpanded,
             minHeightExpanded
           )}
-          data-scrolled={scrollState.isScrolled}
-          data-has-more={scrollState.hasMore}
         >
-          {/* Scroll shadow top */}
-          <div className="absolute top-0 left-0 right-0 h-8 pointer-events-none bg-gradient-to-b from-bg-secondary to-transparent opacity-0 transition-opacity duration-300 scroll-shadow-top z-10" />
-          
           {children}
-          
-          {/* Scroll shadow bottom */}
-          <div className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none bg-gradient-to-t from-bg-secondary to-transparent opacity-0 transition-opacity duration-300 scroll-shadow-bottom z-10" />
         </div>
       )}
     </div>

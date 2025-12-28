@@ -144,7 +144,7 @@ export default function RollResult({ result, diceType, sides, rolls, rollMode, o
             'text-xs font-orbitron uppercase tracking-widest',
             isCrit ? 'text-accent-yellow' : 'text-accent-red'
           )}>
-            {isCrit ? '★ CRITICAL ★' : '✕ FAILURE ✕'}
+            {isCrit ? '★ CRITICAL ★' : '✕ FUMBLE ✕'}
           </div>
         )}
       </div>
