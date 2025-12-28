@@ -297,6 +297,11 @@ function WorldTab() {
             table={worldOracles.generalMishaps}
             variant="yellow"
             diceType="d6"
+            formatResult={(result) => ({
+              roll: result.roll,
+              result: result.title,
+              detail: result.desc
+            })}
           />
           <OracleTable
             title="Space Obstacle"

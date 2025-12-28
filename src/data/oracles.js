@@ -256,12 +256,36 @@ export const worldOracles = {
 
   // Mishaps (d6)
   generalMishaps: [
-    "Lurking Monster (Dump/Swamp).",
-    "Ambush (Bounty Hunter with Net).",
-    "Inclement Weather (Storms/Acid).",
-    "Stink Bomb (Choking poison/paralysis).",
-    "Tracking Device (Murder Bot inbound).",
-    "A Mystery Unfolds (Go deeper)."
+    { 
+      roll: 1, 
+      title: "LURKING MONSTER", 
+      desc: "The trash chute leads to a swampy dump with an enormous alien beast that eats trash AND people." 
+    },
+    { 
+      roll: 2, 
+      title: "AMBUSH", 
+      desc: "There's a Bounty Hunter with a Net Launcher waiting by the back exit." 
+    },
+    { 
+      roll: 3, 
+      title: "INCLEMENT WEATHER", 
+      desc: "Escaping outside leads into dangerous lightning storms (landslides, low atmosphere, acid floods). Maybe it was better to stay inside?" 
+    },
+    { 
+      roll: 4, 
+      title: "STINK BOMB", 
+      desc: "The explosion used for a distraction erupts in a cloud of choking poison. It spreads quickly, leaving anyone who breathes it in agonising pain (sick, paralyzed, hypnotic visions)." 
+    },
+    { 
+      roll: 5, 
+      title: "TRACKING DEVICE", 
+      desc: "When the Rebels finally get to rest, they realize they've been tagged with a tracking beacon. A deadly Murder Bot is on its way." 
+    },
+    { 
+      roll: 6, 
+      title: "A MYSTERY UNFOLDS", 
+      desc: "Rumors have led the Rebels this far, but the only way to discover the truth is to go deeper inside, where even greater dangers lurk." 
+    }
   ],
 
   // Space Obstacles (d6)
