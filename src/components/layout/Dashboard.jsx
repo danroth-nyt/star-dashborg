@@ -182,7 +182,7 @@ export default function Dashboard({ roomCode }) {
       <div
         onDragOver={(e) => handleColumnDragOver(e, columnName)}
         onDrop={(e) => handleColumnDrop(e, columnName)}
-        className={`min-h-[100px] flex-1 transition-all duration-200 border-2 border-dashed rounded ${
+        className={`hidden lg:block lg:min-h-[100px] flex-1 transition-all duration-200 border-2 border-dashed rounded ${
           isActive 
             ? 'border-accent-cyan bg-accent-cyan/10' 
             : 'border-transparent'

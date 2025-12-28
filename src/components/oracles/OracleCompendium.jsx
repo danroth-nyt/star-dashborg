@@ -7,6 +7,7 @@ import MissionGenerator from './generators/MissionGenerator';
 import NPCGenerator from './generators/NPCGenerator';
 import PlanetGenerator from './generators/PlanetGenerator';
 import MonsterGenerator from './generators/MonsterGenerator';
+import CrimeLordGenerator from './generators/CrimeLordGenerator';
 import {
   soloOracles,
   missionGenerators,
@@ -27,8 +28,7 @@ import {
   rollDangerousLocation,
   generateMonsterName,
   generateEpicTitle,
-  generateEpisodeTitle,
-  generateCrimeLord
+  generateEpisodeTitle
 } from '../../data/oracles';
 import { useGame } from '../../context/GameContext';
 import Accordion from '../ui/Accordion';
@@ -375,34 +375,19 @@ function CharactersTab() {
 }
 
 function CombatTab() {
-  const { addLog } = useGame();
-
-  const handleCrimeLord = () => {
-    const lord = generateCrimeLord();
-    addLog(`Crime Lord: ${lord.name}`, 'mission');
-    return lord;
-  };
-
   return (
     <div className="space-y-4">
       <div className="text-accent-red font-orbitron text-lg font-bold uppercase mb-4">
         Combat & Enemies
       </div>
 
-      {/* Monster Generator - Unified single-button generator */}
-      <Accordion title="Monster Generator" defaultOpen={true}>
-        <MonsterGenerator />
-      </Accordion>
-
-      {/* Crime Lord Generator */}
-      <Accordion title="Crime Lord Generator" defaultOpen={false}>
-        <OracleTable
-          title="Generate Crime Lord"
-          table={[]}
-          variant="red"
-          diceType="multi"
-          rollFunction={handleCrimeLord}
-        />
+      {/* Enemy Generators - Combined */}
+      <Accordion title="Enemy Generators" defaultOpen={true}>
+        <div className="space-y-4">
+          <MonsterGenerator />
+          <div className="border-t-2 border-accent-red/30" />
+          <CrimeLordGenerator />
+        </div>
       </Accordion>
 
       {/* Enemy Reference */}

@@ -76,6 +76,8 @@ export default function DiceLog() {
         return 'text-accent-yellow';
       case 'roll':
         return 'text-accent-cyan';
+      case 'oracle':
+        return 'text-accent-yellow';
       default:
         return 'text-gray-400';
     }
@@ -100,6 +102,8 @@ export default function DiceLog() {
         return '✓';
       case 'mission':
         return '★';
+      case 'oracle':
+        return '◈';
       default:
         return '•';
     }
@@ -122,6 +126,25 @@ export default function DiceLog() {
     }
     // Normal roll - bold the result number
     return message.replace(/: (\d+)$/, ': <strong class="text-glow-cyan">$1</strong>');
+  };
+
+  const formatOracleMessage = (message) => {
+    // Split on pipe separator for structured oracle results
+    if (message.includes(' | ')) {
+      const parts = message.split(' | ');
+      const formatted = parts.map((part, idx) => {
+        if (idx === 0) {
+          // First part includes the title - keep it normal
+          return part;
+        }
+        // Highlight subsequent parts
+        return `<span class="text-accent-cyan">${part}</span>`;
+      }).join(' <span class="text-accent-yellow/40">|</span> ');
+      return formatted;
+    }
+    
+    // Highlight values after colons
+    return message.replace(/: ([^:]+)$/, ': <span class="text-accent-cyan">$1</span>');
   };
 
   const formatTimestamp = (timestamp) => {
@@ -175,6 +198,7 @@ export default function DiceLog() {
                     entry.type === 'danger' ? 'text-accent-red/60' :
                     entry.type === 'success' ? 'text-accent-cyan/60' :
                     entry.type === 'mission' ? 'text-accent-yellow/60' :
+                    entry.type === 'oracle' ? 'text-accent-yellow/60' :
                     'text-accent-cyan/60'
                   }`}>
                     {formatTimestamp(entry.timestamp)}
@@ -184,7 +208,9 @@ export default function DiceLog() {
                   <span 
                     className={getLogColor(entry.type)}
                     dangerouslySetInnerHTML={{ 
-                      __html: entry.type === 'roll' ? formatRollMessage(entry.message) : entry.message 
+                      __html: entry.type === 'roll' ? formatRollMessage(entry.message) : 
+                             entry.type === 'oracle' ? formatOracleMessage(entry.message) :
+                             entry.message 
                     }}
                   />
                 </div>
