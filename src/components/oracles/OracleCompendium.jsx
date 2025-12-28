@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { cn } from '../../lib/utils';
 import OracleQuickBar from './OracleQuickBar';
 import OracleTable from './OracleTable';
+import OracleResultDisplay from './OracleResultDisplay';
 import MissionGenerator from './generators/MissionGenerator';
 import NPCGenerator from './generators/NPCGenerator';
 import PlanetGenerator from './generators/PlanetGenerator';
@@ -33,7 +34,16 @@ import Accordion from '../ui/Accordion';
 
 export default function OracleCompendium() {
   const [activeTab, setActiveTab] = useState('core');
+  const [oracleResult, setOracleResult] = useState(null);
   const { addLog } = useGame();
+
+  // Determine variant based on result type
+  const getResultVariant = () => {
+    if (!oracleResult) return 'cyan';
+    if (oracleResult.result === 'Scene Shakeup') return 'yellow';
+    if (oracleResult.verb) return 'red';
+    return 'cyan';
+  };
 
   const tabs = [
     { id: 'core', label: 'Core', color: 'cyan' },
@@ -63,8 +73,16 @@ export default function OracleCompendium() {
     <div className="space-y-4">
       {/* Quick Action Bar */}
       <div className="border-3 border-accent-cyan bg-bg-secondary p-3">
-        <OracleQuickBar />
+        <OracleQuickBar setOracleResult={setOracleResult} />
       </div>
+
+      {/* Centralized Oracle Result Display */}
+      {oracleResult && (
+        <OracleResultDisplay 
+          result={oracleResult} 
+          variant={getResultVariant()}
+        />
+      )}
 
       {/* Tab Navigation */}
       <div className="grid grid-cols-6 gap-1">

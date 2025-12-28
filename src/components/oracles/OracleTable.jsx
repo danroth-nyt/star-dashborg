@@ -10,7 +10,8 @@ export default function OracleTable({
   variant = 'cyan',
   diceType = 'd6',
   rollFunction = null,
-  formatResult = null 
+  formatResult = null,
+  setOracleResult = null
 }) {
   const { addLog } = useGame();
   const [result, setResult] = useState(null);
@@ -32,7 +33,13 @@ export default function OracleTable({
     // Format result if formatter provided
     const formattedResult = formatResult ? formatResult(rollResult) : rollResult;
     
+    // Always set local result for display
     setResult(formattedResult);
+    
+    // Optionally set parent result if provided (for centralized display)
+    if (setOracleResult) {
+      setOracleResult(formattedResult);
+    }
     
     // Log to session
     const logMessage = typeof formattedResult === 'string' 
