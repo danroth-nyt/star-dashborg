@@ -104,7 +104,7 @@ export default function Dashboard({ roomCode }) {
         onDragOver={(e) => handleDragOver(e, panel.id)}
         onDrop={(e) => handleDrop(e, panel.id)}
         onDragEnd={handleDragEnd}
-        className={`cursor-move transition-all duration-200 ${
+        className={`cursor-move transition-all duration-200 mb-4 lg:mb-0 ${
           isBeingDragged ? 'opacity-40 scale-95' : ''
         } ${isDragOver ? 'scale-105' : ''}`}
       >
@@ -132,19 +132,19 @@ export default function Dashboard({ roomCode }) {
     <div className="min-h-screen bg-bg-primary scanlines flex flex-col">
       <Header roomCode={roomCode} />
       
-      <div className="flex-1 p-4 grid grid-cols-1 lg:grid-cols-12 gap-4 overflow-hidden">
+      <div className="flex-1 p-4 space-y-4 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-4 overflow-hidden">
         {/* Left Column - Trackers (3 columns) */}
-        <div className="lg:col-span-3 space-y-4 flex flex-col">
+        <div className="contents lg:block lg:col-span-3 lg:space-y-4 lg:flex lg:flex-col">
           {leftPanels.map(renderPanel)}
         </div>
 
         {/* Center Column - Dice Roller & Log (3 columns) */}
-        <div className="lg:col-span-3 space-y-4 flex flex-col">
+        <div className="contents lg:block lg:col-span-3 lg:space-y-4 lg:flex lg:flex-col">
           {centerPanels.map(renderPanel)}
         </div>
 
         {/* Right Column - Oracle Compendium & Journal (6 columns - wider!) */}
-        <div className="lg:col-span-6 space-y-4 flex flex-col">
+        <div className="contents lg:block lg:col-span-6 lg:space-y-4 lg:flex lg:flex-col">
           {rightPanels.map(renderPanel)}
         </div>
       </div>
