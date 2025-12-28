@@ -8,7 +8,6 @@ import NPCGenerator from './generators/NPCGenerator';
 import PlanetGenerator from './generators/PlanetGenerator';
 import MonsterGenerator from './generators/MonsterGenerator';
 import CrimeLordGenerator from './generators/CrimeLordGenerator';
-import QuickReference from '../ui/QuickReference';
 import SiteExplorer from '../trackers/SiteExplorer';
 import {
   soloOracles,
@@ -157,9 +156,6 @@ function CoreOraclesTab() {
       <div className="text-accent-cyan font-orbitron text-lg font-bold uppercase mb-4">
         Core Solo Play Oracles
       </div>
-
-      {/* Quick Reference */}
-      <QuickReference />
 
       <Accordion title="Opening Scene (d20)" defaultOpen={false}>
         <OracleTable

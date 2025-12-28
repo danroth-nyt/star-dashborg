@@ -1,12 +1,14 @@
-import { Copy, Check, Plus, BookOpen } from 'lucide-react';
+import { Copy, Check, Plus, BookOpen, BookMarked } from 'lucide-react';
 import { useState } from 'react';
 import Button from '../ui/Button';
 import { generateRoomCode } from '../../lib/utils';
 import GameFlowDrawer from './GameFlowDrawer';
+import QuickReferenceDrawer from '../ui/QuickReferenceDrawer';
 
 export default function Header({ roomCode }) {
   const [copied, setCopied] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [isRefOpen, setIsRefOpen] = useState(false);
 
   const copyInviteLink = () => {
     const url = `${window.location.origin}${window.location.pathname}?room=${roomCode}`;
@@ -35,15 +37,25 @@ export default function Header({ roomCode }) {
               </p>
             </div>
             
-            {/* Game Flow Guide Button - moves to new line on mobile */}
-            <Button
-              variant="primary"
-              onClick={() => setIsGuideOpen(true)}
-              className="hidden md:flex items-center gap-2"
-            >
-              <BookOpen className="w-4 h-4" />
-              Game Flow
-            </Button>
+            {/* Guide Buttons - moves to new line on mobile */}
+            <div className="hidden md:flex items-center gap-2">
+              <Button
+                variant="primary"
+                onClick={() => setIsGuideOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <BookOpen className="w-4 h-4" />
+                Game Flow
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setIsRefOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <BookMarked className="w-4 h-4" />
+                Quick Ref
+              </Button>
+            </div>
           </div>
           
           <div className="flex items-center gap-2 md:gap-4">
@@ -84,20 +96,31 @@ export default function Header({ roomCode }) {
             </div>
           </div>
 
-          {/* Game Flow Button for mobile - full width on new line */}
-          <Button
-            variant="primary"
-            onClick={() => setIsGuideOpen(true)}
-            className="md:hidden w-full flex items-center justify-center gap-2"
-          >
-            <BookOpen className="w-4 h-4" />
-            Game Flow
-          </Button>
+          {/* Guide Buttons for mobile - full width on new line */}
+          <div className="md:hidden w-full grid grid-cols-2 gap-2">
+            <Button
+              variant="primary"
+              onClick={() => setIsGuideOpen(true)}
+              className="flex items-center justify-center gap-2"
+            >
+              <BookOpen className="w-4 h-4" />
+              Game Flow
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setIsRefOpen(true)}
+              className="flex items-center justify-center gap-2"
+            >
+              <BookMarked className="w-4 h-4" />
+              Quick Ref
+            </Button>
+          </div>
         </div>
       </header>
 
-      {/* Game Flow Drawer */}
+      {/* Drawers */}
       <GameFlowDrawer isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
+      <QuickReferenceDrawer isOpen={isRefOpen} onClose={() => setIsRefOpen(false)} />
     </>
   );
 }

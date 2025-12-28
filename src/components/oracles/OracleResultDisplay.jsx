@@ -333,9 +333,13 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
                 <span className="text-xs font-orbitron uppercase text-gray-400">ACTIVITY [{result.activityRoll}]:</span>
                 <div className="text-base text-text-primary break-words">{result.activity}</div>
               </div>
-              <div className="sm:col-span-2">
+              <div>
                 <span className="text-xs font-orbitron uppercase text-gray-400">OMEN [{result.omenRoll}]:</span>
                 <div className="text-base text-text-primary break-words">{result.omen}</div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">SPECIFIC [{result.specificRoll}]:</span>
+                <div className={cn('text-base font-bold break-words', textColors[variant], textGlowColors[variant])}>{result.specific}</div>
               </div>
             </div>
           </div>
@@ -449,6 +453,38 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
                 </span>
                 <div className="text-base text-accent-red break-words">{result.complication}</div>
               </div>
+              {result.leader && (
+                <div>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    LEADER{result.leaderRoll ? ` [${result.leaderRoll}]` : ''}:
+                  </span>
+                  <div className="text-base text-text-primary break-words">{result.leader}</div>
+                </div>
+              )}
+              {result.landmark && (
+                <div>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    LANDMARK{result.landmarkRoll ? ` [${result.landmarkRoll}]` : ''}:
+                  </span>
+                  <div className="text-base text-text-primary break-words">{result.landmark}</div>
+                </div>
+              )}
+              {result.rumors && (
+                <div>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    RUMORS{result.rumorsRoll ? ` [${result.rumorsRoll}]` : ''}:
+                  </span>
+                  <div className="text-base text-accent-yellow break-words">{result.rumors}</div>
+                </div>
+              )}
+              {result.hookups && (
+                <div>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    NPC HOOK-UPS{result.hookupsRoll ? ` [${result.hookupsRoll}]` : ''}:
+                  </span>
+                  <div className="text-base text-accent-cyan break-words">{result.hookups}</div>
+                </div>
+              )}
               {result.name && (
                 <div>
                   <span className="text-xs font-orbitron uppercase text-gray-400">
