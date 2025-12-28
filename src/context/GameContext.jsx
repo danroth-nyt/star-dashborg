@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 const GameContext = createContext();
@@ -23,6 +23,8 @@ export function GameProvider({ children, roomCode }) {
   const [gameState, setGameState] = useState(initialGameState);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const syncTimerRef = useRef(null);
+  const pendingStateRef = useRef(null);
 
   // Load initial game state
   useEffect(() => {
@@ -87,33 +89,52 @@ export function GameProvider({ children, roomCode }) {
     };
   }, [roomCode]);
 
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (syncTimerRef.current) {
+        clearTimeout(syncTimerRef.current);
+      }
+    };
+  }, []);
+
   // Update game state in Supabase
   const updateGameState = useCallback(
-    async (updates) => {
+    (updates) => {
       if (!roomCode) return;
 
-      const newState = typeof updates === 'function' ? updates(gameState) : { ...gameState, ...updates };
+      let newState;
       
-      // Optimistic update
-      setGameState(newState);
+      // Immediate UI update
+      setGameState(currentState => {
+        newState = typeof updates === 'function' ? updates(currentState) : { ...currentState, ...updates };
+        pendingStateRef.current = newState;
+        return newState;
+      });
 
-      try {
-        const { error } = await supabase
-          .from('sessions')
-          .upsert({
-            room_code: roomCode,
-            game_state: newState,
-          });
-
-        if (error) throw error;
-      } catch (err) {
-        console.error('Error updating game state:', err);
-        setError(err.message);
-        // Revert optimistic update on error
-        setGameState(gameState);
+      // Debounced database sync
+      if (syncTimerRef.current) {
+        clearTimeout(syncTimerRef.current);
       }
+
+      syncTimerRef.current = setTimeout(async () => {
+        try {
+          const stateToSync = pendingStateRef.current;
+          const { error } = await supabase
+            .from('sessions')
+            .upsert({
+              room_code: roomCode,
+              game_state: stateToSync,
+            });
+
+          if (error) throw error;
+        } catch (err) {
+          console.error('Error syncing game state:', err);
+          setError(err.message);
+        }
+      }, 300); // 300ms debounce
     },
-    [roomCode, gameState]
+    [roomCode]
   );
 
   // Add log entry

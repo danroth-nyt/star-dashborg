@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useGame } from '../../context/GameContext';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, Minus, PlusCircle } from 'lucide-react';
 import Button from '../ui/Button';
 
 export default function DangerClock() {
@@ -131,6 +131,26 @@ export default function DangerClock() {
                     {clock.filled}/{clock.segments}
                   </span>
                 </div>
+              </div>
+              
+              {/* Control buttons */}
+              <div className="flex items-center justify-center gap-2">
+                <button
+                  onClick={() => clock.filled > 0 && updateClock(clock.id, clock.filled - 1)}
+                  disabled={clock.filled === 0}
+                  className="px-3 py-1 bg-bg-primary border-2 border-accent-red text-accent-red hover:bg-accent-red hover:text-bg-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all font-orbitron text-sm flex items-center gap-1"
+                >
+                  <Minus className="w-3 h-3" />
+                  -1
+                </button>
+                <button
+                  onClick={() => clock.filled < clock.segments && updateClock(clock.id, clock.filled + 1)}
+                  disabled={clock.filled === clock.segments}
+                  className="px-3 py-1 bg-bg-primary border-2 border-accent-red text-accent-red hover:bg-accent-red hover:text-bg-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all font-orbitron text-sm flex items-center gap-1"
+                >
+                  <PlusCircle className="w-3 h-3" />
+                  +1
+                </button>
               </div>
             </div>
           ))
