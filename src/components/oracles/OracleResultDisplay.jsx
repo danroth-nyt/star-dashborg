@@ -117,6 +117,38 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           </div>
         )}
 
+        {/* Scene special formatting */}
+        {result.location && result.tone && result.obstacle && (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">LOCATION:</span>
+              <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.location}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">TONE:</span>
+              <span className={cn('text-base terminal-text', textColors[variant])}>{result.tone}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">OBSTACLE:</span>
+              <span className={cn('text-base text-accent-red terminal-text')}>{result.obstacle}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Travel Encounter special formatting */}
+        {result.theme && result.actor && !result.role && (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">THEME:</span>
+              <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.theme}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">ACTOR:</span>
+              <span className={cn('text-base terminal-text', textColors[variant])}>{result.actor}</span>
+            </div>
+          </div>
+        )}
+
         {/* Complex result rendering for compound generators (Detailed Mission) */}
         {result.type && (
           <div className="space-y-2">
