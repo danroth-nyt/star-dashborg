@@ -6,6 +6,7 @@ import OracleResultDisplay from './OracleResultDisplay';
 import MissionGenerator from './generators/MissionGenerator';
 import NPCGenerator from './generators/NPCGenerator';
 import PlanetGenerator from './generators/PlanetGenerator';
+import MonsterGenerator from './generators/MonsterGenerator';
 import {
   soloOracles,
   missionGenerators,
@@ -371,12 +372,7 @@ function CombatTab() {
   const handleCrimeLord = () => {
     const lord = generateCrimeLord();
     addLog(`Crime Lord: ${lord.name}`, 'mission');
-    return {
-      result: lord.name,
-      visage: lord.visage,
-      weapon: lord.weapon,
-      base: lord.base
-    };
+    return lord;
   };
 
   return (
@@ -385,7 +381,13 @@ function CombatTab() {
         Combat & Enemies
       </div>
 
-      <Accordion title="Crime Lord Generator" defaultOpen={true}>
+      {/* Monster Generator - Unified single-button generator */}
+      <Accordion title="Monster Generator" defaultOpen={true}>
+        <MonsterGenerator />
+      </Accordion>
+
+      {/* Crime Lord Generator */}
+      <Accordion title="Crime Lord Generator" defaultOpen={false}>
         <OracleTable
           title="Generate Crime Lord"
           table={[]}
@@ -395,6 +397,7 @@ function CombatTab() {
         />
       </Accordion>
 
+      {/* Enemy Reference */}
       <Accordion title="Enemy Reference" defaultOpen={false}>
         <div className="space-y-3">
           <div className="text-sm font-orbitron text-accent-cyan uppercase mb-2">Personnel</div>
@@ -424,36 +427,6 @@ function CombatTab() {
               </div>
             </div>
           ))}
-        </div>
-      </Accordion>
-
-      <Accordion title="Monster Generators" defaultOpen={false}>
-        <div className="space-y-4">
-          <OracleTable
-            title="Beast Adaptation"
-            table={monsterOracles.beastAdaptations}
-            variant="red"
-            diceType="d6"
-          />
-          <OracleTable
-            title="Monstrosity Adaptation"
-            table={monsterOracles.monstrosityAdaptations}
-            variant="red"
-            diceType="d6"
-          />
-          <OracleTable
-            title="Weak Spot"
-            table={monsterOracles.weakSpots}
-            variant="yellow"
-            diceType="d6"
-          />
-          <OracleTable
-            title="Monster Name"
-            table={[]}
-            variant="cyan"
-            diceType="2d10"
-            rollFunction={() => ({ result: generateMonsterName() })}
-          />
         </div>
       </Accordion>
 

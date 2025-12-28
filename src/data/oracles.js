@@ -874,8 +874,26 @@ export function rollAffirmation() {
 
 // Roll on event oracle
 export function rollEventOracle() {
-  const roll = rollDice(20);
-  return soloOracles.eventOracle[roll - 1];
+  // Roll each field independently for more permutations
+  const verbRoll = rollDice(20);
+  const subjectRoll = rollDice(20);
+  const descRoll = rollDice(20);
+  const activityRoll = rollDice(20);
+  const omenRoll = rollDice(20);
+  
+  return {
+    roll: verbRoll, // Keep for backward compatibility with logging
+    verbRoll,
+    subjectRoll,
+    descRoll,
+    activityRoll,
+    omenRoll,
+    verb: soloOracles.eventOracle[verbRoll - 1].verb,
+    subject: soloOracles.eventOracle[subjectRoll - 1].subject,
+    description: soloOracles.eventOracle[descRoll - 1].description,
+    activity: soloOracles.eventOracle[activityRoll - 1].activity,
+    omen: soloOracles.eventOracle[omenRoll - 1].omen
+  };
 }
 
 // Roll scene shakeup (d20 + threat modifier)
@@ -998,6 +1016,27 @@ export function generateMonsterName() {
   return `${prefix} ${suffix}`;
 }
 
+// Generate complete monster - all subtables at once
+export function generateMonster() {
+  const beastRoll = rollDice(6);
+  const monstrosityRoll = rollDice(6);
+  const weakSpotRoll = rollDice(6);
+  const namePrefix = rollDice(monsterOracles.monsterNames.prefix.length);
+  const nameSuffix = rollDice(monsterOracles.monsterNames.suffix.length);
+  
+  return {
+    beastRoll,
+    monstrosityRoll,
+    weakSpotRoll,
+    namePrefixRoll: namePrefix,
+    nameSuffixRoll: nameSuffix,
+    beast: monsterOracles.beastAdaptations[beastRoll - 1],
+    monstrosity: monsterOracles.monstrosityAdaptations[monstrosityRoll - 1],
+    weakSpot: monsterOracles.weakSpots[weakSpotRoll - 1],
+    name: `${monsterOracles.monsterNames.prefix[namePrefix - 1]} ${monsterOracles.monsterNames.suffix[nameSuffix - 1]}`
+  };
+}
+
 // Generate epic title
 export function generateEpicTitle() {
   return {
@@ -1020,10 +1059,19 @@ export function generateEpisodeTitle() {
 
 // Generate crime lord
 export function generateCrimeLord() {
+  const nameRoll = rollDice(nameOracles.crimeLordNames.length);
+  const visageRoll = rollDice(criminalOracles.lordlyVisages.length);
+  const weaponRoll = rollDice(criminalOracles.dastardlyWeapons.length);
+  const baseRoll = rollDice(criminalOracles.criminalBases.length);
+  
   return {
-    name: rollOnTable(nameOracles.crimeLordNames),
-    visage: rollOnTable(criminalOracles.lordlyVisages),
-    weapon: rollOnTable(criminalOracles.dastardlyWeapons),
-    base: rollOnTable(criminalOracles.criminalBases)
+    nameRoll,
+    visageRoll,
+    weaponRoll,
+    baseRoll,
+    name: nameOracles.crimeLordNames[nameRoll - 1],
+    visage: criminalOracles.lordlyVisages[visageRoll - 1],
+    weapon: criminalOracles.dastardlyWeapons[weaponRoll - 1],
+    base: criminalOracles.criminalBases[baseRoll - 1]
   };
 }

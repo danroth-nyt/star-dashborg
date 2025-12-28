@@ -201,28 +201,28 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           </div>
         )}
 
-        {/* Event oracle special formatting */}
-        {result.verb && (
+        {/* Event oracle special formatting - multi-roll */}
+        {result.verb && result.verbRoll && (
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">VERB:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">VERB [{result.verbRoll}]:</span>
                 <div className={cn('text-base font-bold', textColors[variant])}>{result.verb}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">SUBJECT:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">SUBJECT [{result.subjectRoll}]:</span>
                 <div className={cn('text-base font-bold', textColors[variant])}>{result.subject}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">DESC:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">DESC [{result.descRoll}]:</span>
                 <div className="text-base text-text-primary">{result.description}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">ACTIVITY:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">ACTIVITY [{result.activityRoll}]:</span>
                 <div className="text-base text-text-primary">{result.activity}</div>
               </div>
               <div className="col-span-2">
-                <span className="text-xs font-orbitron uppercase text-gray-400">OMEN:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">OMEN [{result.omenRoll}]:</span>
                 <div className="text-base text-text-primary">{result.omen}</div>
               </div>
             </div>
@@ -355,22 +355,52 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           </div>
         )}
 
-        {/* Crime Lord special formatting */}
-        {result.visage && (
+        {/* Crime Lord special formatting - multi-roll */}
+        {result.visage && result.visageRoll && (
           <div className="space-y-2">
             <div className="grid grid-cols-1 gap-2">
+              {result.name && (
+                <div>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">NAME [{result.nameRoll}]:</span>
+                  <div className={cn('text-lg font-bold', textColors[variant], textGlowColors[variant])}>{result.name}</div>
+                </div>
+              )}
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">VISAGE:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">VISAGE [{result.visageRoll}]:</span>
                 <div className="text-base text-text-primary">{result.visage}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">WEAPON:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">WEAPON [{result.weaponRoll}]:</span>
                 <div className="text-base text-accent-red">{result.weapon}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">BASE:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">BASE [{result.baseRoll}]:</span>
                 <div className="text-base text-text-primary">{result.base}</div>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Monster special formatting - multi-roll */}
+        {result.beast && result.monstrosity && result.weakSpot && result.beastRoll && (
+          <div className="space-y-2">
+            {result.name && (
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">MONSTER NAME:</span>
+                <div className={cn('text-lg font-bold', textColors[variant], textGlowColors[variant])}>{result.name}</div>
+              </div>
+            )}
+            <div>
+              <span className="text-xs font-orbitron uppercase text-gray-400">BEAST ADAPTATION [d6: {result.beastRoll}]:</span>
+              <div className="text-base text-text-primary">{result.beast}</div>
+            </div>
+            <div>
+              <span className="text-xs font-orbitron uppercase text-gray-400">MONSTROSITY [d6: {result.monstrosityRoll}]:</span>
+              <div className="text-base text-text-primary">{result.monstrosity}</div>
+            </div>
+            <div>
+              <span className="text-xs font-orbitron uppercase text-gray-400">WEAK SPOT [d6: {result.weakSpotRoll}]:</span>
+              <div className="text-base text-accent-yellow">{result.weakSpot}</div>
             </div>
           </div>
         )}
