@@ -6,6 +6,14 @@ import { cn } from '../../lib/utils';
 export default function GameFlowDrawer({ isOpen, onClose }) {
   const [expandedStep, setExpandedStep] = useState(null);
 
+  const handleAction = (action) => {
+    // Actions would trigger navigation or oracle rolls
+    // For now, we'll just log and close the drawer
+    console.log('Action triggered:', action);
+    // In a full implementation, this would use navigation or callbacks
+    // to trigger the appropriate oracle/generator in the main app
+  };
+
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -322,25 +330,32 @@ function StepCard({ step, isExpanded, onToggle }) {
           {step.actions && step.actions.length > 0 && (
             <div className="space-y-2">
               <div className="text-xs font-orbitron uppercase text-gray-400 mb-2">
-                Quick Actions (Coming Soon):
+                Quick Actions:
               </div>
               <div className="grid grid-cols-1 gap-2">
                 {step.actions.map((action, idx) => (
                   <button
                     key={idx}
-                    disabled
+                    onClick={() => {
+                      console.log('Quick action:', action.specific || action.tab);
+                      // These would ideally trigger navigation or oracle calls
+                      // Implementation would depend on app routing structure
+                    }}
                     className={cn(
                       'px-3 py-2 text-xs font-orbitron uppercase border-2 transition-all text-left',
                       colors.border,
                       colors.text,
-                      'opacity-50 cursor-not-allowed',
-                      'hover:opacity-60'
+                      'hover:bg-opacity-20',
+                      `hover:${colors.bg}`
                     )}
                   >
                     {action.label}
                   </button>
                 ))}
               </div>
+              <p className="text-gray-500 text-xs mt-2 italic">
+                Note: Actions log to console. Full navigation integration coming soon.
+              </p>
             </div>
           )}
         </div>

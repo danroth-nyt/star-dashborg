@@ -164,6 +164,16 @@ export const soloOracles = {
     { roll: 18, verb: "Inspect", subject: "Community", description: "Ancient", activity: "Conspiring", omen: "Temperature" },
     { roll: 19, verb: "Protect", subject: "Supply", description: "Grimy", activity: "Escorting", omen: "Blocked" },
     { roll: 20, verb: "Explore", subject: "Vow", description: "Graceful", activity: "Disabling", omen: "Illness" }
+  ],
+
+  // Event Specific (d6) - Roll to determine focus
+  eventSpecific: [
+    "PC Positive",
+    "PC Negative",
+    "Far Away Event",
+    "Relating to current Mission",
+    "NPC Positive",
+    "NPC Negative"
   ]
 };
 
@@ -298,6 +308,40 @@ export const worldOracles = {
   settlementComplication: [
     "Electrical storms", "Flood / Quake", "Creatures", "Crime", "Science",
     "Illness", "Dark omen", "Raiders", "Factional warfare", "Revolt"
+  ],
+
+  // Settlement Extended (d6 each) - Solo Rules p.17
+  settlementLeader: [
+    "Crime Lord",
+    "Galactic Legion",
+    "Elected Leader",
+    "Two separate Gangsters",
+    "Exiled Smuggler",
+    "Space Pirates"
+  ],
+  settlementLandmark: [
+    "Neon obelisk",
+    "Crashed ship",
+    "Dark grey prison building",
+    "Large fountain plaza",
+    "Tall communications tower",
+    "Hill with glass roof"
+  ],
+  settlementRumors: [
+    "Map",
+    "Gear",
+    "Secret information",
+    "Combat",
+    "Hacking",
+    "Uprising"
+  ],
+  settlementHookups: [
+    "Transfer of Bits",
+    "Stolen information",
+    "Disguised Magi",
+    "Weapons cache",
+    "Transport",
+    "Huge refining factory"
   ],
   
   // Planet Details (d10)
@@ -957,6 +1001,7 @@ export function rollEventOracle() {
   const descRoll = rollDice(20);
   const activityRoll = rollDice(20);
   const omenRoll = rollDice(20);
+  const specificRoll = rollDice(6);
   
   return {
     roll: verbRoll, // Keep for backward compatibility with logging
@@ -965,11 +1010,13 @@ export function rollEventOracle() {
     descRoll,
     activityRoll,
     omenRoll,
+    specificRoll,
     verb: soloOracles.eventOracle[verbRoll - 1].verb,
     subject: soloOracles.eventOracle[subjectRoll - 1].subject,
     description: soloOracles.eventOracle[descRoll - 1].description,
     activity: soloOracles.eventOracle[activityRoll - 1].activity,
-    omen: soloOracles.eventOracle[omenRoll - 1].omen
+    omen: soloOracles.eventOracle[omenRoll - 1].omen,
+    specific: soloOracles.eventSpecific[specificRoll - 1]
   };
 }
 
@@ -1111,6 +1158,10 @@ export function generateSettlement() {
   const knownForRoll = rollDice(worldOracles.settlementKnownFor.length);
   const currentStateRoll = rollDice(worldOracles.settlementCurrentState.length);
   const complicationRoll = rollDice(worldOracles.settlementComplication.length);
+  const leaderRoll = rollDice(worldOracles.settlementLeader.length);
+  const landmarkRoll = rollDice(worldOracles.settlementLandmark.length);
+  const rumorsRoll = rollDice(worldOracles.settlementRumors.length);
+  const hookupsRoll = rollDice(worldOracles.settlementHookups.length);
   const namePrefixRoll = rollDice(nameOracles.settlementNamePrefixes.length);
   const nameSuffixRoll = rollDice(nameOracles.settlementNameSuffixes.length);
   
@@ -1123,12 +1174,20 @@ export function generateSettlement() {
     knownForRoll,
     currentStateRoll,
     complicationRoll,
+    leaderRoll,
+    landmarkRoll,
+    rumorsRoll,
+    hookupsRoll,
     namePrefixRoll,
     nameSuffixRoll,
     appearance: worldOracles.settlementAppearance[appearanceRoll - 1],
     knownFor: worldOracles.settlementKnownFor[knownForRoll - 1],
     currentState: worldOracles.settlementCurrentState[currentStateRoll - 1],
     complication: worldOracles.settlementComplication[complicationRoll - 1],
+    leader: worldOracles.settlementLeader[leaderRoll - 1],
+    landmark: worldOracles.settlementLandmark[landmarkRoll - 1],
+    rumors: worldOracles.settlementRumors[rumorsRoll - 1],
+    hookups: worldOracles.settlementHookups[hookupsRoll - 1],
     name
   };
 }

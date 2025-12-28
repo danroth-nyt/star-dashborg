@@ -77,7 +77,7 @@ export default function OracleQuickBar({ setOracleResult }) {
     if (setOracleResult) {
       setOracleResult(event);
     }
-    addLog(`Event (${event.roll}): ${event.verb} ${event.subject}`, 'roll');
+    addLog(`Event (${event.roll}): ${event.verb} ${event.subject} - ${event.specific}`, 'roll');
   };
 
   return (

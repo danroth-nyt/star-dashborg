@@ -19,7 +19,7 @@ export default function PlanetGenerator() {
   const handleGenerateSettlement = () => {
     const settlement = generateSettlement();
     setResult(settlement);
-    addLog(`Settlement: ${settlement.name} - ${settlement.knownFor}`, 'mission');
+    addLog(`Settlement: ${settlement.name} (Leader: ${settlement.leader}) - ${settlement.knownFor}`, 'mission');
   };
 
   const handleGenerateScene = () => {
