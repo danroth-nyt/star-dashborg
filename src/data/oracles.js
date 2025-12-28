@@ -1176,23 +1176,41 @@ export function generateMonster() {
   };
 }
 
-// Generate epic title
+// Generate epic title - multi-roll for more permutations
 export function generateEpicTitle() {
+  const col1Roll = rollDice(titleGenerators.theEpic.col1.length);
+  const col2Roll = rollDice(titleGenerators.theEpic.col2.length);
+  const col3Roll = rollDice(titleGenerators.theEpic.col3.length);
+  const col4Roll = rollDice(titleGenerators.theEpic.col4.length);
+  
   return {
-    col1: rollOnTable(titleGenerators.theEpic.col1),
-    col2: rollOnTable(titleGenerators.theEpic.col2),
-    col3: rollOnTable(titleGenerators.theEpic.col3),
-    col4: rollOnTable(titleGenerators.theEpic.col4)
+    col1Roll,
+    col2Roll,
+    col3Roll,
+    col4Roll,
+    col1: titleGenerators.theEpic.col1[col1Roll - 1],
+    col2: titleGenerators.theEpic.col2[col2Roll - 1],
+    col3: titleGenerators.theEpic.col3[col3Roll - 1],
+    col4: titleGenerators.theEpic.col4[col4Roll - 1]
   };
 }
 
-// Generate episode title
+// Generate episode title - multi-roll for more permutations
 export function generateEpisodeTitle() {
+  const col1Roll = rollDice(titleGenerators.theEpisode.col1.length);
+  const col2Roll = rollDice(titleGenerators.theEpisode.col2.length);
+  const col3Roll = rollDice(titleGenerators.theEpisode.col3.length);
+  const col4Roll = rollDice(titleGenerators.theEpisode.col4.length);
+  
   return {
-    col1: rollOnTable(titleGenerators.theEpisode.col1),
-    col2: rollOnTable(titleGenerators.theEpisode.col2),
-    col3: rollOnTable(titleGenerators.theEpisode.col3),
-    col4: rollOnTable(titleGenerators.theEpisode.col4)
+    col1Roll,
+    col2Roll,
+    col3Roll,
+    col4Roll,
+    col1: titleGenerators.theEpisode.col1[col1Roll - 1],
+    col2: titleGenerators.theEpisode.col2[col2Roll - 1],
+    col3: titleGenerators.theEpisode.col3[col3Roll - 1],
+    col4: titleGenerators.theEpisode.col4[col4Roll - 1]
   };
 }
 

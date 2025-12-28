@@ -171,15 +171,23 @@ function MissionsTab() {
   const handleEpicTitle = () => {
     const title = generateEpicTitle();
     const titleString = `${title.col1} ${title.col2} ${title.col3} ${title.col4}`;
-    addLog(`Epic Title: ${titleString}`, 'mission');
-    return { result: 'Campaign Title', detail: titleString };
+    addLog(`Epic Title [${title.col1Roll}, ${title.col2Roll}, ${title.col3Roll}, ${title.col4Roll}]: ${titleString}`, 'mission');
+    return { 
+      result: 'Campaign Title', 
+      titleType: 'epic',
+      ...title 
+    };
   };
 
   const handleEpisodeTitle = () => {
     const title = generateEpisodeTitle();
     const titleString = `${title.col1} ${title.col2} ${title.col3} ${title.col4}`;
-    addLog(`Episode Title: ${titleString}`, 'mission');
-    return { result: 'Episode Title', detail: titleString };
+    addLog(`Episode Title [${title.col1Roll}, ${title.col2Roll}, ${title.col3Roll}, ${title.col4Roll}]: ${titleString}`, 'mission');
+    return { 
+      result: 'Episode Title',
+      titleType: 'episode',
+      ...title 
+    };
   };
 
   return (

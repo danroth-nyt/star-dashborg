@@ -545,6 +545,54 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           </div>
         )}
 
+        {/* Title Generator special formatting - 4 column rolls */}
+        {result.titleType && result.col1 && result.col2 && result.col3 && result.col4 && (
+          <div className="space-y-3">
+            <div className="grid grid-cols-4 gap-2">
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  [{result.col1Roll}]
+                </span>
+                <div className={cn('text-base font-bold', textColors[variant])}>
+                  {result.col1}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  [{result.col2Roll}]
+                </span>
+                <div className={cn('text-base font-bold', textColors[variant])}>
+                  {result.col2}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  [{result.col3Roll}]
+                </span>
+                <div className={cn('text-base font-bold', textColors[variant])}>
+                  {result.col3}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  [{result.col4Roll}]
+                </span>
+                <div className={cn('text-base font-bold', textColors[variant])}>
+                  {result.col4}
+                </div>
+              </div>
+            </div>
+            
+            {/* Full Title Display */}
+            <div className="pt-2 border-t border-accent-cyan/30">
+              <span className="text-xs font-orbitron uppercase text-gray-400">FULL TITLE:</span>
+              <div className={cn('text-xl font-bold', textColors[variant], textGlowColors[variant])}>
+                {result.col1} {result.col2} {result.col3} {result.col4}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Simple string result */}
         {typeof result === 'string' && (
           <div className={cn('text-lg terminal-text', textColors[variant])}>
