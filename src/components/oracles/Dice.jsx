@@ -5,109 +5,111 @@ const diceShapes = {
     <svg viewBox="0 0 100 100" className="w-full h-full">
       <polygon 
         points="50,15 85,85 15,85" 
-        fill="currentColor" 
-        fillOpacity="0.1"
+        fill="#0a0a0a" 
+        fillOpacity="0.9"
         stroke="currentColor" 
         strokeWidth="2"
       />
-      <text x="50" y="68" textAnchor="middle" className="text-2xl font-bold fill-current">4</text>
+      <text x="50" y="70" textAnchor="middle" fill="#ffffff" style={{fontSize: '28px', fontWeight: 900}}>4</text>
     </svg>
   ),
   6: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
       <rect 
-        x="15" y="15" 
-        width="70" height="70" 
-        fill="currentColor" 
-        fillOpacity="0.1"
+        x="20" y="20" 
+        width="60" height="60" 
+        fill="#0a0a0a" 
+        fillOpacity="0.9"
         stroke="currentColor" 
         strokeWidth="2"
         rx="4"
       />
-      <text x="50" y="58" textAnchor="middle" className="text-2xl font-bold fill-current">6</text>
+      <text x="50" y="58" textAnchor="middle" fill="#ffffff" style={{fontSize: '28px', fontWeight: 900}}>6</text>
     </svg>
   ),
   8: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
       <polygon 
-        points="50,10 80,35 80,65 50,90 20,65 20,35" 
-        fill="currentColor" 
-        fillOpacity="0.1"
+        points="25,50 50,15 75,50 50,85" 
+        fill="#0a0a0a" 
+        fillOpacity="0.9"
         stroke="currentColor" 
         strokeWidth="2"
       />
-      <text x="50" y="58" textAnchor="middle" className="text-2xl font-bold fill-current">8</text>
+      <text x="50" y="58" textAnchor="middle" fill="#ffffff" style={{fontSize: '28px', fontWeight: 900}}>8</text>
     </svg>
   ),
   10: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
       <polygon 
-        points="25,50 50,15 75,50 50,85" 
-        fill="currentColor" 
-        fillOpacity="0.1"
+        points="50,10 80,35 80,65 50,90 20,65 20,35" 
+        fill="#0a0a0a" 
+        fillOpacity="0.9"
         stroke="currentColor" 
         strokeWidth="2"
       />
-      <text x="50" y="58" textAnchor="middle" className="text-xl font-bold fill-current">10</text>
+      <text x="50" y="58" textAnchor="middle" fill="#ffffff" style={{fontSize: '24px', fontWeight: 900}}>10</text>
     </svg>
   ),
   12: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
       <polygon 
         points="50,10 70,20 82,35 82,65 70,80 50,90 30,80 18,65 18,35 30,20" 
-        fill="currentColor" 
-        fillOpacity="0.1"
+        fill="#0a0a0a" 
+        fillOpacity="0.9"
         stroke="currentColor" 
         strokeWidth="2"
       />
-      <text x="50" y="56" textAnchor="middle" className="text-xl font-bold fill-current">12</text>
+      <text x="50" y="58" textAnchor="middle" fill="#ffffff" style={{fontSize: '24px', fontWeight: 900}}>12</text>
     </svg>
   ),
   20: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
-      {/* D20 icosahedron - hexagonal outer shape */}
+      {/* D20 icosahedron - hexagonal outer shape with dark fill */}
       <polygon 
-        points="50,5 85,25 85,70 50,90 15,70 15,25" 
-        fill="currentColor" 
-        fillOpacity="0.1"
+        points="50,8 82,25 82,70 50,87 18,70 18,25" 
+        fill="#0a0a0a" 
+        fillOpacity="0.9"
         stroke="currentColor" 
         strokeWidth="2"
       />
-      {/* Top triangle */}
-      <line x1="50" y1="5" x2="15" y2="25" stroke="currentColor" strokeWidth="2" />
-      <line x1="50" y1="5" x2="85" y2="25" stroke="currentColor" strokeWidth="2" />
       
-      {/* Upper inner lines to center */}
-      <line x1="15" y1="25" x2="50" y2="50" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
-      <line x1="85" y1="25" x2="50" y2="50" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
-      <line x1="50" y1="5" x2="50" y2="50" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
+      {/* Top triangle pointing up */}
+      <polygon points="50,8 18,25 82,25" fill="none" stroke="currentColor" strokeWidth="2" />
       
-      {/* Middle horizontal line */}
-      <line x1="15" y1="25" x2="85" y2="70" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
-      <line x1="85" y1="25" x2="15" y2="70" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
+      {/* Center triangle pointing down - larger for text clearance */}
+      <polygon points="50,32 25,65 75,65" fill="#0a0a0a" fillOpacity="0.95" stroke="currentColor" strokeWidth="2" />
       
-      {/* Lower inner lines from center */}
-      <line x1="50" y1="50" x2="15" y2="70" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
-      <line x1="50" y1="50" x2="85" y2="70" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
-      <line x1="50" y1="50" x2="50" y2="90" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
+      {/* Left side triangle */}
+      <polygon points="18,25 18,70 25,65" fill="none" stroke="currentColor" strokeWidth="2" />
       
-      {/* Bottom triangle */}
-      <line x1="50" y1="90" x2="15" y2="70" stroke="currentColor" strokeWidth="2" />
-      <line x1="50" y1="90" x2="85" y2="70" stroke="currentColor" strokeWidth="2" />
+      {/* Right side triangle */}
+      <polygon points="82,25 75,65 82,70" fill="none" stroke="currentColor" strokeWidth="2" />
       
-      <text x="50" y="58" textAnchor="middle" className="text-xl font-bold fill-current">20</text>
+      {/* Connect center to outer - only lines that don't interfere with text */}
+      <line x1="50" y1="32" x2="50" y2="8" stroke="currentColor" strokeWidth="2" />
+      <line x1="25" y1="65" x2="18" y2="25" stroke="currentColor" strokeWidth="2" />
+      <line x1="75" y1="65" x2="82" y2="25" stroke="currentColor" strokeWidth="2" />
+      
+      {/* Bottom connections */}
+      <line x1="25" y1="65" x2="50" y2="87" stroke="currentColor" strokeWidth="2" />
+      <line x1="75" y1="65" x2="50" y2="87" stroke="currentColor" strokeWidth="2" />
+      <line x1="18" y1="70" x2="25" y2="65" stroke="currentColor" strokeWidth="2" />
+      <line x1="82" y1="70" x2="75" y2="65" stroke="currentColor" strokeWidth="2" />
+      
+      <text x="50" y="56" textAnchor="middle" fill="#ffffff" style={{fontSize: '24px', fontWeight: 900}}>20</text>
     </svg>
   ),
   100: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
       <circle 
         cx="50" cy="50" r="40" 
-        fill="currentColor" 
-        fillOpacity="0.1"
+        fill="#0a0a0a" 
+        fillOpacity="0.9"
         stroke="currentColor" 
         strokeWidth="2"
       />
-      <text x="50" y="58" textAnchor="middle" className="text-lg font-bold fill-current">100</text>
+      <text x="50" y="58" textAnchor="middle" fill="#ffffff" style={{fontSize: '22px', fontWeight: 900}}>100</text>
     </svg>
   ),
   '2d6': (
@@ -116,8 +118,8 @@ const diceShapes = {
       <rect 
         x="15" y="25" 
         width="32" height="32" 
-        fill="currentColor" 
-        fillOpacity="0.1"
+        fill="#0a0a0a" 
+        fillOpacity="0.9"
         stroke="currentColor" 
         strokeWidth="2"
         rx="3"
@@ -126,16 +128,16 @@ const diceShapes = {
       <rect 
         x="53" y="43" 
         width="32" height="32" 
-        fill="currentColor" 
-        fillOpacity="0.15"
+        fill="#0a0a0a" 
+        fillOpacity="0.9"
         stroke="currentColor" 
         strokeWidth="2"
         rx="3"
       />
       {/* Number 6 on first die */}
-      <text x="31" y="46" textAnchor="middle" className="text-lg font-bold fill-current">6</text>
+      <text x="31" y="48" textAnchor="middle" fill="#ffffff" style={{fontSize: '18px', fontWeight: 900}}>6</text>
       {/* Number 6 on second die */}
-      <text x="69" y="64" textAnchor="middle" className="text-lg font-bold fill-current">6</text>
+      <text x="69" y="66" textAnchor="middle" fill="#ffffff" style={{fontSize: '18px', fontWeight: 900}}>6</text>
     </svg>
   ),
 };
