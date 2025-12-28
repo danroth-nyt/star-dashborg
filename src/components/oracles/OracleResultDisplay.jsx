@@ -103,7 +103,21 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           </div>
         )}
 
-        {/* Complex result rendering for compound generators */}
+        {/* Quick Mission special formatting */}
+        {result.action && result.target && (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">ACTION:</span>
+              <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.action}</span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">TARGET:</span>
+              <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.target}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Complex result rendering for compound generators (Detailed Mission) */}
         {result.type && (
           <div className="space-y-2">
             {Object.entries(result).map(([key, value]) => {
