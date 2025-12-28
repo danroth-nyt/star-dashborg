@@ -3,10 +3,12 @@ import { useEffect, useRef } from 'react';
 
 export default function DiceLog() {
   const { gameState } = useGame();
-  const logEndRef = useRef(null);
+  const logContainerRef = useRef(null);
 
   useEffect(() => {
-    logEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (logContainerRef.current) {
+      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    }
   }, [gameState.log]);
 
   const getLogColor = (type) => {
@@ -37,25 +39,22 @@ export default function DiceLog() {
   };
 
   return (
-    <div className="h-full overflow-y-auto space-y-2 font-mono text-sm">
+    <div ref={logContainerRef} className="h-full overflow-y-auto space-y-2 font-mono text-sm">
       {gameState.log.length === 0 ? (
         <p className="text-gray-500 text-center italic">No activity yet...</p>
       ) : (
-        <>
-          {gameState.log.slice().reverse().map((entry) => (
-            <div key={entry.id} className="border-l-2 border-accent-cyan pl-2 py-1">
-              <div className="flex items-baseline gap-2">
-                <span className="text-accent-cyan text-xs">
-                  {formatTimestamp(entry.timestamp)}
-                </span>
-                <span className={getLogColor(entry.type)}>
-                  {entry.message}
-                </span>
-              </div>
+        gameState.log.slice().reverse().map((entry) => (
+          <div key={entry.id} className="border-l-2 border-accent-cyan pl-2 py-1">
+            <div className="flex items-baseline gap-2">
+              <span className="text-accent-cyan text-xs">
+                {formatTimestamp(entry.timestamp)}
+              </span>
+              <span className={getLogColor(entry.type)}>
+                {entry.message}
+              </span>
             </div>
-          ))}
-          <div ref={logEndRef} />
-        </>
+          </div>
+        ))
       )}
     </div>
   );

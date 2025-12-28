@@ -1,6 +1,7 @@
-import { Copy, Check } from 'lucide-react';
+import { Copy, Check, Plus } from 'lucide-react';
 import { useState } from 'react';
 import Button from '../ui/Button';
+import { generateRoomCode } from '../../lib/utils';
 
 export default function Header({ roomCode }) {
   const [copied, setCopied] = useState(false);
@@ -10,6 +11,12 @@ export default function Header({ roomCode }) {
     navigator.clipboard.writeText(url);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const createNewRoom = () => {
+    const newRoomCode = generateRoomCode();
+    const url = `${window.location.origin}${window.location.pathname}?room=${newRoomCode}`;
+    window.location.href = url;
   };
 
   return (
@@ -32,23 +39,34 @@ export default function Header({ roomCode }) {
             </p>
           </div>
           
-          <Button
-            variant="ghost"
-            onClick={copyInviteLink}
-            className="flex items-center gap-2"
-          >
-            {copied ? (
-              <>
-                <Check className="w-4 h-4" />
-                Copied!
-              </>
-            ) : (
-              <>
-                <Copy className="w-4 h-4" />
-                Copy Invite
-              </>
-            )}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              onClick={createNewRoom}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              New Room
+            </Button>
+            
+            <Button
+              variant="ghost"
+              onClick={copyInviteLink}
+              className="flex items-center gap-2"
+            >
+              {copied ? (
+                <>
+                  <Check className="w-4 h-4" />
+                  Copied!
+                </>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  Copy Invite
+                </>
+              )}
+            </Button>
+          </div>
         </div>
       </div>
     </header>
