@@ -165,11 +165,15 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
         {result.action && result.target && (
           <div className="space-y-2">
             <div className="flex gap-2">
-              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">ACTION:</span>
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                ACTION{result.actionRoll ? ` [${result.actionRoll}]` : ''}:
+              </span>
               <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.action}</span>
             </div>
             <div className="flex gap-2">
-              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">TARGET:</span>
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                TARGET{result.targetRoll ? ` [${result.targetRoll}]` : ''}:
+              </span>
               <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.target}</span>
             </div>
           </div>
@@ -179,15 +183,21 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
         {result.location && result.tone && result.obstacle && (
           <div className="space-y-2">
             <div className="flex gap-2">
-              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">LOCATION:</span>
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                LOCATION{result.locationRoll ? ` [${result.locationRoll}]` : ''}:
+              </span>
               <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.location}</span>
             </div>
             <div className="flex gap-2">
-              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">TONE:</span>
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                TONE{result.toneRoll ? ` [${result.toneRoll}]` : ''}:
+              </span>
               <span className={cn('text-base terminal-text', textColors[variant])}>{result.tone}</span>
             </div>
             <div className="flex gap-2">
-              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">OBSTACLE:</span>
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                OBSTACLE{result.obstacleRoll ? ` [${result.obstacleRoll}]` : ''}:
+              </span>
               <span className={cn('text-base text-accent-red terminal-text')}>{result.obstacle}</span>
             </div>
           </div>
@@ -197,11 +207,15 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
         {result.theme && result.actor && !result.role && (
           <div className="space-y-2">
             <div className="flex gap-2">
-              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">THEME:</span>
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                THEME{result.themeRoll ? ` [${result.themeRoll}]` : ''}:
+              </span>
               <span className={cn('text-base font-bold terminal-text', textColors[variant])}>{result.theme}</span>
             </div>
             <div className="flex gap-2">
-              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">ACTOR:</span>
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                ACTOR{result.actorRoll ? ` [${result.actorRoll}]` : ''}:
+              </span>
               <span className={cn('text-base terminal-text', textColors[variant])}>{result.actor}</span>
             </div>
           </div>
@@ -241,7 +255,45 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
         )}
 
         {/* Complex result rendering for compound generators (Detailed Mission) */}
-        {result.type && (
+        {result.type && result.typeRoll && (
+          <div className="space-y-2">
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                TYPE [{result.typeRoll}]:
+              </span>
+              <span className={cn('text-base terminal-text font-bold', textColors[variant])}>
+                {result.type}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                GOODS [{result.goodsRoll}]:
+              </span>
+              <span className={cn('text-base terminal-text', textColors[variant])}>
+                {result.goods}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                SPOT [{result.spotRoll}]:
+              </span>
+              <span className={cn('text-base terminal-text', textColors[variant])}>
+                {result.spot}
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <span className="text-sm font-orbitron uppercase text-gray-400 min-w-[100px]">
+                REWARD [{result.rewardRoll}]:
+              </span>
+              <span className={cn('text-base terminal-text text-accent-yellow')}>
+                {result.reward}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Fallback for old-style mission results without roll numbers */}
+        {result.type && !result.typeRoll && (
           <div className="space-y-2">
             {Object.entries(result).map(([key, value]) => {
               if (key === 'roll') return null;
@@ -372,24 +424,34 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           <div className="space-y-2">
             <div className="grid grid-cols-1 gap-2">
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">APPEARANCE:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  APPEARANCE{result.appearanceRoll ? ` [${result.appearanceRoll}]` : ''}:
+                </span>
                 <div className={cn('text-base', textColors[variant])}>{result.appearance}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">KNOWN FOR:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  KNOWN FOR{result.knownForRoll ? ` [${result.knownForRoll}]` : ''}:
+                </span>
                 <div className="text-base text-text-primary">{result.knownFor}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">STATE:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  STATE{result.currentStateRoll ? ` [${result.currentStateRoll}]` : ''}:
+                </span>
                 <div className="text-base text-text-primary">{result.currentState}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">COMPLICATION:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  COMPLICATION{result.complicationRoll ? ` [${result.complicationRoll}]` : ''}:
+                </span>
                 <div className="text-base text-accent-red">{result.complication}</div>
               </div>
               {result.name && (
                 <div>
-                  <span className="text-xs font-orbitron uppercase text-gray-400">NAME:</span>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    NAME{result.nameRoll ? ` [${result.nameRoll}]` : ''}:
+                  </span>
                   <div className={cn('text-lg font-bold', textColors[variant], textGlowColors[variant])}>
                     {result.name}
                   </div>
@@ -400,25 +462,33 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
         )}
 
         {/* Villain special formatting */}
-        {result.villain && (
+        {result.villain && !result.visage && (
           <div className="space-y-2">
             <div className="grid grid-cols-2 gap-2">
               <div className="col-span-2">
-                <span className="text-xs font-orbitron uppercase text-gray-400">VILLAIN:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  VILLAIN{result.villainRoll ? ` [${result.villainRoll}]` : ''}:
+                </span>
                 <div className={cn('text-lg font-bold', textColors[variant], textGlowColors[variant])}>
                   {result.villain}
                 </div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">GOAL:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  GOAL{result.goalRoll ? ` [${result.goalRoll}]` : ''}:
+                </span>
                 <div className="text-base text-text-primary">{result.goal}</div>
               </div>
               <div>
-                <span className="text-xs font-orbitron uppercase text-gray-400">PLAN:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  PLAN{result.planRoll ? ` [${result.planRoll}]` : ''}:
+                </span>
                 <div className="text-base text-text-primary">{result.plan}</div>
               </div>
               <div className="col-span-2">
-                <span className="text-xs font-orbitron uppercase text-gray-400">MEANS:</span>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  MEANS{result.meansRoll ? ` [${result.meansRoll}]` : ''}:
+                </span>
                 <div className="text-base text-text-primary">{result.means}</div>
               </div>
             </div>

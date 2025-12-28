@@ -969,31 +969,54 @@ export function rollSceneShakeup(threatDie = 1) {
   return { roll, result: soloOracles.sceneShakeup[index] };
 }
 
-// Generate a mission
+// Generate a mission - multi-roll for more permutations
 export function generateMission() {
+  const typeRoll = rollDice(missionGenerators.missionType.length);
+  const goodsRoll = rollDice(missionGenerators.missionGoods.length);
+  const spotRoll = rollDice(missionGenerators.missionSpot.length);
+  const rewardRoll = rollDice(missionGenerators.missionReward.length);
+  
   return {
-    type: rollOnTable(missionGenerators.missionType),
-    goods: rollOnTable(missionGenerators.missionGoods),
-    spot: rollOnTable(missionGenerators.missionSpot),
-    reward: rollOnTable(missionGenerators.missionReward)
+    typeRoll,
+    goodsRoll,
+    spotRoll,
+    rewardRoll,
+    type: missionGenerators.missionType[typeRoll - 1],
+    goods: missionGenerators.missionGoods[goodsRoll - 1],
+    spot: missionGenerators.missionSpot[spotRoll - 1],
+    reward: missionGenerators.missionReward[rewardRoll - 1]
   };
 }
 
-// Generate quick mission
+// Generate quick mission - multi-roll for more permutations
 export function generateQuickMission() {
+  const actionRoll = rollDice(missionGenerators.quickMission.length);
+  const targetRoll = rollDice(missionGenerators.quickTarget.length);
+  
   return {
-    action: rollOnTable(missionGenerators.quickMission),
-    target: rollOnTable(missionGenerators.quickTarget)
+    actionRoll,
+    targetRoll,
+    action: missionGenerators.quickMission[actionRoll - 1],
+    target: missionGenerators.quickTarget[targetRoll - 1]
   };
 }
 
-// Generate villain
+// Generate villain - multi-roll for more permutations
 export function generateVillain() {
+  const villainRoll = rollDice(missionGenerators.villain.length);
+  const goalRoll = rollDice(missionGenerators.villainGoal.length);
+  const planRoll = rollDice(missionGenerators.villainPlan.length);
+  const meansRoll = rollDice(missionGenerators.villainMeans.length);
+  
   return {
-    villain: rollOnTable(missionGenerators.villain),
-    goal: rollOnTable(missionGenerators.villainGoal),
-    plan: rollOnTable(missionGenerators.villainPlan),
-    means: rollOnTable(missionGenerators.villainMeans)
+    villainRoll,
+    goalRoll,
+    planRoll,
+    meansRoll,
+    villain: missionGenerators.villain[villainRoll - 1],
+    goal: missionGenerators.villainGoal[goalRoll - 1],
+    plan: missionGenerators.villainPlan[planRoll - 1],
+    means: missionGenerators.villainMeans[meansRoll - 1]
   };
 }
 
@@ -1048,31 +1071,54 @@ export function generatePlanet() {
   };
 }
 
-// Generate settlement
+// Generate settlement - multi-roll for more permutations
 export function generateSettlement() {
+  const appearanceRoll = rollDice(worldOracles.settlementAppearance.length);
+  const knownForRoll = rollDice(worldOracles.settlementKnownFor.length);
+  const currentStateRoll = rollDice(worldOracles.settlementCurrentState.length);
+  const complicationRoll = rollDice(worldOracles.settlementComplication.length);
+  const nameRoll = rollDice(nameOracles.settlementNames.length);
+  
   return {
-    appearance: rollOnTable(worldOracles.settlementAppearance),
-    knownFor: rollOnTable(worldOracles.settlementKnownFor),
-    currentState: rollOnTable(worldOracles.settlementCurrentState),
-    complication: rollOnTable(worldOracles.settlementComplication),
-    name: rollOnTable(nameOracles.settlementNames)
+    appearanceRoll,
+    knownForRoll,
+    currentStateRoll,
+    complicationRoll,
+    nameRoll,
+    appearance: worldOracles.settlementAppearance[appearanceRoll - 1],
+    knownFor: worldOracles.settlementKnownFor[knownForRoll - 1],
+    currentState: worldOracles.settlementCurrentState[currentStateRoll - 1],
+    complication: worldOracles.settlementComplication[complicationRoll - 1],
+    name: nameOracles.settlementNames[nameRoll - 1]
   };
 }
 
-// Generate scene
+// Generate scene - multi-roll for more permutations
 export function generateScene() {
+  const locationRoll = rollDice(worldOracles.sceneLocation.length);
+  const toneRoll = rollDice(worldOracles.sceneTone.length);
+  const obstacleRoll = rollDice(worldOracles.sceneObstacle.length);
+  
   return {
-    location: rollOnTable(worldOracles.sceneLocation),
-    tone: rollOnTable(worldOracles.sceneTone),
-    obstacle: rollOnTable(worldOracles.sceneObstacle)
+    locationRoll,
+    toneRoll,
+    obstacleRoll,
+    location: worldOracles.sceneLocation[locationRoll - 1],
+    tone: worldOracles.sceneTone[toneRoll - 1],
+    obstacle: worldOracles.sceneObstacle[obstacleRoll - 1]
   };
 }
 
-// Generate travel encounter
+// Generate travel encounter - multi-roll for more permutations
 export function generateTravelEncounter() {
+  const themeRoll = rollDice(npcOracles.travelTheme.length);
+  const actorRoll = rollDice(npcOracles.travelActor.length);
+  
   return {
-    theme: rollOnTable(npcOracles.travelTheme),
-    actor: rollOnTable(npcOracles.travelActor)
+    themeRoll,
+    actorRoll,
+    theme: npcOracles.travelTheme[themeRoll - 1],
+    actor: npcOracles.travelActor[actorRoll - 1]
   };
 }
 
