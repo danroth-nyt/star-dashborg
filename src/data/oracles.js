@@ -300,16 +300,27 @@ export const worldOracles = {
 };
 
 // ==========================================
-// 4. DANGEROUS LOCATIONS (Ship/Base)
+// 4. DANGEROUS LOCATIONS (Ship/Base) - Solo Rules p.20-21
 // ==========================================
 
 export const dangerousLocations = {
-  // d20 Table
+  // 1. Determine the Size (Roll d20)
+  siteSize: {
+    "1-10": { type: "Small Site", zones: "d6 + 2", note: "Add 1 final Objective Zone" },
+    "11-16": { type: "Medium Site", zones: "d6 + 5", note: "Add 1 final Objective Zone" },
+    "17-20": { type: "Large Site", zones: "d12 + 5", note: "Add 1 final Objective Zone" }
+  },
+
+  // 2. The Main Generator (Roll d20 per Zone)
+  // When entering a Zone:
+  // 1. Roll row (1-20) to determine Feature.
+  // 2. Roll d20 + Threat. On 12+, use the "Obstacle" column.
+  // 3. If searching, use the "Search" column (Strong Hit = d20 / Weak Hit = d10).
   features: [
     { roll: 1, ship: "Plain", base: "Dormitory", obstacle: "Bot", search: "Junk" },
-    { roll: 2, ship: "Barracks", base: "Holding", obstacle: "Alarm", search: "Scrap" },
+    { roll: 2, ship: "Barracks", base: "Holding", obstacle: "Alarm", search: "Scrap (Tradeable to right client)" },
     { roll: 3, ship: "Pod Bay", base: "Storage", obstacle: "Enemy", search: "Bot Parts" },
-    { roll: 4, ship: "Workshop", base: "Fighting Pit", obstacle: "Enemy", search: "Goods" },
+    { roll: 4, ship: "Workshop", base: "Fighting Pit", obstacle: "Enemy", search: "Goods (Worth Bits on Black Market)" },
     { roll: 5, ship: "Comms", base: "Parts", obstacle: "Enemy", search: "Eye / Headwear" },
     { roll: 6, ship: "Medical", base: "Trash", obstacle: "Missile", search: "Clothing" },
     { roll: 7, ship: "Hangar", base: "Mess", obstacle: "Debris", search: "Datapad" },
@@ -326,7 +337,10 @@ export const dangerousLocations = {
     { roll: 18, ship: "Cargo", base: "Hover-Port", obstacle: "Surveillance", search: "Special Item" },
     { roll: 19, ship: "Bridge", base: "Generator", obstacle: "Resources", search: "Keycard" },
     { roll: 20, ship: "Power", base: "Comms", obstacle: "Gas", search: "Ally" }
-  ]
+  ],
+
+  // 3. Escape Rules (Reference)
+  escape: "When the Mission is complete, roll on the Obstacle column one last time to escape!"
 };
 
 // ==========================================
