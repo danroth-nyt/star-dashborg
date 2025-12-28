@@ -48,24 +48,27 @@ export default function OracleQuickBar({ setOracleResult }) {
         result: 'Scene Shakeup',
         detail: shakeupCheck.shakeup.result,
         checkRoll: shakeupCheck.checkRoll,
+        threatDie,
+        shakeupD20: shakeupCheck.shakeup.d20,
         shakeupRoll: shakeupCheck.shakeup.roll
       };
       if (setOracleResult) {
         setOracleResult(result);
       }
-      addLog(`Scene Shakeup Check (d20:${shakeupCheck.checkRoll} + Threat:${threatDie} = ${shakeupCheck.total}) ✓ → ${shakeupCheck.shakeup.result}`, 'roll');
+      addLog(`Scene Shakeup Check [${shakeupCheck.checkRoll}] + [${threatDie}] = ${shakeupCheck.total} ✓ → Shakeup [${shakeupCheck.shakeup.d20}] + [${threatDie}] = ${shakeupCheck.shakeup.roll}: ${shakeupCheck.shakeup.result}`, 'roll');
     } else {
       const result = {
         roll: shakeupCheck.total,
         result: 'No Scene Shakeup',
-        detail: `Rolled ${shakeupCheck.checkRoll} + ${threatDie} = ${shakeupCheck.total}, need 15+`,
+        detail: `Rolled [${shakeupCheck.checkRoll}] + [${threatDie}] = ${shakeupCheck.total}, need 15+`,
         checkRoll: shakeupCheck.checkRoll,
+        threatDie,
         success: false
       };
       if (setOracleResult) {
         setOracleResult(result);
       }
-      addLog(`Scene Shakeup Check (d20:${shakeupCheck.checkRoll} + Threat:${threatDie} = ${shakeupCheck.total}) ✗ No shakeup`, 'roll');
+      addLog(`Scene Shakeup Check [${shakeupCheck.checkRoll}] + [${threatDie}] = ${shakeupCheck.total} ✗ No shakeup`, 'roll');
     }
   };
 

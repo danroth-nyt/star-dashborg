@@ -113,6 +113,14 @@ h1, h2, h3, h4, h5, h6 {
     animation: typewriter 0.8s steps(40, end);
   }
 
+  /* Mobile override for typewriter - allow text wrapping on small screens */
+  @media (max-width: 640px) {
+    .typewriter {
+      white-space: normal;
+      overflow: visible;
+    }
+  }
+
   .typewriter-cursor {
     border-right: 2px solid var(--color-accent-cyan);
     animation: blink 0.7s step-end infinite;

@@ -984,10 +984,12 @@ export function rollSceneShakeup(threatDie = 1) {
   let shakeupResult = null;
   if (success) {
     // Roll again on the shakeup table (d20 + Threat)
-    const shakeupRoll = rollDice(20) + threatDie;
-    const index = Math.min(shakeupRoll - 1, soloOracles.sceneShakeup.length - 1);
+    const shakeupD20 = rollDice(20);
+    const shakeupTotal = shakeupD20 + threatDie;
+    const index = Math.min(shakeupTotal - 1, soloOracles.sceneShakeup.length - 1);
     shakeupResult = {
-      roll: shakeupRoll,
+      d20: shakeupD20, // Display the d20 roll
+      roll: shakeupTotal, // Total for table lookup
       result: soloOracles.sceneShakeup[index]
     };
   }
@@ -1185,15 +1187,18 @@ export function rollDangerousLocation(threatDie = 1) {
   const searchRoll = rollDice(20);
   
   // Roll d20 + Threat. On 12+, obstacle is triggered
-  const threatRoll = rollDice(20) + threatDie;
-  const obstacleTriggered = threatRoll >= 12;
+  const threatD20Roll = rollDice(20);
+  const threatTotal = threatD20Roll + threatDie;
+  const obstacleTriggered = threatTotal >= 12;
   
   return {
     shipRoll,
     baseRoll,
     obstacleRoll,
     searchRoll,
-    threatRoll,
+    threatRoll: threatD20Roll, // Display the d20 roll
+    threatTotal, // Store the total for checks
+    threatDie, // Store the threat die value
     obstacleTriggered,
     ship: dangerousLocations.features[shipRoll - 1].ship,
     base: dangerousLocations.features[baseRoll - 1].base,

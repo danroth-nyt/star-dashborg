@@ -29,17 +29,18 @@ export default function NPCGenerator() {
         total: encounterCheck.total
       };
       setResult(result);
-      addLog(`Travel Encounter Check (d20:${encounterCheck.checkRoll} + Threat:${threatDie} = ${encounterCheck.total}) ✓ → ${encounterCheck.encounter.theme} - ${encounterCheck.encounter.actor}`, 'mission');
+      addLog(`Travel Encounter Check [${encounterCheck.checkRoll}] + [${threatDie}] = ${encounterCheck.total} ✓ → ${encounterCheck.encounter.theme} - ${encounterCheck.encounter.actor}`, 'mission');
     } else {
       const result = {
         result: 'No Travel Encounter',
-        detail: `Rolled ${encounterCheck.checkRoll} + ${threatDie} = ${encounterCheck.total}, need 12+`,
+        detail: `Rolled [${encounterCheck.checkRoll}] + [${threatDie}] = ${encounterCheck.total}, need 12+`,
         checkRoll: encounterCheck.checkRoll,
+        threatDie,
         total: encounterCheck.total,
         success: false
       };
       setResult(result);
-      addLog(`Travel Encounter Check (d20:${encounterCheck.checkRoll} + Threat:${threatDie} = ${encounterCheck.total}) ✗ No encounter`, 'roll');
+      addLog(`Travel Encounter Check [${encounterCheck.checkRoll}] + [${threatDie}] = ${encounterCheck.total} ✗ No encounter`, 'roll');
     }
   };
 

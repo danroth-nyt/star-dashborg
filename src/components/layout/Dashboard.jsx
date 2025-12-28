@@ -197,19 +197,19 @@ export default function Dashboard({ roomCode }) {
       
       <div className="flex-1 p-4 space-y-4 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-6 overflow-hidden">
         {/* Left Column - Trackers (3 columns) */}
-        <div className="contents lg:block lg:col-span-3 lg:space-y-6 lg:flex lg:flex-col">
+        <div className="space-y-4 lg:contents lg:block lg:col-span-3 lg:space-y-6 lg:flex lg:flex-col">
           {leftPanels.map(renderPanel)}
           {renderColumnDropZone('left')}
         </div>
 
         {/* Center Column - Dice Roller & Log (3 columns) */}
-        <div className="contents lg:block lg:col-span-3 lg:space-y-6 lg:flex lg:flex-col">
+        <div className="space-y-4 lg:contents lg:block lg:col-span-3 lg:space-y-6 lg:flex lg:flex-col">
           {centerPanels.map(renderPanel)}
           {renderColumnDropZone('center')}
         </div>
 
         {/* Right Column - Oracle Compendium & Journal (6 columns - wider!) */}
-        <div className="contents lg:block lg:col-span-6 lg:space-y-6 lg:flex lg:flex-col">
+        <div className="space-y-4 lg:contents lg:block lg:col-span-6 lg:space-y-6 lg:flex lg:flex-col">
           {rightPanels.map(renderPanel)}
           {renderColumnDropZone('right')}
         </div>
