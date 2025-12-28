@@ -1,9 +1,14 @@
+import { useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { rollDice } from '../../data/oracles';
-import Button from '../ui/Button';
+import Dice from './Dice';
+import RollResult from './RollResult';
 
 export default function DiceRoller() {
   const { addLog } = useGame();
+  const [rolling, setRolling] = useState(null);
+  const [currentResult, setCurrentResult] = useState(null);
+  const [recentRolls, setRecentRolls] = useState([]);
 
   const diceTypes = [
     { sides: 4, label: 'D4' },
@@ -16,31 +21,115 @@ export default function DiceRoller() {
   ];
 
   const handleRoll = (sides, label) => {
-    const result = rollDice(sides);
-    addLog(`Rolled ${label}: ${result}`, 'roll');
+    if (rolling) return;
+
+    setRolling(label);
+    
+    // Simulate rolling delay
+    setTimeout(() => {
+      const result = rollDice(sides);
+      setCurrentResult({ result, diceType: label, sides });
+      addLog(`Rolled ${label}: ${result}`, 'roll');
+      
+      // Add to recent rolls
+      setRecentRolls(prev => [
+        { label, result },
+        ...prev.slice(0, 4)
+      ]);
+      
+      setRolling(null);
+    }, 600);
+  };
+
+  const handle2D6Roll = () => {
+    if (rolling) return;
+
+    setRolling('2D6');
+    
+    setTimeout(() => {
+      const d6results = [rollDice(6), rollDice(6)];
+      const total = d6results.reduce((a, b) => a + b, 0);
+      setCurrentResult({ result: total, diceType: '2D6', sides: 12, isMultiple: true });
+      addLog(`Rolled 2D6: [${d6results.join(', ')}] = ${total}`, 'roll');
+      
+      setRecentRolls(prev => [
+        { label: '2D6', result: total },
+        ...prev.slice(0, 4)
+      ]);
+      
+      setRolling(null);
+    }, 600);
   };
 
   return (
-    <div className="grid grid-cols-3 gap-2">
-      {diceTypes.map(({ sides, label }) => (
+    <div className="space-y-4">
+      {/* Result Display Area */}
+      {currentResult && (
+        <RollResult
+          result={currentResult.result}
+          diceType={currentResult.diceType}
+          sides={currentResult.sides}
+          onComplete={() => {
+            // Keep result visible, just allow new rolls
+          }}
+        />
+      )}
+
+      {/* Dice Grid */}
+      <div className="grid grid-cols-4 gap-3">
+        {diceTypes.map(({ sides, label }) => (
+          <Dice
+            key={sides}
+            sides={sides}
+            label={label}
+            variant="cyan"
+            isRolling={rolling === label}
+            onClick={() => handleRoll(sides, label)}
+          />
+        ))}
+        
+        {/* 2D6 button spanning 2 columns */}
         <button
-          key={sides}
-          onClick={() => handleRoll(sides, label)}
-          className="aspect-square bg-bg-primary border-2 border-accent-cyan hover:bg-accent-cyan hover:text-bg-primary transition-all font-orbitron font-bold text-lg"
+          onClick={handle2D6Roll}
+          disabled={rolling === '2D6'}
+          className={`
+            col-span-2 h-20 
+            bg-bg-secondary/50 backdrop-blur-sm
+            border-2 border-accent-yellow
+            text-accent-yellow font-orbitron font-bold text-xl
+            transition-all duration-300
+            hover:scale-105 hover:bg-accent-yellow hover:text-bg-primary hover:glow-yellow
+            disabled:opacity-50 disabled:cursor-not-allowed
+            ${rolling === '2D6' ? 'dice-rolling' : 'dice-idle'}
+          `}
         >
-          {label}
+          2D6
         </button>
-      ))}
-      <button
-        onClick={() => {
-          const d6results = [rollDice(6), rollDice(6)];
-          const total = d6results.reduce((a, b) => a + b, 0);
-          addLog(`Rolled 2D6: [${d6results.join(', ')}] = ${total}`, 'roll');
-        }}
-        className="col-span-2 bg-bg-primary border-2 border-accent-cyan hover:bg-accent-cyan hover:text-bg-primary transition-all font-orbitron font-bold text-lg py-3"
-      >
-        2D6
-      </button>
+      </div>
+
+      {/* Recent Rolls */}
+      {recentRolls.length > 0 && (
+        <div className="pt-3 border-t border-accent-cyan/30">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-accent-cyan/70 font-orbitron uppercase text-xs">
+              Recent:
+            </span>
+            <div className="flex gap-2">
+              {recentRolls.map((roll, idx) => (
+                <span
+                  key={idx}
+                  className="text-accent-cyan font-mono font-bold"
+                >
+                  {roll.label.replace('D', '')}:{roll.result}
+                  {idx < recentRolls.length - 1 && (
+                    <span className="text-accent-cyan/40 mx-1">•</span>
+                  )}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

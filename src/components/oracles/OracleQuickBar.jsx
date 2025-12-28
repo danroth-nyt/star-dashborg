@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { rollAffirmation, rollEventOracle, rollSceneShakeup, rollDice } from '../../data/oracles';
+import { rollAffirmation, rollEventOracle, rollSceneShakeup } from '../../data/oracles';
 import { useGame } from '../../context/GameContext';
 import OracleResultDisplay from './OracleResultDisplay';
 
@@ -30,16 +30,6 @@ export default function OracleQuickBar() {
     addLog(`Event (${event.roll}): ${event.verb} ${event.subject}`, 'roll');
   };
 
-  const handleQuickDice = (sides) => {
-    const roll = rollDice(sides);
-    setResult({
-      roll: roll,
-      result: `D${sides}`,
-      detail: `Rolled ${roll}`
-    });
-    addLog(`D${sides}: ${roll}`, 'roll');
-  };
-
   return (
     <div className="space-y-3">
       {/* Main Quick Actions */}
@@ -62,19 +52,6 @@ export default function OracleQuickBar() {
         >
           Event
         </button>
-      </div>
-
-      {/* Quick Dice */}
-      <div className="grid grid-cols-6 gap-1">
-        {[4, 6, 8, 10, 12, 20].map((sides) => (
-          <button
-            key={sides}
-            onClick={() => handleQuickDice(sides)}
-            className="aspect-square bg-bg-primary border-2 border-accent-cyan hover:bg-accent-cyan hover:text-bg-primary transition-all font-orbitron font-bold text-xs flex items-center justify-center"
-          >
-            D{sides}
-          </button>
-        ))}
       </div>
 
       {/* Result Display */}
