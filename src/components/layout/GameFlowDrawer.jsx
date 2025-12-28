@@ -6,14 +6,6 @@ import { cn } from '../../lib/utils';
 export default function GameFlowDrawer({ isOpen, onClose }) {
   const [expandedStep, setExpandedStep] = useState(null);
 
-  const handleAction = (action) => {
-    // Actions would trigger navigation or oracle rolls
-    // For now, we'll just log and close the drawer
-    console.log('Action triggered:', action);
-    // In a full implementation, this would use navigation or callbacks
-    // to trigger the appropriate oracle/generator in the main app
-  };
-
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {

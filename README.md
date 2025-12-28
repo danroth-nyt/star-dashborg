@@ -9,38 +9,66 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 ## ✨ Features
 
 ### 🎲 Core Gameplay Tools
-- **Threat Die Tracker** - Visual D6 with click-to-cycle functionality
-- **Mission Tracks** - Create and manage 4/6/8/10 step mission progress trackers
-- **Danger Clocks** - Pie-chart style segment trackers for escalating threats
+- **Threat Die Tracker** - Visual D6 with click-to-cycle functionality and maximum threat alerts
+- **Mission Tracks** - Create and manage mission progress with completion attempts (DR10/12/14/16)
+- **Danger Clocks** - Segment trackers (4/6/8/10) with filled state alerts
 - **Dice Roller** - D4, D6, D8, D10, D12, D20, D100, and 2D6 with advantage/disadvantage
-- **Ship Log** - Real-time activity feed with formatted oracle results
+- **Ship Log** - Real-time activity feed with formatted oracle results and detailed roll breakdowns
 
 ### 🔮 Oracle Systems
-- **Affirmation Oracle** - Yes/No/And/But oracle with advantage/disadvantage rolls
-- **Scene Shakeup** - Threat-based encounter escalation
-- **Event Oracle** - Multi-roll complex event generator
-- **Dangerous Locations** - Ship/Base location generator with threat mechanics
+- **Affirmation Oracle** - Yes/No/And/But oracle with advantage/disadvantage rolls and detail fields
+- **Scene Shakeup** - Two-stage threat check (d20 + Threat Die, 15+ triggers)
+- **Event Oracle** - Multi-roll complex event generator with 6 independent tables
+- **Travel Encounter** - Threat-based encounter check (d20 + Threat Die, 12+ triggers)
+- **Dangerous Locations** - Ship/Base location generator with obstacle mechanics
+- **Site Explorer** - Procedural dungeon-crawl system for ships and bases
+- **Morale Check** - 2D6 vs MRL with Flee/Surrender outcomes
 - **Oracle Compendium** - Comprehensive tabbed interface with 40+ oracle tables
 
 ### 🎭 Generators
-- **Monster Generator** - Beast adaptations, monstrosities, and weak spots
+- **Monster Generator** - Beast adaptations, monstrosities, and weak spots with d6 rolls
 - **Crime Lord Generator** - Names, visage, weapons, and bases
-- **NPC Generator** - Role, species, motivation, secrets, and traits
-- **Planet Generator** - Terrain, weather, population, and control
-- **Settlement Generator** - Appearance, complications, and current state
-- **Mission Generator** - Detailed missions, quick missions, villains, and scenarios
+- **NPC Generator** - Role, species, motivation, secrets, traits, and travel encounters
+- **Planet Generator** - Terrain, weather, population, control, and scenes
+- **Settlement Generator** - Extended with leader, landmark, rumors, and NPC hook-ups
+- **Mission Generator** - Detailed missions, quick missions, villains, and scenario titles
 
 ### 🎯 Session Management
 - **Real-time Multiplayer** - Supabase-powered sync across all connected players
 - **Session Journal** - Collaborative note-taking with auto-save
 - **Customizable Layout** - Drag-and-drop panels between columns
-- **Game Flow Drawer** - Quick access to all trackers and generators
+- **Game Flow Drawer** - Step-by-step campaign and session play procedure guide
+- **Help Modal** - Context-sensitive help for trackers (press `H` or `?`)
+- **Quick Reference** - Comprehensive rules reference accessible from header
 
 ### 🎨 Visual Design
-- **Authentic Star Borg Aesthetic** - Yellow/cyan/red color scheme
+- **Authentic Star Borg Aesthetic** - Yellow/cyan/red color scheme with neon glow effects
 - **CRT Scanlines & Effects** - Retro terminal styling throughout
-- **Responsive Design** - Optimized for desktop and mobile
-- **Smooth Animations** - Polished transitions and hover effects
+- **Fully Responsive** - Optimized for desktop, tablet, and mobile with adaptive button sizing
+- **Smooth Animations** - Polished transitions, hover effects, and alert pulses
+- **Visual Alerts** - Pulsing glows for maximum threat and filled danger clocks
+
+## ⚡ Key Highlights
+
+### Threat-Based Mechanics
+- **Scene Shakeup**: Two-stage threat check with automatic calculation
+- **Travel Encounters**: Threat-based encounter generation with clear success/fail
+- **Dangerous Locations**: Obstacle checks using Threat Die + d20 mechanics
+
+### Visual Alerts & Feedback
+- **Maximum Threat**: Pulsing red alert when Threat Die reaches 6
+- **Filled Danger Clocks**: Visual notification when consequences trigger
+- **Detailed Roll Logs**: All calculations shown in format `[d20] + [Threat] = total`
+
+### Context-Sensitive Help
+- **Keyboard Shortcut**: Press `H` or `?` for instant help
+- **Panel Help Buttons**: Click `?` icon on tracker headers
+- **Quick Reference**: Full rules accessible from header
+
+### Mobile Optimized
+- Responsive button sizing and text wrapping
+- Touch-friendly interface on phones and tablets
+- Adaptive layout for all screen sizes
 
 ## 🚀 Quick Start
 
@@ -107,14 +135,50 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - Layout preferences are saved in local storage
 - Drop zones appear at the bottom of each column
 
+### Game Flow Guide
+- Click **"Game Flow"** button in header to open the step-by-step guide
+- Covers Campaign Start (character creation, campaign goal)
+- Covers Session Play loop (mission, threat, scenes, resolution)
+- Quick action buttons for common tasks
+
+### Quick Reference
+- Click **"Quick Ref"** button in header for rules lookup
+- Includes DRs, Solo Test results, Combat tests, Armor tiers, Resting rules
+- Always accessible without leaving current screen
+
+### Help System
+- Press **`H`** or **`?`** key to open context-sensitive help
+- Click **help icons** (?) on tracker panel headers
+- Tabs for Threat Die, Mission Tracks, and Danger Clocks
+- Includes usage instructions and rule references
+
+### Threat Die
+- Click to cycle values 1-6
+- At **maximum threat (6)**: Pulsing alert with rule reminder
+- Integrates with Scene Shakeup and Travel Encounter checks
+
+### Mission Tracks
+- Create tracks with difficulty: Short (DR10), Average (DR12), Long (DR14), Galaxy Saving (DR16)
+- Click segments to mark progress
+- Click **"Attempt"** to test completion (d20 + progress vs DR)
+- Success removes mission, failure removes 1 progress
+
+### Danger Clocks
+- Create clocks with 4/6/8/10 segments
+- Click segments to mark progress
+- **Filled clocks** show pulsing alert: "Danger Triggered!"
+- At Threat Die 6: Advance all clocks or fill one completely
+
 ### Oracle System
 - Access oracles through the **Oracle Compendium** panel
-- Results display with formatted data and roll breakdowns
-- All oracle rolls are logged to the **Ship Log**
+- Results display with formatted data and individual roll breakdowns
+- All oracle rolls are logged to the **Ship Log** with detailed calculations
+- Threat-based checks show success/fail thresholds
 
 ### Generators
 - Use one-click generators for complex entities (NPCs, monsters, planets)
 - Results show detailed breakdowns with individual roll values
+- Multi-roll pattern ensures maximum variety
 - Generate as many times as needed - results update in real-time
 
 ## 📁 Project Structure
@@ -129,19 +193,23 @@ star-dashborg/
 │   │   │   ├── generators/   # Monster, Crime Lord, NPC, Planet, Mission
 │   │   │   ├── OracleCompendium.jsx
 │   │   │   ├── OracleTable.jsx
+│   │   │   ├── OracleQuickBar.jsx
+│   │   │   ├── OracleResultDisplay.jsx
+│   │   │   ├── AffirmationOracle.jsx
 │   │   │   └── DiceRoller.jsx
-│   │   ├── trackers/         # ThreatDie, MissionTrack, DangerClock
-│   │   └── ui/               # Button, Accordion, reusable components
+│   │   ├── trackers/         # ThreatDie, MissionTrack, DangerClock, SiteExplorer
+│   │   └── ui/               # Button, Accordion, HelpModal, QuickReference
 │   ├── context/
 │   │   └── GameContext.jsx   # Global game state management
 │   ├── data/
-│   │   └── oracles.js        # All oracle tables and generator functions
+│   │   ├── oracles.js        # All oracle tables and generator functions
+│   │   └── trackerHelpContent.js  # Help content for tracker components
 │   ├── lib/
 │   │   ├── supabaseClient.js # Supabase configuration
 │   │   └── utils.js          # Utility functions
 │   ├── App.jsx               # Root component
 │   ├── main.jsx              # React entry point
-│   └── index.css             # Global styles and custom classes
+│   └── index.css             # Global styles and custom animations
 ├── public/                   # Static assets
 ├── .env                      # Environment variables (create this)
 ├── package.json
@@ -181,8 +249,22 @@ star-dashborg/
 ### Creating New Generators
 1. Create a generator function in `src/data/oracles.js`
 2. Create a component in `src/components/oracles/generators/`
-3. Follow the pattern from `MonsterGenerator.jsx`
+3. Follow the pattern from `MonsterGenerator.jsx` or `NPCGenerator.jsx`
 4. Import and add to the appropriate tab in `OracleCompendium.jsx`
+5. Use `OracleResultDisplay` for consistent formatting
+
+### Adding Help Content
+1. Open `src/data/trackerHelpContent.js`
+2. Add your help content with title, purpose, usage steps, and tips
+3. Add help tab to `HelpModal.jsx` component
+4. Connect help button via `onHelpClick` prop in `Dashboard.jsx`
+
+### Implementing Threat Checks
+Follow the two-stage pattern from Scene Shakeup:
+1. Stage 1: Roll d20 + Threat Die vs threshold
+2. On success: Stage 2 generates the actual result
+3. On fail: Show clear message with roll breakdown
+4. Log both stages with detailed calculations
 
 ## 🚢 Deployment
 
