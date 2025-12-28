@@ -76,7 +76,7 @@ export default function DiceRoller() {
       )}
 
       {/* Dice Grid */}
-      <div className="grid grid-cols-4 gap-2 max-w-md mx-auto">
+      <div className="grid grid-cols-4 gap-2 max-w-lg mx-auto">
         {diceTypes.map(({ sides, label }) => (
           <Dice
             key={sides}
@@ -85,21 +85,17 @@ export default function DiceRoller() {
             variant="cyan"
             isRolling={rolling === label}
             onClick={() => handleRoll(sides, label)}
-            className="max-h-20"
           />
         ))}
         
-        {/* 2D6 dice spanning 2 columns */}
-        <div className="col-span-2">
-          <Dice
-            sides="2d6"
-            label="2D6"
-            variant="yellow"
-            isRolling={rolling === '2D6'}
-            onClick={handle2D6Roll}
-            className="w-full max-h-20"
-          />
-        </div>
+        {/* 2D6 dice in line with D100 */}
+        <Dice
+          sides="2d6"
+          label="2D6"
+          variant="cyan"
+          isRolling={rolling === '2D6'}
+          onClick={handle2D6Roll}
+        />
       </div>
 
       {/* Recent Rolls */}

@@ -65,20 +65,37 @@ const diceShapes = {
   ),
   20: (
     <svg viewBox="0 0 100 100" className="w-full h-full">
-      {/* D20 icosahedron shape */}
+      {/* D20 icosahedron - hexagonal outer shape */}
       <polygon 
-        points="50,10 72,22 87,25 92,45 87,65 72,78 50,90 28,78 13,65 8,45 13,25 28,22" 
+        points="50,5 85,25 85,70 50,90 15,70 15,25" 
         fill="currentColor" 
         fillOpacity="0.1"
         stroke="currentColor" 
         strokeWidth="2"
       />
-      {/* Inner lines to make it look more like a d20 */}
-      <line x1="50" y1="10" x2="28" y2="78" stroke="currentColor" strokeWidth="1" opacity="0.3" />
-      <line x1="50" y1="10" x2="72" y2="78" stroke="currentColor" strokeWidth="1" opacity="0.3" />
-      <line x1="28" y1="22" x2="72" y2="22" stroke="currentColor" strokeWidth="1" opacity="0.3" />
-      <line x1="13" y1="65" x2="87" y2="65" stroke="currentColor" strokeWidth="1" opacity="0.3" />
-      <text x="50" y="56" textAnchor="middle" className="text-xl font-bold fill-current">20</text>
+      {/* Top triangle */}
+      <line x1="50" y1="5" x2="15" y2="25" stroke="currentColor" strokeWidth="2" />
+      <line x1="50" y1="5" x2="85" y2="25" stroke="currentColor" strokeWidth="2" />
+      
+      {/* Upper inner lines to center */}
+      <line x1="15" y1="25" x2="50" y2="50" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
+      <line x1="85" y1="25" x2="50" y2="50" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
+      <line x1="50" y1="5" x2="50" y2="50" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
+      
+      {/* Middle horizontal line */}
+      <line x1="15" y1="25" x2="85" y2="70" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
+      <line x1="85" y1="25" x2="15" y2="70" stroke="currentColor" strokeWidth="1.5" opacity="0.5" />
+      
+      {/* Lower inner lines from center */}
+      <line x1="50" y1="50" x2="15" y2="70" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
+      <line x1="50" y1="50" x2="85" y2="70" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
+      <line x1="50" y1="50" x2="50" y2="90" stroke="currentColor" strokeWidth="1.5" opacity="0.7" />
+      
+      {/* Bottom triangle */}
+      <line x1="50" y1="90" x2="15" y2="70" stroke="currentColor" strokeWidth="2" />
+      <line x1="50" y1="90" x2="85" y2="70" stroke="currentColor" strokeWidth="2" />
+      
+      <text x="50" y="58" textAnchor="middle" className="text-xl font-bold fill-current">20</text>
     </svg>
   ),
   100: (
@@ -115,13 +132,10 @@ const diceShapes = {
         strokeWidth="2"
         rx="3"
       />
-      {/* Dots on first die (showing 2) */}
-      <circle cx="23" cy="33" r="2.5" fill="currentColor" />
-      <circle cx="39" cy="49" r="2.5" fill="currentColor" />
-      {/* Dots on second die (showing 3) */}
-      <circle cx="61" cy="51" r="2.5" fill="currentColor" />
-      <circle cx="69" cy="59" r="2.5" fill="currentColor" />
-      <circle cx="77" cy="67" r="2.5" fill="currentColor" />
+      {/* Number 6 on first die */}
+      <text x="31" y="46" textAnchor="middle" className="text-lg font-bold fill-current">6</text>
+      {/* Number 6 on second die */}
+      <text x="69" y="64" textAnchor="middle" className="text-lg font-bold fill-current">6</text>
     </svg>
   ),
 };
@@ -165,13 +179,6 @@ export default function Dice({
         'absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300',
         'bg-gradient-radial from-current/20 to-transparent'
       )} />
-      
-      {/* Label */}
-      <div className="absolute bottom-1 left-0 right-0 text-center">
-        <span className="text-xs font-orbitron font-bold opacity-80">
-          {label}
-        </span>
-      </div>
     </button>
   );
 }

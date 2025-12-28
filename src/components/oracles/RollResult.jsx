@@ -47,7 +47,7 @@ export default function RollResult({ result, diceType, sides, onComplete }) {
   };
 
   return (
-    <div className="relative w-full py-4 px-3 bg-bg-secondary/30 backdrop-blur-sm border-2 border-accent-cyan/50 overflow-hidden">
+    <div className="relative w-full py-3 px-3 bg-bg-secondary/30 backdrop-blur-sm border-2 border-accent-cyan/50 overflow-hidden">
       {/* Background glow effect */}
       <div className={cn(
         'absolute inset-0 opacity-30 transition-opacity duration-500',
@@ -67,7 +67,7 @@ export default function RollResult({ result, diceType, sides, onComplete }) {
         showEffect && isFumble && 'fumble-shake'
       )}>
         {/* Dice type label */}
-        <div className="text-center mb-1">
+        <div className="text-center mb-0.5">
           <span className={cn(
             'text-xs font-orbitron uppercase tracking-wider opacity-70',
             getVariantColor()
@@ -81,7 +81,7 @@ export default function RollResult({ result, diceType, sides, onComplete }) {
           <span className={cn(
             'font-orbitron font-black transition-all duration-300',
             'inline-block',
-            isRevealing ? 'text-4xl scale-0 opacity-0' : 'text-6xl scale-100 opacity-100 result-reveal',
+            isRevealing ? 'text-4xl scale-0 opacity-0' : 'text-5xl scale-100 opacity-100 result-reveal',
             getVariantColor(),
             getGlowClass()
           )}>
@@ -92,7 +92,7 @@ export default function RollResult({ result, diceType, sides, onComplete }) {
         {/* Special text for crit/fumble */}
         {!isRevealing && (isCrit || isFumble) && (
           <div className={cn(
-            'text-center mt-1 slide-up',
+            'text-center mt-0.5 slide-up',
             'text-xs font-orbitron uppercase tracking-widest',
             isCrit ? 'text-accent-yellow' : 'text-accent-red'
           )}>
