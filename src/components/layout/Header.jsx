@@ -28,7 +28,7 @@ export default function Header({ roomCode }) {
           <div className="flex items-center gap-4">
             <div>
               <h1 className="font-orbitron font-black text-4xl text-accent-yellow text-glow-yellow tracking-wider">
-                STAR BORG
+                STAR DASHBORG
               </h1>
               <p className="text-accent-cyan text-sm font-orbitron">
                 REBEL MISSION DASHBOARD

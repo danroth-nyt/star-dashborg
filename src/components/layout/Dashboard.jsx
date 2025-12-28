@@ -35,7 +35,7 @@ export default function Dashboard({ roomCode }) {
             <DiceRoller />
           </Panel>
           
-          <Panel title="Dice Log" variant="cyan" className="h-[400px]">
+          <Panel title="Ship Log" variant="cyan" className="h-[400px]">
             <DiceLog />
           </Panel>
         </div>
