@@ -13,9 +13,9 @@ export default function Dashboard({ roomCode }) {
     <div className="min-h-screen bg-bg-primary scanlines">
       <Header roomCode={roomCode} />
       
-      <div className="p-4 grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Left Column - Trackers */}
-        <div className="space-y-4">
+      <div className="p-4 grid grid-cols-1 lg:grid-cols-12 gap-4">
+        {/* Left Column - Trackers (3 columns) */}
+        <div className="lg:col-span-3 space-y-4">
           <Panel title="Threat Die" variant="red">
             <ThreatDie />
           </Panel>
@@ -29,8 +29,8 @@ export default function Dashboard({ roomCode }) {
           </Panel>
         </div>
 
-        {/* Center Column - Journal */}
-        <div className="space-y-4">
+        {/* Center Column - Journal (3 columns) */}
+        <div className="lg:col-span-3 space-y-4">
           <Panel title="Dice Log" variant="cyan" className="h-[400px]">
             <DiceLog />
           </Panel>
@@ -38,15 +38,15 @@ export default function Dashboard({ roomCode }) {
           <Panel title="Session Journal" variant="yellow" className="h-[400px]">
             <SessionJournal />
           </Panel>
-        </div>
-
-        {/* Right Column - Tools */}
-        <div className="space-y-4">
+          
           <Panel title="Dice Roller" variant="cyan">
             <DiceRoller />
           </Panel>
-          
-          <Panel title="Oracles & Generators" variant="yellow">
+        </div>
+
+        {/* Right Column - Oracle Compendium (6 columns - wider!) */}
+        <div className="lg:col-span-6 space-y-4">
+          <Panel title="Oracle Compendium" variant="yellow">
             <OraclePanel />
           </Panel>
         </div>

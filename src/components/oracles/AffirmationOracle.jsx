@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useGame } from '../../context/GameContext';
 import { rollAffirmation } from '../../data/oracles';
 import Button from '../ui/Button';
+import OracleResultDisplay from './OracleResultDisplay';
 
 export default function AffirmationOracle() {
   const { addLog } = useGame();
@@ -10,21 +11,20 @@ export default function AffirmationOracle() {
   const handleRoll = () => {
     const oracleResult = rollAffirmation();
     setResult(oracleResult);
-    addLog(`Oracle says: ${oracleResult}`, 'roll');
+    addLog(`Oracle (${oracleResult.roll}): ${oracleResult.result} - ${oracleResult.detail}`, 'roll');
   };
 
   return (
-    <div className="flex flex-col items-center gap-4">
-      <Button onClick={handleRoll} variant="primary">
+    <div className="space-y-4">
+      <Button onClick={handleRoll} variant="primary" className="w-full">
         Ask the Oracle
       </Button>
 
       {result && (
-        <div className="text-center">
-          <p className="text-accent-cyan text-2xl font-orbitron font-bold text-glow-cyan">
-            {result}
-          </p>
-        </div>
+        <OracleResultDisplay 
+          result={result}
+          variant="cyan"
+        />
       )}
     </div>
   );
