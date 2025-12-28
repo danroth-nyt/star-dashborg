@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ChevronRight, Play, Dice6, Target, Clock, Scroll, Map, Zap, CheckCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import Button from '../ui/Button';
@@ -142,26 +143,34 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
     return <Icon className="w-5 h-5" />;
   };
 
-  return (
+  return createPortal(
     <>
       {/* Backdrop */}
       <div
         className={cn(
-          "fixed inset-0 bg-black transition-opacity duration-300 z-40",
-          isOpen ? "opacity-70" : "opacity-0 pointer-events-none"
+          "fixed inset-0 bg-black transition-opacity duration-300",
+          isOpen ? "opacity-70 pointer-events-auto z-[9998]" : "opacity-0 pointer-events-none z-[-1]"
         )}
         onClick={onClose}
+        style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
       />
 
-      {/* Drawer */}
+      {/* Drawer - Floating over content */}
       <div
         className={cn(
-          "fixed left-0 top-0 h-full w-full md:w-[480px] bg-bg-primary border-r-3 border-accent-cyan transform transition-transform duration-300 ease-in-out z-50 scanlines",
-          isOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed w-full md:w-[480px] bg-bg-primary border-r-3 border-accent-cyan transform transition-transform duration-300 ease-in-out scanlines overflow-hidden flex flex-col",
+          isOpen ? "translate-x-0 z-[9999]" : "-translate-x-full z-[-1]"
         )}
+        style={{ 
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          height: '100vh',
+          maxHeight: '100vh'
+        }}
       >
         {/* Header */}
-        <div className="border-b-3 border-accent-cyan bg-bg-secondary p-4 flex items-center justify-between sticky top-0 z-10">
+        <div className="border-b-3 border-accent-cyan bg-bg-secondary p-4 flex items-center justify-between shrink-0">
           <div>
             <h2 className="text-accent-cyan font-orbitron font-bold text-xl uppercase text-glow-cyan">
               Game Flow Guide
@@ -179,7 +188,7 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
         </div>
 
         {/* Content */}
-        <div className="overflow-y-auto h-[calc(100%-80px)] p-4">
+        <div className="overflow-y-auto flex-1 p-4">
           {/* Campaign Start Section */}
           <div className="mb-6">
             <div className="text-accent-yellow font-orbitron text-sm uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -225,7 +234,8 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
           </div>
         </div>
       </div>
-    </>
+    </>,
+    document.body
   );
 }
 
