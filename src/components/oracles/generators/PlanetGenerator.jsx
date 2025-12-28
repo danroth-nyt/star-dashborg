@@ -68,7 +68,7 @@ export default function PlanetGenerator() {
       <div className="grid grid-cols-3 gap-2">
         <button
           onClick={() => setGeneratorType('planet')}
-          className={`px-2 py-1 text-xs font-orbitron uppercase border-2 transition-colors ${
+          className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
             generatorType === 'planet'
               ? 'bg-accent-cyan text-bg-primary border-accent-cyan'
               : 'bg-transparent text-accent-cyan border-accent-cyan hover:bg-accent-cyan hover:text-bg-primary'
@@ -78,7 +78,7 @@ export default function PlanetGenerator() {
         </button>
         <button
           onClick={() => setGeneratorType('settlement')}
-          className={`px-2 py-1 text-xs font-orbitron uppercase border-2 transition-colors ${
+          className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
             generatorType === 'settlement'
               ? 'bg-accent-cyan text-bg-primary border-accent-cyan'
               : 'bg-transparent text-accent-cyan border-accent-cyan hover:bg-accent-cyan hover:text-bg-primary'
@@ -88,7 +88,7 @@ export default function PlanetGenerator() {
         </button>
         <button
           onClick={() => setGeneratorType('scene')}
-          className={`px-2 py-1 text-xs font-orbitron uppercase border-2 transition-colors ${
+          className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
             generatorType === 'scene'
               ? 'bg-accent-cyan text-bg-primary border-accent-cyan'
               : 'bg-transparent text-accent-cyan border-accent-cyan hover:bg-accent-cyan hover:text-bg-primary'
@@ -119,19 +119,19 @@ export default function PlanetGenerator() {
 
       {/* Quick Details */}
       <div className="grid grid-cols-2 gap-2">
-        <Button onClick={handleGeneratePlanetFeature} variant="ghost" className="text-xs py-2">
+        <Button onClick={handleGeneratePlanetFeature} variant="ghost" className="text-[10px] sm:text-xs py-2 px-2 leading-tight">
           Planet Feature
         </Button>
-        <Button onClick={handleGenerateBackwater} variant="ghost" className="text-xs py-2">
+        <Button onClick={handleGenerateBackwater} variant="ghost" className="text-[10px] sm:text-xs py-2 px-2 leading-tight">
           Backwater
         </Button>
-        <Button onClick={handleGenerateBackalley} variant="ghost" className="text-xs py-2">
+        <Button onClick={handleGenerateBackalley} variant="ghost" className="text-[10px] sm:text-xs py-2 px-2 leading-tight">
           Back Alley
         </Button>
-        <Button onClick={handleGenerateHiddenFeature} variant="secondary" className="text-xs py-2">
+        <Button onClick={handleGenerateHiddenFeature} variant="secondary" className="text-[10px] sm:text-xs py-2 px-2 leading-tight whitespace-nowrap overflow-hidden text-ellipsis">
           Hidden Feature
         </Button>
-        <Button onClick={handleGenerateLocationDanger} variant="danger" className="text-xs py-2 col-span-2">
+        <Button onClick={handleGenerateLocationDanger} variant="danger" className="text-[10px] sm:text-xs py-2 px-2 col-span-2 leading-tight">
           Location Danger
         </Button>
       </div>

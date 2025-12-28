@@ -8,7 +8,7 @@ export default function Button({
   disabled,
   ...props 
 }) {
-  const baseStyles = 'px-4 py-2 font-orbitron font-bold uppercase text-sm border-3 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] active:shadow-inner';
+  const baseStyles = 'px-3 sm:px-4 py-2 font-orbitron font-bold uppercase text-xs sm:text-sm border-3 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] active:shadow-inner leading-tight';
   
   const variants = {
     primary: 'bg-accent-cyan text-bg-primary border-accent-cyan hover:bg-transparent hover:text-accent-cyan hover:shadow-[0_0_15px_rgba(0,240,255,0.6)]',

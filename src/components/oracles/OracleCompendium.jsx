@@ -86,13 +86,13 @@ export default function OracleCompendium() {
       )}
 
       {/* Tab Navigation */}
-      <div className="grid grid-cols-6 gap-1">
+      <div className="grid grid-cols-3 sm:grid-cols-6 gap-1">
         {tabs.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
             className={cn(
-              'px-2 py-2 border-2 transition-all font-orbitron font-bold uppercase text-xs',
+              'px-1 sm:px-2 py-2 border-2 transition-all font-orbitron font-bold uppercase text-[10px] sm:text-xs leading-tight',
               activeTab === tab.id 
                 ? tabColors[tab.color].active 
                 : tabColors[tab.color].inactive
