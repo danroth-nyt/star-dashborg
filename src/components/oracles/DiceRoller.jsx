@@ -100,7 +100,7 @@ export default function DiceRoller() {
           onClick={() => setRollMode('normal')}
           className={`px-3 py-1 font-orbitron font-bold uppercase text-xs border-2 transition-all ${
             rollMode === 'normal'
-              ? 'bg-accent-cyan text-bg-primary border-accent-cyan glow-cyan'
+              ? 'bg-accent-cyan text-bg-primary border-accent-cyan'
               : 'bg-transparent text-accent-cyan border-accent-cyan hover:bg-accent-cyan/20'
           }`}
         >
@@ -110,7 +110,7 @@ export default function DiceRoller() {
           onClick={() => setRollMode('advantage')}
           className={`px-3 py-1 font-orbitron font-bold uppercase text-xs border-2 transition-all ${
             rollMode === 'advantage'
-              ? 'bg-accent-yellow text-bg-primary border-accent-yellow glow-yellow'
+              ? 'bg-accent-yellow text-bg-primary border-accent-yellow'
               : 'bg-transparent text-accent-yellow border-accent-yellow hover:bg-accent-yellow/20'
           }`}
         >
@@ -120,7 +120,7 @@ export default function DiceRoller() {
           onClick={() => setRollMode('disadvantage')}
           className={`px-3 py-1 font-orbitron font-bold uppercase text-xs border-2 transition-all ${
             rollMode === 'disadvantage'
-              ? 'bg-accent-red text-bg-primary border-accent-red glow-red'
+              ? 'bg-accent-red text-bg-primary border-accent-red'
               : 'bg-transparent text-accent-red border-accent-red hover:bg-accent-red/20'
           }`}
         >
