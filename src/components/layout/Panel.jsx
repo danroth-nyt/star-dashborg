@@ -53,7 +53,7 @@ export default function Panel({ title, children, className, variant = 'cyan', de
       {!isCollapsed && (
         <div 
           className={cn(
-            "p-4 flex-1 overflow-auto accordion-reveal",
+            "p-4 flex-1 overflow-auto accordion-reveal relative",
             maxHeightExpanded,
             minHeightExpanded
           )}
