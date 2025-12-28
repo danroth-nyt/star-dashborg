@@ -76,7 +76,7 @@ export default function DiceLog() {
   const getLogIcon = (type, message) => {
     // Extract dice type from roll messages
     if (type === 'roll' && message.includes('Rolled')) {
-      const match = message.match(/Rolled (D\d+|2D6):/);
+      const match = message.match(/Rolled (D\d+|2D6)/);
       if (match && diceIcons[match[1]]) {
         return diceIcons[match[1]];
       }
@@ -98,8 +98,22 @@ export default function DiceLog() {
   };
 
   const formatRollMessage = (message) => {
-    // Bold the result number in roll messages
-    return message.replace(/: (\d+)/, ': <strong class="text-glow-cyan">$1</strong>');
+    // Check if it's an advantage/disadvantage roll
+    if (message.includes('(ADV)') || message.includes('(DIS)')) {
+      // Format: "Rolled D20 (ADV): [18, 12] = 18"
+      // Highlight the mode label
+      const withMode = message.replace(
+        /\((ADV|DIS)\)/,
+        '<span class="text-accent-yellow">($1)</span>'
+      );
+      // Highlight the final result after the equals sign
+      return withMode.replace(
+        /= (\d+)$/,
+        '= <strong class="text-glow-cyan">$1</strong>'
+      );
+    }
+    // Normal roll - bold the result number
+    return message.replace(/: (\d+)$/, ': <strong class="text-glow-cyan">$1</strong>');
   };
 
   const formatTimestamp = (timestamp) => {

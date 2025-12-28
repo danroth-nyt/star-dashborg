@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { cn } from '../../lib/utils';
 
-export default function RollResult({ result, diceType, sides, onComplete }) {
+export default function RollResult({ result, diceType, sides, rolls, rollMode, onComplete }) {
   const [isRevealing, setIsRevealing] = useState(true);
   const [showEffect, setShowEffect] = useState(false);
 
@@ -9,6 +9,7 @@ export default function RollResult({ result, diceType, sides, onComplete }) {
   const isFumble = sides === 20 && result === 1;
   const isHigh = result > sides * 0.75;
   const isLow = result <= sides * 0.25;
+  const hasAdvDis = rollMode === 'advantage' || rollMode === 'disadvantage';
 
   useEffect(() => {
     // Reveal animation
@@ -66,17 +67,25 @@ export default function RollResult({ result, diceType, sides, onComplete }) {
         'relative z-10',
         showEffect && isFumble && 'fumble-shake'
       )}>
-        {/* Dice type label */}
+        {/* Dice type label with mode indicator */}
         <div className="text-center mb-0.5">
           <span className={cn(
             'text-xs font-orbitron uppercase tracking-wider opacity-70',
             getVariantColor()
           )}>
             {diceType}
+            {hasAdvDis && (
+              <span className={cn(
+                'ml-1',
+                rollMode === 'advantage' ? 'text-accent-yellow' : 'text-accent-red'
+              )}>
+                ({rollMode === 'advantage' ? 'ADV' : 'DIS'})
+              </span>
+            )}
           </span>
         </div>
 
-        {/* Result number */}
+        {/* Result number with both rolls if advantage/disadvantage */}
         <div className="text-center">
           <span className={cn(
             'font-orbitron font-black transition-all duration-300',
@@ -87,6 +96,16 @@ export default function RollResult({ result, diceType, sides, onComplete }) {
           )}>
             {result}
           </span>
+          
+          {/* Show discarded roll when advantage/disadvantage */}
+          {!isRevealing && hasAdvDis && rolls && (
+            <span className={cn(
+              'ml-2 text-2xl font-orbitron font-bold opacity-50',
+              getVariantColor()
+            )}>
+              [{rolls.find(r => r !== result)}]
+            </span>
+          )}
         </div>
 
         {/* Special text for crit/fumble */}

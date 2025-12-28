@@ -9,6 +9,7 @@ export default function DiceRoller() {
   const [rolling, setRolling] = useState(null);
   const [currentResult, setCurrentResult] = useState(null);
   const [recentRolls, setRecentRolls] = useState([]);
+  const [rollMode, setRollMode] = useState('normal'); // 'normal', 'advantage', 'disadvantage'
 
   const diceTypes = [
     { sides: 4, label: 'D4' },
@@ -27,9 +28,25 @@ export default function DiceRoller() {
     
     // Simulate rolling delay
     setTimeout(() => {
-      const result = rollDice(sides);
-      setCurrentResult({ result, diceType: label, sides });
-      addLog(`Rolled ${label}: ${result}`, 'roll');
+      let result, rolls, logMessage;
+      
+      if (rollMode === 'advantage' || rollMode === 'disadvantage') {
+        // Roll twice for advantage/disadvantage
+        const roll1 = rollDice(sides);
+        const roll2 = rollDice(sides);
+        rolls = [roll1, roll2];
+        result = rollMode === 'advantage' ? Math.max(roll1, roll2) : Math.min(roll1, roll2);
+        
+        const modeLabel = rollMode === 'advantage' ? 'ADV' : 'DIS';
+        logMessage = `Rolled ${label} (${modeLabel}): [${rolls.join(', ')}] = ${result}`;
+      } else {
+        // Normal single roll
+        result = rollDice(sides);
+        logMessage = `Rolled ${label}: ${result}`;
+      }
+      
+      setCurrentResult({ result, diceType: label, sides, rolls, rollMode });
+      addLog(logMessage, 'roll');
       
       // Add to recent rolls
       setRecentRolls(prev => [
@@ -69,11 +86,47 @@ export default function DiceRoller() {
           result={currentResult.result}
           diceType={currentResult.diceType}
           sides={currentResult.sides}
+          rolls={currentResult.rolls}
+          rollMode={currentResult.rollMode}
           onComplete={() => {
             // Keep result visible, just allow new rolls
           }}
         />
       )}
+
+      {/* Roll Mode Toggle */}
+      <div className="flex gap-1 justify-center">
+        <button
+          onClick={() => setRollMode('normal')}
+          className={`px-3 py-1 font-orbitron font-bold uppercase text-xs border-2 transition-all ${
+            rollMode === 'normal'
+              ? 'bg-accent-cyan text-bg-primary border-accent-cyan glow-cyan'
+              : 'bg-transparent text-accent-cyan border-accent-cyan hover:bg-accent-cyan/20'
+          }`}
+        >
+          Normal
+        </button>
+        <button
+          onClick={() => setRollMode('advantage')}
+          className={`px-3 py-1 font-orbitron font-bold uppercase text-xs border-2 transition-all ${
+            rollMode === 'advantage'
+              ? 'bg-accent-yellow text-bg-primary border-accent-yellow glow-yellow'
+              : 'bg-transparent text-accent-yellow border-accent-yellow hover:bg-accent-yellow/20'
+          }`}
+        >
+          Advantage
+        </button>
+        <button
+          onClick={() => setRollMode('disadvantage')}
+          className={`px-3 py-1 font-orbitron font-bold uppercase text-xs border-2 transition-all ${
+            rollMode === 'disadvantage'
+              ? 'bg-accent-red text-bg-primary border-accent-red glow-red'
+              : 'bg-transparent text-accent-red border-accent-red hover:bg-accent-red/20'
+          }`}
+        >
+          Disadvantage
+        </button>
+      </div>
 
       {/* Dice Grid */}
       <div className="grid grid-cols-4 gap-2 max-w-lg mx-auto">
