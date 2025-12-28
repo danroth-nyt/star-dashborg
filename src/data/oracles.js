@@ -489,6 +489,17 @@ export const nameOracles = {
     "Vandirg / City", "Tar / Station"
   ],
 
+  // Split settlement names for multi-roll (d10 each)
+  settlementNamePrefixes: [
+    "Ger", "Nabeck", "Dablar", "Grim", "Saar", 
+    "Hyro", "Popwa", "Urvok", "Vandirg", "Tar"
+  ],
+  
+  settlementNameSuffixes: [
+    "-atoom", "-rikaant", "-ordest", "-cite", "-tex", 
+    "-avor", "-dorp", "Outpost", "City", "Station"
+  ],
+
   legionaryNames: [
     "Aelia / Albus", "Caelia / Calvus", "Decima / Domitius", "Fabricia / Faustus",
     "Galla / Gaius", "Juliana / Jovian", "Marcella / Maximus", "Sabina / Scorpio",
@@ -963,10 +974,31 @@ export function rollEventOracle() {
 }
 
 // Roll scene shakeup (d20 + threat modifier)
+// First roll d20 + Threat to check if shakeup occurs (15+)
+// If successful, determine which shakeup happens
 export function rollSceneShakeup(threatDie = 1) {
-  const roll = rollDice(20) + threatDie;
-  const index = Math.min(roll - 1, soloOracles.sceneShakeup.length - 1);
-  return { roll, result: soloOracles.sceneShakeup[index] };
+  const checkRoll = rollDice(20);
+  const total = checkRoll + threatDie;
+  const success = total >= 15;
+  
+  let shakeupResult = null;
+  if (success) {
+    // Roll again on the shakeup table (d20 + Threat)
+    const shakeupRoll = rollDice(20) + threatDie;
+    const index = Math.min(shakeupRoll - 1, soloOracles.sceneShakeup.length - 1);
+    shakeupResult = {
+      roll: shakeupRoll,
+      result: soloOracles.sceneShakeup[index]
+    };
+  }
+  
+  return { 
+    checkRoll,
+    threatDie,
+    total,
+    success,
+    shakeup: shakeupResult
+  };
 }
 
 // Generate a mission - multi-roll for more permutations
@@ -1077,19 +1109,25 @@ export function generateSettlement() {
   const knownForRoll = rollDice(worldOracles.settlementKnownFor.length);
   const currentStateRoll = rollDice(worldOracles.settlementCurrentState.length);
   const complicationRoll = rollDice(worldOracles.settlementComplication.length);
-  const nameRoll = rollDice(nameOracles.settlementNames.length);
+  const namePrefixRoll = rollDice(nameOracles.settlementNamePrefixes.length);
+  const nameSuffixRoll = rollDice(nameOracles.settlementNameSuffixes.length);
+  
+  const prefix = nameOracles.settlementNamePrefixes[namePrefixRoll - 1];
+  const suffix = nameOracles.settlementNameSuffixes[nameSuffixRoll - 1];
+  const name = `${prefix}${suffix}`;
   
   return {
     appearanceRoll,
     knownForRoll,
     currentStateRoll,
     complicationRoll,
-    nameRoll,
+    namePrefixRoll,
+    nameSuffixRoll,
     appearance: worldOracles.settlementAppearance[appearanceRoll - 1],
     knownFor: worldOracles.settlementKnownFor[knownForRoll - 1],
     currentState: worldOracles.settlementCurrentState[currentStateRoll - 1],
     complication: worldOracles.settlementComplication[complicationRoll - 1],
-    name: nameOracles.settlementNames[nameRoll - 1]
+    name
   };
 }
 
@@ -1230,5 +1268,51 @@ export function generateCrimeLord() {
     visage: criminalOracles.lordlyVisages[visageRoll - 1],
     weapon: criminalOracles.dastardlyWeapons[weaponRoll - 1],
     base: criminalOracles.criminalBases[baseRoll - 1]
+  };
+}
+
+// ==========================================
+// INDIVIDUAL ROLL FUNCTIONS
+// ==========================================
+
+// Scene individual rolls
+export function rollSceneLocation() {
+  const roll = rollDice(worldOracles.sceneLocation.length);
+  return {
+    roll,
+    result: worldOracles.sceneLocation[roll - 1]
+  };
+}
+
+export function rollSceneTone() {
+  const roll = rollDice(worldOracles.sceneTone.length);
+  return {
+    roll,
+    result: worldOracles.sceneTone[roll - 1]
+  };
+}
+
+export function rollSceneObstacle() {
+  const roll = rollDice(worldOracles.sceneObstacle.length);
+  return {
+    roll,
+    result: worldOracles.sceneObstacle[roll - 1]
+  };
+}
+
+// Settlement name individual rolls
+export function rollSettlementNamePrefix() {
+  const roll = rollDice(nameOracles.settlementNamePrefixes.length);
+  return {
+    roll,
+    result: nameOracles.settlementNamePrefixes[roll - 1]
+  };
+}
+
+export function rollSettlementNameSuffix() {
+  const roll = rollDice(nameOracles.settlementNameSuffixes.length);
+  return {
+    roll,
+    result: nameOracles.settlementNameSuffixes[roll - 1]
   };
 }

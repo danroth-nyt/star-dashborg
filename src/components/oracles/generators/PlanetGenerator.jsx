@@ -27,7 +27,10 @@ export default function PlanetGenerator() {
     setResult({
       location: scene.location,
       tone: scene.tone,
-      obstacle: scene.obstacle
+      obstacle: scene.obstacle,
+      locationRoll: scene.locationRoll,
+      toneRoll: scene.toneRoll,
+      obstacleRoll: scene.obstacleRoll
     });
     addLog(`Scene: ${scene.location} - ${scene.tone} - ${scene.obstacle}`, 'mission');
   };
