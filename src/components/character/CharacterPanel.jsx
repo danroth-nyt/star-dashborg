@@ -64,8 +64,9 @@ export default function CharacterPanel({ onExpand }) {
 
   // Handle Destiny change
   const handleDestinyChange = (delta) => {
-    const newDestiny = Math.max(0, character.destinyPoints + delta);
-    updateField('destinyPoints', newDestiny);
+    const currentDestiny = character.destiny_points || 0;
+    const newDestiny = Math.max(0, currentDestiny + delta);
+    updateField('destiny_points', newDestiny);
   };
 
   // Handle Bits change
@@ -123,13 +124,6 @@ export default function CharacterPanel({ onExpand }) {
         {/* HP Controls */}
         <div className="flex items-center gap-1">
           <button
-            onClick={() => handleHPChange(-1)}
-            disabled={character.hp_current === 0}
-            className="flex-1 px-1 py-0.5 bg-accent-red/20 border border-accent-red text-accent-red text-[10px] font-orbitron hover:bg-accent-red hover:text-bg-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-          >
-            <Minus className="w-2.5 h-2.5 mx-auto" />
-          </button>
-          <button
             onClick={() => handleHPChange(-5)}
             disabled={character.hp_current === 0}
             className="flex-1 px-1 py-0.5 bg-accent-red/20 border border-accent-red text-accent-red text-[10px] font-orbitron hover:bg-accent-red hover:text-bg-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
@@ -137,11 +131,11 @@ export default function CharacterPanel({ onExpand }) {
             -5
           </button>
           <button
-            onClick={() => handleHPChange(5)}
-            disabled={character.hp_current === character.hp_max}
-            className="flex-1 px-1 py-0.5 bg-accent-cyan/20 border border-accent-cyan text-accent-cyan text-[10px] font-orbitron hover:bg-accent-cyan hover:text-bg-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            onClick={() => handleHPChange(-1)}
+            disabled={character.hp_current === 0}
+            className="flex-1 px-1 py-0.5 bg-accent-red/20 border border-accent-red text-accent-red text-[10px] font-orbitron hover:bg-accent-red hover:text-bg-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
           >
-            +5
+            <Minus className="w-2.5 h-2.5 mx-auto" />
           </button>
           <button
             onClick={() => handleHPChange(1)}
@@ -150,86 +144,82 @@ export default function CharacterPanel({ onExpand }) {
           >
             <Plus className="w-2.5 h-2.5 mx-auto" />
           </button>
+          <button
+            onClick={() => handleHPChange(5)}
+            disabled={character.hp_current === character.hp_max}
+            className="flex-1 px-1 py-0.5 bg-accent-cyan/20 border border-accent-cyan text-accent-cyan text-[10px] font-orbitron hover:bg-accent-cyan hover:text-bg-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            +5
+          </button>
         </div>
       </div>
 
       {/* Stats Grid - Quick Roll */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="grid grid-cols-4 gap-1">
         {Object.entries(character.stats).map(([statName, value]) => (
           <button
             key={statName}
             onClick={() => handleStatRoll(statName, value)}
             disabled={rollingStatId === statName}
-            className="bg-bg-primary border border-accent-cyan/30 hover:border-accent-cyan hover:shadow-[0_0_8px_rgba(0,240,255,0.3)] transition-all p-2 text-left group disabled:animate-pulse"
+            className="bg-bg-primary border border-accent-cyan/30 hover:border-accent-cyan hover:shadow-[0_0_8px_rgba(0,240,255,0.3)] transition-all p-1.5 text-center group disabled:animate-pulse"
           >
-            <div className="flex items-center justify-between mb-0.5">
-              <span className="text-[10px] font-mono text-text-secondary uppercase">
-                {statName}
-              </span>
-              <Dices className="w-2.5 h-2.5 text-accent-cyan opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="text-[9px] font-mono text-text-secondary uppercase mb-0.5">
+              {statName}
             </div>
-            <div className={`text-xl font-orbitron font-bold ${getStatColor(value)}`}>
+            <div className={`text-lg font-orbitron font-bold leading-none ${getStatColor(value)}`}>
               {formatModifier(value)}
-            </div>
-            <div className="text-[9px] text-text-secondary font-mono opacity-0 group-hover:opacity-100 transition-opacity">
-              d20{formatModifier(value)}
             </div>
           </button>
         ))}
       </div>
 
       {/* Destiny Points & Bits */}
-      <div className="grid grid-cols-2 gap-1.5">
+      <div className="flex items-center gap-2 bg-bg-primary border border-accent-yellow/30 rounded p-1.5">
         {/* Destiny Points */}
-        <div className="bg-bg-primary border border-accent-yellow rounded p-2">
-          <div className="flex items-center gap-1 mb-1">
-            <Sparkles className="w-3 h-3 text-accent-yellow" />
-            <span className="text-[10px] font-mono text-text-secondary uppercase">Destiny</span>
+        <div className="flex items-center gap-1.5 flex-1">
+          <Sparkles className="w-3 h-3 text-accent-yellow flex-shrink-0" />
+          <div className="flex items-center gap-1 flex-1">
+            <span className="text-[9px] font-mono text-text-secondary uppercase">Destiny:</span>
+            <span className="text-base font-orbitron font-bold text-accent-yellow">{character.destiny_points || 0}</span>
           </div>
-          <div className="text-lg font-orbitron font-bold text-accent-yellow mb-1">
-            {character.destinyPoints || 0}
-          </div>
-          <div className="flex gap-1">
-            <button
-              onClick={() => handleDestinyChange(-1)}
-              disabled={!character.destinyPoints || character.destinyPoints === 0}
-              className="flex-1 px-1 py-0.5 bg-accent-red/20 border border-accent-red text-accent-red text-[9px] font-orbitron hover:bg-accent-red hover:text-bg-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              SPEND
-            </button>
-            <button
-              onClick={() => handleDestinyChange(1)}
-              className="flex-1 px-1 py-0.5 bg-accent-cyan/20 border border-accent-cyan text-accent-cyan text-[9px] font-orbitron hover:bg-accent-cyan hover:text-bg-primary transition-all"
-            >
-              <Plus className="w-2.5 h-2.5 mx-auto" />
-            </button>
-          </div>
+          <button
+            onClick={() => handleDestinyChange(-1)}
+            disabled={!character.destiny_points || character.destiny_points === 0}
+            className="px-1.5 py-0.5 bg-accent-red/20 border border-accent-red text-accent-red text-[8px] font-orbitron hover:bg-accent-red hover:text-bg-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            -1
+          </button>
+          <button
+            onClick={() => handleDestinyChange(1)}
+            className="px-1.5 py-0.5 bg-accent-cyan/20 border border-accent-cyan text-accent-cyan text-[8px] font-orbitron hover:bg-accent-cyan hover:text-bg-primary transition-all"
+          >
+            +1
+          </button>
         </div>
 
+        {/* Divider */}
+        <div className="w-px h-6 bg-accent-cyan/30"></div>
+
         {/* Bits */}
-        <div className="bg-bg-primary border border-accent-cyan rounded p-2">
-          <div className="flex items-center gap-1 mb-1">
-            <Coins className="w-3 h-3 text-accent-cyan" />
-            <span className="text-[10px] font-mono text-text-secondary uppercase">Bits ∆</span>
+        <div className="flex items-center gap-1.5 flex-1">
+          <Coins className="w-3 h-3 text-accent-cyan flex-shrink-0" />
+          <div className="flex items-center gap-1 flex-1">
+            <span className="text-[9px] font-mono text-text-secondary uppercase">Bits:</span>
+            <span className="text-base font-orbitron font-bold text-accent-cyan">{character.bits || 0}</span>
           </div>
-          <div className="text-lg font-orbitron font-bold text-accent-cyan mb-1">
-            {character.bits || 0}
-          </div>
-          <div className="flex gap-1">
-            <button
-              onClick={() => handleBitsChange(-1)}
-              disabled={!character.bits || character.bits === 0}
-              className="flex-1 px-1 py-0.5 bg-accent-red/20 border border-accent-red text-accent-red text-[9px] font-orbitron hover:bg-accent-red hover:text-bg-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
-            >
-              <Minus className="w-2.5 h-2.5 mx-auto" />
-            </button>
-            <button
-              onClick={() => handleBitsChange(1)}
-              className="flex-1 px-1 py-0.5 bg-accent-cyan/20 border border-accent-cyan text-accent-cyan text-[9px] font-orbitron hover:bg-accent-cyan hover:text-bg-primary transition-all"
-            >
-              <Plus className="w-2.5 h-2.5 mx-auto" />
-            </button>
-          </div>
+          <button
+            onClick={() => handleBitsChange(-1)}
+            disabled={!character.bits || character.bits === 0}
+            className="px-1.5 py-0.5 bg-accent-red/20 border border-accent-red text-accent-red text-[8px] font-orbitron hover:bg-accent-red hover:text-bg-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            -1
+          </button>
+          <button
+            onClick={() => handleBitsChange(1)}
+            className="px-1.5 py-0.5 bg-accent-cyan/20 border border-accent-cyan text-accent-cyan text-[8px] font-orbitron hover:bg-accent-cyan hover:text-bg-primary transition-all"
+          >
+            +1
+          </button>
         </div>
       </div>
     </div>

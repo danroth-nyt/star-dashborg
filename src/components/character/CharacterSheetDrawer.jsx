@@ -284,8 +284,8 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
                 </label>
                 <input
                   type="number"
-                  value={localCharacter.destinyPoints || 0}
-                  onChange={(e) => handleFieldChange('destinyPoints', Math.max(0, parseInt(e.target.value) || 0))}
+                  value={localCharacter.destiny_points || 0}
+                  onChange={(e) => handleFieldChange('destiny_points', Math.max(0, parseInt(e.target.value) || 0))}
                   min="0"
                   className="w-full text-2xl font-orbitron font-bold text-accent-yellow bg-transparent border-0 focus:outline-none"
                 />

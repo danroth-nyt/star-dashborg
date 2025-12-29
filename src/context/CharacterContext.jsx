@@ -113,9 +113,9 @@ export function CharacterProvider({ children, userId, roomCode }) {
           hp_max: characterData.hp_max,
           equipment: characterData.equipment || [],
           bits: characterData.bits || 0,
-          destinyPoints: characterData.destinyPoints || 0,
-          classFeatures: characterData.classFeatures || null,
-          className: characterData.className || characterData.class,
+          destiny_points: characterData.destinyPoints || 0,
+          class_features: characterData.classFeatures || null,
+          class_name: characterData.className || characterData.class,
         };
 
         const { data, error } = await supabase
