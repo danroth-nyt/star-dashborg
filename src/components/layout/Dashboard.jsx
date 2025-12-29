@@ -16,14 +16,14 @@ import CharacterSheetDrawer from '../character/CharacterSheetDrawer';
 const PANEL_ORDER_KEY = 'star-dashborg-panel-order';
 
 const defaultPanels = [
-  { id: 'character-panel', component: 'CharacterPanel', title: 'Character', variant: 'yellow', column: 'left' },
+  { id: 'character-panel', component: 'CharacterPanel', title: 'Character', variant: 'red', column: 'left' },
   { id: 'threat-die', component: 'ThreatDie', title: 'Threat Die', variant: 'red', column: 'left' },
   { id: 'mission-tracks', component: 'MissionTrack', title: 'Mission Tracks', variant: 'cyan', column: 'left' },
   { id: 'danger-clocks', component: 'DangerClock', title: 'Danger Clocks', variant: 'red', column: 'left' },
   { id: 'dice-roller', component: 'DiceRoller', title: 'Dice Roller', variant: 'yellow', column: 'center' },
   { id: 'ship-log', component: 'DiceLog', title: 'Ship Log', variant: 'cyan', column: 'center' },
-  { id: 'oracle-compendium', component: 'OraclePanel', title: 'Oracle Compendium', variant: 'yellow', column: 'right' },
-  { id: 'session-journal', component: 'SessionJournal', title: 'Session Journal', variant: 'cyan', column: 'right' },
+  { id: 'oracle-compendium', component: 'OraclePanel', title: 'Oracle Compendium', variant: 'cyan', column: 'right' },
+  { id: 'session-journal', component: 'SessionJournal', title: 'Session Journal', variant: 'yellow', column: 'right' },
 ];
 
 export default function Dashboard({ roomCode }) {
@@ -31,12 +31,24 @@ export default function Dashboard({ roomCode }) {
     const saved = localStorage.getItem(PANEL_ORDER_KEY);
     if (saved) {
       const savedPanels = JSON.parse(saved);
-      // Merge new panels that don't exist in saved config
+      // Create a map of default panel configs for easy lookup
+      const defaultPanelMap = new Map(defaultPanels.map(p => [p.id, p]));
+      
+      // Update saved panels with any new default properties (like variant changes)
+      const updatedPanels = savedPanels.map(savedPanel => {
+        const defaultPanel = defaultPanelMap.get(savedPanel.id);
+        if (defaultPanel) {
+          // Merge default properties, but keep user's column preference
+          return { ...defaultPanel, column: savedPanel.column };
+        }
+        return savedPanel;
+      });
+      
+      // Add any new panels that don't exist in saved config
       const savedIds = new Set(savedPanels.map(p => p.id));
       const newPanels = defaultPanels.filter(p => !savedIds.has(p.id));
       
-      // Add new panels to their default columns
-      return [...newPanels, ...savedPanels];
+      return [...newPanels, ...updatedPanels];
     }
     return defaultPanels;
   });
