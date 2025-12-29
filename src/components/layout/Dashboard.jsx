@@ -10,10 +10,13 @@ import SessionJournal from '../journal/SessionJournal';
 import DiceRoller from '../oracles/DiceRoller';
 import OraclePanel from '../oracles/OraclePanel';
 import HelpModal from '../ui/HelpModal';
+import CharacterPanel from '../character/CharacterPanel';
+import CharacterSheetDrawer from '../character/CharacterSheetDrawer';
 
 const PANEL_ORDER_KEY = 'star-dashborg-panel-order';
 
 const defaultPanels = [
+  { id: 'character-panel', component: 'CharacterPanel', title: 'Character', variant: 'yellow', column: 'left' },
   { id: 'threat-die', component: 'ThreatDie', title: 'Threat Die', variant: 'red', column: 'left' },
   { id: 'mission-tracks', component: 'MissionTrack', title: 'Mission Tracks', variant: 'cyan', column: 'left' },
   { id: 'danger-clocks', component: 'DangerClock', title: 'Danger Clocks', variant: 'red', column: 'left' },
@@ -26,13 +29,23 @@ const defaultPanels = [
 export default function Dashboard({ roomCode }) {
   const [panels, setPanels] = useState(() => {
     const saved = localStorage.getItem(PANEL_ORDER_KEY);
-    return saved ? JSON.parse(saved) : defaultPanels;
+    if (saved) {
+      const savedPanels = JSON.parse(saved);
+      // Merge new panels that don't exist in saved config
+      const savedIds = new Set(savedPanels.map(p => p.id));
+      const newPanels = defaultPanels.filter(p => !savedIds.has(p.id));
+      
+      // Add new panels to their default columns
+      return [...newPanels, ...savedPanels];
+    }
+    return defaultPanels;
   });
   const [draggedPanel, setDraggedPanel] = useState(null);
   const [dragOverPanel, setDragOverPanel] = useState(null);
   const [dragOverColumn, setDragOverColumn] = useState(null);
   const [helpModalOpen, setHelpModalOpen] = useState(false);
   const [helpModalTab, setHelpModalTab] = useState('threatDie');
+  const [characterSheetOpen, setCharacterSheetOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(PANEL_ORDER_KEY, JSON.stringify(panels));
@@ -135,6 +148,7 @@ export default function Dashboard({ roomCode }) {
 
   const renderPanel = (panel) => {
     const components = {
+      CharacterPanel: <CharacterPanel onExpand={() => setCharacterSheetOpen(true)} />,
       ThreatDie: <ThreatDie />,
       MissionTrack: <MissionTrack />,
       DangerClock: <DangerClock />,
@@ -222,7 +236,7 @@ export default function Dashboard({ roomCode }) {
 
   return (
     <div className="min-h-screen bg-bg-primary scanlines flex flex-col">
-      <Header roomCode={roomCode} />
+      <Header roomCode={roomCode} onOpenCharacterSheet={() => setCharacterSheetOpen(true)} />
       
       <div className="flex-1 p-4 space-y-4 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-6 overflow-hidden">
         {/* Left Column - Trackers (3 columns) */}
@@ -249,6 +263,12 @@ export default function Dashboard({ roomCode }) {
         isOpen={helpModalOpen}
         onClose={() => setHelpModalOpen(false)}
         initialTab={helpModalTab}
+      />
+      
+      {/* Character Sheet Drawer */}
+      <CharacterSheetDrawer 
+        isOpen={characterSheetOpen}
+        onClose={() => setCharacterSheetOpen(false)}
       />
     </div>
   );
