@@ -5,6 +5,7 @@ import { useCharacter } from '../../context/CharacterContext';
 import { SPECIES, CHARACTER_CLASSES } from '../../types/starborg';
 import Button from '../ui/Button';
 import { cn } from '../../lib/utils';
+import CharacterJournal from './CharacterJournal';
 
 export default function CharacterSheetDrawer({ isOpen, onClose }) {
   const { character, updateCharacter, updateField, deleteCharacter } = useCharacter();
@@ -450,6 +451,14 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
               </div>
             </div>
           )}
+
+          {/* Personal Journal */}
+          <div className="space-y-4">
+            <h3 className="text-lg font-orbitron font-bold text-accent-yellow uppercase border-b border-accent-yellow/30 pb-2">
+              Personal Journal
+            </h3>
+            <CharacterJournal />
+          </div>
 
           {/* Danger Zone */}
           <div className="space-y-4">

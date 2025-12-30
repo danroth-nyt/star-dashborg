@@ -11,6 +11,7 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 ### 👥 Character & Party Management
 - **Character Creation** - Full character generator with class selection (Smuggler, Tech, Fighter, Psi, Bot)
 - **Character Sheets** - Slide-out drawer with stats, HP tracking, equipment, and destiny points
+- **Personal Journal** - Cloud-synced personal notes for each character to track goals, relationships, and discoveries
 - **Party Panel** - Real-time view of all characters in the session with synchronized HP and stats
 - **Quick Stat Rolls** - Click any stat to roll d20 + modifier with crit/fumble detection
 - **Authentication System** - Secure user accounts with admin approval workflow
@@ -143,6 +144,7 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
      bits integer,
      destiny_points integer,
      class_features jsonb,
+     journal text default '',
      created_at timestamp with time zone default now(),
      updated_at timestamp with time zone default now()
    );
@@ -217,6 +219,7 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - Click **character icon** in header to open your character sheet
 - View and edit stats, HP, equipment, bits, and destiny points
 - Click any stat to roll a test (d20 + modifier)
+- **Personal Journal** to track character-specific notes, goals, and discoveries (auto-saves)
 - **Party Panel** shows all characters in the session
 - HP bars update in real-time for all party members
 
