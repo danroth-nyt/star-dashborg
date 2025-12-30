@@ -9,8 +9,8 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 ## ✨ Features
 
 ### 👥 Character & Party Management
-- **Character Creation** - Full character generator with class selection (Smuggler, Tech, Fighter, Psi, Bot)
-- **Character Sheets** - Slide-out drawer with stats, HP tracking, equipment, and destiny points
+- **Character Creation** - Full character generator with all 6 Star Borg classes (Bot, Bounty Hunter, Magi Knight, Smuggler, Technician, Youngster)
+- **Character Sheets** - Slide-out drawer with stats, HP tracking, equipment, destiny points, and class features
 - **Personal Journal** - Cloud-synced personal notes for each character to track goals, relationships, and discoveries
 - **Party Panel** - Real-time view of all characters in the session with synchronized HP and stats
 - **Quick Stat Rolls** - Click any stat to roll d20 + modifier with crit/fumble detection
@@ -51,6 +51,17 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - **Help Modal** - Context-sensitive help for trackers (press `H` or `?`)
 - **Quick Reference** - Comprehensive rules reference accessible from header
 
+### 🚀 Space Combat System
+- **Battle Stations** - 6 ship stations with role-specific actions (Pilot, Co-Pilot, Gunner 1/2, Engineer 1/2)
+- **Station Assignments** - Assign party members to stations with real-time sync
+- **Combat Actions** - Character stats automatically applied to space combat tests
+- **Ship Status** - Track armor tier, torpedo count, and hyperdrive charge
+- **Combat Log** - Detailed action log with d20 rolls, modifiers, and success/fail results
+- **Sound Effects** - Immersive combat audio (laser fire, torpedoes, shield hits, hyperdrive)
+- **Ship Upgrades** - Purchase and equip ship upgrades (Turbo Lasers, Torpedo Winch, Overcharge Shields)
+- **Torpedoes** - Load and fire different torpedo types (Standard, Cluster, Hunter-Killer, Ion, Chaff)
+- **Heroic Rewards** - Earn heroic upgrades by saving galaxies
+
 ### 🎨 Visual Design
 - **Authentic Star Borg Aesthetic** - Yellow/cyan/red color scheme with neon glow effects
 - **CRT Scanlines & Effects** - Retro terminal styling throughout
@@ -58,6 +69,7 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - **Smooth Animations** - Polished transitions, hover effects, and alert pulses
 - **Visual Alerts** - Pulsing glows for maximum threat and filled danger clocks
 - **Smooth Loading States** - Unified loading experience prevents jarring transitions
+- **Sound Effects** - Toggle combat sounds on/off with persistent preference
 
 ## ⚡ Key Highlights
 
@@ -69,9 +81,19 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - **Character Persistence**: Characters saved to session, no need to recreate
 
 ### Threat-Based Mechanics
-- **Scene Shakeup**: Two-stage threat check with automatic calculation
-- **Travel Encounters**: Threat-based encounter generation with clear success/fail
+- **Scene Shakeup**: Two-stage threat check (d20 + Threat Die vs 15+) with automatic calculation
+- **Travel Encounters**: Threat-based encounter check (d20 + Threat Die vs 12+) with clear success/fail messaging
 - **Dangerous Locations**: Obstacle checks using Threat Die + d20 mechanics
+- **Maximum Threat Alert**: Visual warning and rule reminder when Threat Die reaches 6
+
+### Space Combat Features
+- **6 Battle Stations**: Command Deck (Pilot, Co-Pilot), Weapons Deck (Gunner 1/2), Engineering Bay (Engineer 1/2)
+- **Station-Specific Actions**: Each station has unique actions tied to character stats (AGI, KNW, PRS, STR)
+- **Real-time Combat**: d20 + character stat vs DR with automatic success/fail calculation
+- **Ship Systems**: Armor tiers, torpedo loading (d2), hyperdrive charging (3 rounds)
+- **Combat Audio**: Laser fire, torpedo launch, shield impacts, hyperdrive charge, critical alarms
+- **Ship Upgrades**: Turbo Laser Turrets (d8 damage), Torpedo Winch (any station loads), Overcharge Shields (Tier 3 max)
+- **Torpedo Types**: Standard, Cluster, Hunter-Killer, Ion, Chaff with unique effects
 
 ### Visual Alerts & Feedback
 - **Maximum Threat**: Pulsing red alert when Threat Die reaches 6
@@ -281,7 +303,7 @@ star-dashborg/
 ├── src/
 │   ├── components/
 │   │   ├── auth/             # Auth, PendingApproval
-│   │   ├── character/        # CharacterGenerator, CharacterSheetDrawer, PartyPanel, PartyMemberCard
+│   │   ├── character/        # CharacterGenerator, CharacterSheetDrawer, CharacterJournal, PartyPanel, PartyMemberCard
 │   │   ├── journal/          # DiceLog, SessionJournal
 │   │   ├── layout/           # Dashboard, Header, Panel, GameFlowDrawer
 │   │   ├── oracles/          # Oracle systems and generators
@@ -292,26 +314,52 @@ star-dashborg/
 │   │   │   ├── OracleResultDisplay.jsx
 │   │   │   ├── AffirmationOracle.jsx
 │   │   │   └── DiceRoller.jsx
+│   │   ├── ship/             # ShipManager, UpgradeShop, HeroicRewardsModal
+│   │   ├── spacecombat/      # Space combat system components
+│   │   │   ├── stations/     # PilotStation, CopilotStation, GunnerStation, EngineerStation
+│   │   │   ├── SpaceCombatView.jsx  # Main combat interface
+│   │   │   ├── StationGrid.jsx      # Station layout management
+│   │   │   ├── StationCard.jsx      # Individual station UI
+│   │   │   ├── CombatActions.jsx    # Action execution and dice rolling
+│   │   │   ├── CombatLog.jsx        # Combat event logging
+│   │   │   ├── ShipStatus.jsx       # Ship stats display
+│   │   │   ├── TorpedoSelector.jsx  # Torpedo type selection
+│   │   │   └── SpaceCombatShipPanel.jsx  # Ship upgrades in combat
 │   │   ├── trackers/         # ThreatDie, MissionTrack, DangerClock, SiteExplorer
 │   │   └── ui/               # Button, Accordion, HelpModal, QuickReference, LoadingScreen
 │   ├── context/
-│   │   ├── AuthContext.jsx   # Authentication state management
-│   │   ├── CharacterContext.jsx  # Character data management
-│   │   ├── PartyContext.jsx  # Party members tracking
-│   │   └── GameContext.jsx   # Global game state management
+│   │   ├── AuthContext.jsx          # Authentication state management
+│   │   ├── CharacterContext.jsx     # Character data management
+│   │   ├── PartyContext.jsx         # Party members tracking
+│   │   ├── GameContext.jsx          # Global game state management
+│   │   └── SpaceCombatContext.jsx   # Space combat state management
 │   ├── data/
-│   │   ├── characterData.js  # Character classes and species data
-│   │   ├── oracles.js        # All oracle tables and generator functions
+│   │   ├── characterData.js     # Character classes and species data
+│   │   ├── oracles.js           # All oracle tables and generator functions
+│   │   ├── spaceCombatData.js   # Space combat stations and actions
+│   │   ├── shipShopData.js      # Ship upgrades and torpedo types
 │   │   └── trackerHelpContent.js  # Help content for tracker components
+│   ├── hooks/
+│   │   ├── useDebounce.js       # Debounce hook for auto-save
+│   │   └── useSoundEffects.js   # Sound effects management
 │   ├── lib/
 │   │   ├── supabaseClient.js # Supabase configuration
 │   │   └── utils.js          # Utility functions
 │   ├── types/
 │   │   └── starborg.js       # TypeScript-style type definitions
+│   ├── utils/
+│   │   ├── dice.js           # Dice rolling utilities
+│   │   └── shipUpgrades.js   # Ship upgrade logic
 │   ├── App.jsx               # Root component with auth flow
 │   ├── main.jsx              # React entry point
 │   └── index.css             # Global styles and custom animations
-├── public/                   # Static assets
+├── public/
+│   └── sounds/               # Audio files for space combat
+│       ├── laser-fire.mp3
+│       ├── torpedo-fire.mp3
+│       ├── shield-hit.mp3
+│       ├── hyperdrive-charge.mp3
+│       └── alarm-critical.mp3
 ├── .env                      # Environment variables (create this)
 ├── package.json
 ├── tailwind.config.js        # Tailwind configuration

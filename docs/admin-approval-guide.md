@@ -233,6 +233,21 @@ create trigger on_approval_changed
 4. **Monitor Access**: Keep track of who has been granted access
 5. **Revoke When Needed**: Don't hesitate to revoke access if necessary
 
+## New Features and Permissions
+
+### Space Combat (No Additional Setup Required)
+The space combat system introduced in this branch requires no additional database tables or permissions:
+- Space combat state is stored in the existing `sessions.game_state` JSONB field
+- Ship upgrades and torpedo inventory are part of game state
+- No RLS policy changes needed
+- All approved users automatically have access to space combat
+
+### Character Journals (Already Configured)
+Character journals use the existing `characters.journal` field:
+- Personal journals auto-save with debounce
+- Uses existing character RLS policies
+- No additional configuration needed
+
 ## Support
 
 If you need help with the approval system:
@@ -240,3 +255,4 @@ If you need help with the approval system:
 - Review RLS policies to ensure they're configured correctly
 - Test with a new account to verify the workflow
 - Consult the main README.md for database schema details
+- For space combat issues, check that `game_state` column allows JSONB updates
