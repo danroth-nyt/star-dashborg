@@ -247,18 +247,6 @@ export default function UpgradeShop({ isOpen, onClose }) {
                       {upgrade.description}
                     </p>
 
-                    {/* Effect */}
-                    <div className={`mb-4 pb-4 border-b ${
-                      isUnlocked ? 'border-accent-yellow/30' : 'border-gray-700/50'
-                    }`}>
-                      <p className="text-xs mb-1 font-orbitron text-gray-500 uppercase tracking-wider">Effect</p>
-                      <p className={`text-sm font-orbitron ${
-                        isUnlocked ? 'text-accent-cyan' : 'text-gray-600'
-                      }`}>
-                        {upgrade.effect}
-                      </p>
-                    </div>
-
                     {/* Status Badge */}
                     <div className={`text-center py-3 px-4 rounded transition-all ${
                       isUnlocked 
