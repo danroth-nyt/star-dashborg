@@ -241,6 +241,99 @@ h1, h2, h3, h4, h5, h6 {
     animation: fadeIn 0.5s ease-in;
   }
 
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  /* Card hover animation for shop items */
+  @keyframes card-lift {
+    from {
+      transform: translateY(0) scale(1);
+    }
+    to {
+      transform: translateY(-4px) scale(1.01);
+    }
+  }
+
+  .card-hover:hover {
+    animation: card-lift 0.2s ease-out forwards;
+  }
+
+  /* Lock pulse animation for locked cards */
+  @keyframes lock-pulse {
+    0%, 100% {
+      border-color: rgb(55, 65, 81);
+      background-color: rgba(17, 24, 39, 0.5);
+    }
+    50% {
+      border-color: rgb(75, 85, 99);
+      background-color: rgba(31, 41, 55, 0.5);
+    }
+  }
+
+  .lock-pulse {
+    animation: lock-pulse 3s ease-in-out infinite;
+  }
+
+  /* Unlock glow animation for unlocked cards */
+  @keyframes unlock-glow {
+    0%, 100% {
+      box-shadow: 
+        0 0 15px rgba(255, 252, 0, 0.2),
+        0 0 30px rgba(255, 252, 0, 0.1),
+        inset 0 0 20px rgba(255, 252, 0, 0.05);
+    }
+    50% {
+      box-shadow: 
+        0 0 25px rgba(255, 252, 0, 0.3),
+        0 0 45px rgba(255, 252, 0, 0.15),
+        inset 0 0 25px rgba(255, 252, 0, 0.08);
+    }
+  }
+
+  .unlock-glow {
+    animation: unlock-glow 2.5s ease-in-out infinite;
+  }
+
+  /* Drop shadow glow for icons */
+  .drop-shadow-glow-yellow {
+    filter: drop-shadow(0 0 8px rgba(255, 252, 0, 0.8));
+  }
+
+  /* Custom scrollbar styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 1px solid rgba(55, 65, 81, 0.5);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 240, 255, 0.6),
+      rgba(0, 240, 255, 0.3)
+    );
+    border-radius: 5px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 240, 255, 0.8),
+      rgba(0, 240, 255, 0.5)
+    );
+  }
+
+  /* Firefox scrollbar */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 240, 255, 0.6) rgba(0, 0, 0, 0.3);
+  }
+
   /* Slide up animation */
   @keyframes slideUp {
     from {
@@ -583,6 +676,164 @@ h1, h2, h3, h4, h5, h6 {
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  /* Space Combat Animations */
+  
+  /* Space background */
+  .bg-space-background {
+    background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+  }
+
+  /* Star field layers */
+  @keyframes stars-drift-1 {
+    from {
+      transform: translateX(0) translateY(0);
+    }
+    to {
+      transform: translateX(-100px) translateY(-50px);
+    }
+  }
+
+  @keyframes stars-drift-2 {
+    from {
+      transform: translateX(0) translateY(0);
+    }
+    to {
+      transform: translateX(-50px) translateY(-100px);
+    }
+  }
+
+  @keyframes stars-drift-3 {
+    from {
+      transform: translateX(0) translateY(0);
+    }
+    to {
+      transform: translateX(-25px) translateY(-75px);
+    }
+  }
+
+  .stars-layer-1,
+  .stars-layer-2,
+  .stars-layer-3 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background-repeat: repeat;
+  }
+
+  .stars-layer-1 {
+    background-image: radial-gradient(2px 2px at 20px 30px, white, transparent),
+      radial-gradient(2px 2px at 60px 70px, white, transparent),
+      radial-gradient(1px 1px at 50px 50px, white, transparent),
+      radial-gradient(1px 1px at 130px 80px, white, transparent),
+      radial-gradient(2px 2px at 90px 10px, white, transparent);
+    background-size: 200px 200px;
+    animation: stars-drift-1 120s linear infinite;
+    opacity: 0.4;
+  }
+
+  .stars-layer-2 {
+    background-image: radial-gradient(1px 1px at 40px 60px, white, transparent),
+      radial-gradient(1px 1px at 110px 90px, white, transparent),
+      radial-gradient(1px 1px at 80px 30px, white, transparent);
+    background-size: 150px 150px;
+    animation: stars-drift-2 80s linear infinite;
+    opacity: 0.3;
+  }
+
+  .stars-layer-3 {
+    background-image: radial-gradient(1px 1px at 70px 40px, rgba(0, 240, 255, 0.8), transparent),
+      radial-gradient(1px 1px at 120px 100px, rgba(255, 252, 0, 0.8), transparent),
+      radial-gradient(1px 1px at 30px 80px, rgba(255, 0, 60, 0.8), transparent);
+    background-size: 180px 180px;
+    animation: stars-drift-3 60s linear infinite;
+    opacity: 0.5;
+  }
+
+  /* Combat scanlines */
+  .scanlines-combat {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.1),
+      rgba(0, 0, 0, 0.1) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0.3;
+  }
+
+  /* Shield effects */
+  @keyframes shield-pulse {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.02);
+    }
+  }
+
+  .shield-pulse {
+    animation: shield-pulse 3s ease-in-out infinite;
+  }
+
+  .shield-active {
+    filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.5));
+  }
+
+  /* Hyperdrive charge animation */
+  @keyframes hyperdrive-charge-pulse {
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 5px rgba(255, 252, 0, 0.5);
+    }
+    50% {
+      opacity: 0.7;
+      box-shadow: 0 0 15px rgba(255, 252, 0, 0.9);
+    }
+  }
+
+  .hyperdrive-charge-pulse {
+    animation: hyperdrive-charge-pulse 1s ease-in-out infinite;
+  }
+
+  /* Fade in/out transitions */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  .fade-in {
+    animation: fade-in 0.5s ease-in forwards;
+  }
+
+  .fade-out {
+    animation: fade-out 0.3s ease-out forwards;
+  }
+
   /* Enhance panel backgrounds with subtle gradients */
   .bg-bg-secondary {
     background: linear-gradient(135deg, #1a1a1a 0%, #161616 100%);
@@ -697,5 +948,72 @@ h1, h2, h3, h4, h5, h6 {
 
   .danger-glow-intense {
     animation: danger-glow-intense 1.5s ease-in-out infinite;
+  }
+
+  /* Ship Upgrade Animations */
+  
+  /* Purchase success pulse */
+  @keyframes purchase-success {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(255, 252, 0, 0.7);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px 10px rgba(255, 252, 0, 0);
+    }
+  }
+
+  .purchase-success {
+    animation: purchase-success 0.6s ease-out;
+  }
+
+  /* Upgrade install celebration */
+  @keyframes upgrade-celebrate {
+    0% {
+      transform: scale(0.8) rotate(-5deg);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1) rotate(2deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  .upgrade-celebrate {
+    animation: upgrade-celebrate 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  /* Torpedo selector glow */
+  @keyframes torpedo-glow {
+    0%, 100% {
+      box-shadow: 0 0 5px rgba(255, 252, 0, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 15px rgba(255, 252, 0, 0.6);
+    }
+  }
+
+  .torpedo-glow {
+    animation: torpedo-glow 1.5s ease-in-out infinite;
+  }
+
+  /* Upgrade badge pulse */
+  @keyframes badge-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+  }
+
+  .badge-pulse {
+    animation: badge-pulse 2s ease-in-out infinite;
   }
 }
