@@ -108,6 +108,31 @@ export default function SpaceCombatView() {
                     </div>
                   </div>
                 </div>
+
+                {/* Combat Notes */}
+                <div className="bg-bg-secondary/80 backdrop-blur-sm border-3 border-gray-700 p-4">
+                  <p className="text-xs text-gray-400 font-orbitron uppercase mb-3">
+                    Combat Notes:
+                  </p>
+                  <ul className="space-y-2 text-xs text-gray-400">
+                    <li className="flex items-start gap-2">
+                      <span className="text-accent-cyan">•</span>
+                      <span>Solo rebels can make 2 actions per turn</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-accent-cyan">•</span>
+                      <span>Changing stations takes 1 round</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-accent-cyan">•</span>
+                      <span>Failed defense rolls degrade ship armor by 1 tier</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-accent-yellow">•</span>
+                      <span>Hyperdrive takes 3 rounds to charge - dangerous with 4+ enemies!</span>
+                    </li>
+                  </ul>
+                </div>
               </div>
 
               {/* Center Column - Station Grid */}

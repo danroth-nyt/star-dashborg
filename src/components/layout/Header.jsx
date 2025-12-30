@@ -59,7 +59,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
                   title={character.name || 'Character Sheet'}
                 >
                   <User className="w-4 h-4" />
-                  <span className="max-w-[100px] truncate">{character.name || 'Character'}</span>
+                  <span className="max-w-[100px] truncate">{character.name ? character.name.split(' ')[0] : 'Character'}</span>
                 </Button>
               )}
               <Button
@@ -137,7 +137,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
                 title={character.name || 'Character Sheet'}
               >
                 <User className="w-4 h-4" />
-                <span className="truncate text-xs">{character.name || 'Char'}</span>
+                <span className="truncate text-xs">{character.name ? character.name.split(' ')[0] : 'Char'}</span>
               </Button>
             )}
             <Button

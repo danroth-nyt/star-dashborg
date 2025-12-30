@@ -54,7 +54,7 @@ export default function StationCard({ station, assignedCharacterId, onAssign, on
                 {assignedCharacter.name}
               </p>
               <p className="text-xs text-gray-400">
-                {assignedCharacter.class || 'Rebel'}
+                {assignedCharacter.class ? assignedCharacter.class.charAt(0).toUpperCase() + assignedCharacter.class.slice(1) : 'Rebel'}
               </p>
             </div>
             <button
