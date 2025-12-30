@@ -169,7 +169,27 @@ export default function CharacterGenerator({ onSave, onCancel }) {
         const nemesisRoll = rollD(6);
         const identityRoll = rollD(6);
         features.art = { roll: artRoll, ...data.arts[artRoll - 1] };
-        features.nemesis = { roll: nemesisRoll, result: data.dragoonNemeses[nemesisRoll - 1] };
+        
+        // If nemesis roll is 6 ("Roll 2"), automatically roll twice more without replacement
+        if (nemesisRoll === 6) {
+          const firstRoll = rollD(5); // Roll 1-5 to avoid getting "Roll 2" again
+          let secondRoll = rollD(5);
+          // Re-roll if duplicate
+          while (secondRoll === firstRoll) {
+            secondRoll = rollD(5);
+          }
+          const nemesis1 = data.dragoonNemeses[firstRoll - 1];
+          const nemesis2 = data.dragoonNemeses[secondRoll - 1];
+          features.nemesis = { 
+            roll: nemesisRoll, 
+            result: `${nemesis1} & ${nemesis2}`,
+            multiple: true,
+            nemeses: [nemesis1, nemesis2]
+          };
+        } else {
+          features.nemesis = { roll: nemesisRoll, result: data.dragoonNemeses[nemesisRoll - 1] };
+        }
+        
         features.identity = { roll: identityRoll, ...data.burnerIdentities[identityRoll - 1] };
         features.dragoonThreshold = 5; // Detection threshold, increases by 1 each use
         break;
@@ -349,10 +369,29 @@ export default function CharacterGenerator({ onSave, onCancel }) {
         roll = rollD(4);
         newFeature = { roll, ...data.arts[roll - 1] };
         break;
-      case 'nemesis':
+      case 'nemesis': {
         roll = rollD(6);
-        newFeature = { roll, result: data.dragoonNemeses[roll - 1] };
+        // If roll is 6 ("Roll 2"), automatically roll twice more without replacement
+        if (roll === 6) {
+          const firstRoll = rollD(5);
+          let secondRoll = rollD(5);
+          // Re-roll if duplicate
+          while (secondRoll === firstRoll) {
+            secondRoll = rollD(5);
+          }
+          const nemesis1 = data.dragoonNemeses[firstRoll - 1];
+          const nemesis2 = data.dragoonNemeses[secondRoll - 1];
+          newFeature = { 
+            roll, 
+            result: `${nemesis1} & ${nemesis2}`,
+            multiple: true,
+            nemeses: [nemesis1, nemesis2]
+          };
+        } else {
+          newFeature = { roll, result: data.dragoonNemeses[roll - 1] };
+        }
         break;
+      }
       case 'identity':
         roll = rollD(6);
         newFeature = { roll, ...data.burnerIdentities[roll - 1] };
