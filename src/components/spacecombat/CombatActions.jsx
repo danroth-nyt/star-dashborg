@@ -8,6 +8,7 @@ import { TORPEDO_TYPES } from '../../data/shipShopData';
 import { rollDice } from '../../utils/dice';
 import { getMaxArmorTier, getGunnerDamage, canAnyStationLoadTorpedoes, hasUpgrade } from '../../utils/shipUpgrades';
 import TorpedoSelector from './TorpedoSelector';
+import { useSoundEffects } from '../../hooks/useSoundEffects';
 
 const ACTION_ICONS = {
   attack: Zap,
@@ -20,6 +21,7 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
   const { addCombatLog, spaceCombat, fireTorpedo, modifyArmor, loadTorpedoes, chargeHyperdrive } = useSpaceCombat();
   const { partyMembers } = useParty();
   const { gameState, updateGameState } = useGame();
+  const { play } = useSoundEffects();
   const [rollingAction, setRollingAction] = useState(null);
   const [selectedTorpedoType, setSelectedTorpedoType] = useState('standard');
 
@@ -108,6 +110,13 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
         }
         logMessage += ` - Dealt ${damageTotal} damage!`;
         
+        // Play weapon sound effects
+        if (action.id === 'fireLaserTurret' || action.id === 'fixedBeamCannon') {
+          play('laserFire', 0.4);
+        } else if (action.id === 'fireTorpedo') {
+          play('torpedoFire', 0.5);
+        }
+        
         // Use torpedo if required
         if (action.requiresTorpedo) {
           fireTorpedo();
@@ -127,6 +136,7 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
         logMessage += ` - Loaded ${torpedoCount} torpedo${torpedoCount > 1 ? 'es' : ''}!`;
       } else if (action.id === 'hyperdriveJump') {
         chargeHyperdrive();
+        play('hyperdriveCharge', 0.6);
         logMessage += ` - Hyperdrive charged (${spaceCombat.hyperdriveCharge + 1}/3)!`;
       } else if (action.id === 'fireTorpedo' && selectedTorpedoType !== 'standard') {
         // Use special torpedo from inventory

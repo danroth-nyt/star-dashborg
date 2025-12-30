@@ -100,6 +100,13 @@ export function SpaceCombatProvider({ children }) {
   // Modify ship armor
   const modifyArmor = useCallback(
     (change) => {
+      // Play shield hit sound when armor decreases
+      if (change < 0) {
+        const audio = new Audio('/sounds/shield-hit.mp3');
+        audio.volume = 0.5;
+        audio.play().catch(() => {}); // Silently fail if autoplay blocked
+      }
+      
       updateSpaceCombat((prev) => {
         const newArmor = Math.max(0, Math.min(3, prev.shipArmor + change));
         return { ...prev, shipArmor: newArmor };

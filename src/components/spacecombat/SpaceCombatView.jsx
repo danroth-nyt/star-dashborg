@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
-import { X, Zap } from 'lucide-react';
+import { X, Zap, Volume2, VolumeX } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
 import { useParty } from '../../context/PartyContext';
+import { useSoundEffects } from '../../hooks/useSoundEffects';
 import Button from '../ui/Button';
 import ShipStatus from './ShipStatus';
 import StationGrid from './StationGrid';
@@ -11,7 +12,9 @@ import SpaceCombatShipPanel from './SpaceCombatShipPanel';
 export default function SpaceCombatView() {
   const { spaceCombat, exitCombat } = useSpaceCombat();
   const { partyMembers } = useParty();
+  const { toggleMute, getMutedState } = useSoundEffects();
   const [isExiting, setIsExiting] = useState(false);
+  const [isMuted, setIsMuted] = useState(getMutedState());
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -34,6 +37,11 @@ export default function SpaceCombatView() {
         setIsExiting(false);
       }, 300);
     }
+  };
+
+  const handleToggleSound = () => {
+    const newMutedState = toggleMute();
+    setIsMuted(newMutedState);
   };
 
   return (
@@ -63,14 +71,28 @@ export default function SpaceCombatView() {
               </div>
             </div>
 
-            <Button
-              variant="ghost"
-              onClick={handleExitCombat}
-              className="flex items-center gap-2"
-            >
-              <X className="w-4 h-4" />
-              <span className="hidden sm:inline">Exit Combat</span>
-            </Button>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleToggleSound}
+                className="p-2 text-gray-400 hover:text-accent-cyan transition-colors rounded border-2 border-transparent hover:border-accent-cyan"
+                title={isMuted ? 'Unmute sounds' : 'Mute sounds'}
+              >
+                {isMuted ? (
+                  <VolumeX className="w-4 h-4" />
+                ) : (
+                  <Volume2 className="w-4 h-4" />
+                )}
+              </button>
+              
+              <Button
+                variant="ghost"
+                onClick={handleExitCombat}
+                className="flex items-center gap-2"
+              >
+                <X className="w-4 h-4" />
+                <span className="hidden sm:inline">Exit Combat</span>
+              </Button>
+            </div>
           </div>
         </header>
 

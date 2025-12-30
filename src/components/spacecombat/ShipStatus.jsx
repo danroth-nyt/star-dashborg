@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Shield, ShieldAlert, ShieldOff, AlertTriangle, Zap, Rocket } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
 import { ARMOR_TIERS } from '../../data/spaceCombatData';
@@ -5,8 +6,37 @@ import { ARMOR_TIERS } from '../../data/spaceCombatData';
 export default function ShipStatus() {
   const { spaceCombat, modifyArmor } = useSpaceCombat();
   const { shipArmor, hyperdriveCharge } = spaceCombat;
+  const prevArmorRef = useRef(shipArmor);
+  const alarmAudioRef = useRef(null);
 
   const armorTier = ARMOR_TIERS.find(t => t.tier === shipArmor);
+
+  // Play critical alarm when armor drops to 0
+  useEffect(() => {
+    if (shipArmor === 0 && prevArmorRef.current > 0) {
+      if (!alarmAudioRef.current) {
+        alarmAudioRef.current = new Audio('/sounds/alarm-critical.mp3');
+        alarmAudioRef.current.loop = true;
+        alarmAudioRef.current.volume = 0.4;
+      }
+      alarmAudioRef.current.play().catch(() => {});
+    } else if (shipArmor > 0 && alarmAudioRef.current) {
+      alarmAudioRef.current.pause();
+      alarmAudioRef.current.currentTime = 0;
+    }
+    
+    prevArmorRef.current = shipArmor;
+  }, [shipArmor]);
+
+  // Cleanup alarm on unmount
+  useEffect(() => {
+    return () => {
+      if (alarmAudioRef.current) {
+        alarmAudioRef.current.pause();
+        alarmAudioRef.current = null;
+      }
+    };
+  }, []);
 
   // Get shield icon based on armor tier
   const getShieldIcon = () => {
