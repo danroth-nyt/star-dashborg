@@ -48,6 +48,15 @@ All notable changes to Star Dashborg are documented in this file.
   - Volume controls per sound effect
   - Graceful fallback if audio blocked
 
+- **Ship Name Generator**
+  - d100 procedural naming system with 100 prefixes and 100 suffixes (10,000 combinations)
+  - Generates sci-fi ship names like "The Androma", "The Stelloterra", "The Proxonyx"
+  - Editable ship names (click to edit inline)
+  - Reroll button (dice icon) for instant new name generation
+  - All names automatically prefixed with "The"
+  - Ship names persist in session state and sync across players
+  - Available in both Space Combat view and Ship Manager
+
 #### 🐛 Bug Fixes - Space Combat
 - **Fixed Character Stats Not Applied**: Changed `character.abilities` to `character.stats` in combat actions
   - Combat log was showing `NaN + 0 = NaN` for all tests
@@ -168,6 +177,12 @@ All notable changes to Star Dashborg are documented in this file.
   - Mute/unmute with localStorage persistence
   - Volume controls per sound
   - Graceful error handling
+
+- **oracles.js**: Ship name generator data and function
+  - `shipNameFirstParts`: 100 sci-fi prefixes (Androm, Stel, Prox, etc.)
+  - `shipNameSecondParts`: 100 sci-fi suffixes (a, oterra, onyx, etc.)
+  - `generateShipName()`: Combines random parts with "The" prefix
+  - Integration with existing oracle system patterns
 
 ### 📝 Configuration Changes
 - **vite.config.js**: Environment-based base path

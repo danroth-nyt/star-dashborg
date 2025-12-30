@@ -1,17 +1,20 @@
 import { useState } from 'react';
-import { Ship, Star, Zap, Settings, ShoppingCart, Award } from 'lucide-react';
+import { Ship, Star, Zap, Settings, ShoppingCart, Award, Dices } from 'lucide-react';
 import { useGame } from '../../context/GameContext';
 import { SHIP_UPGRADES } from '../../data/spaceCombatData';
 import { getUpgradeById } from '../../data/shipShopData';
 import { getAllUpgrades, getTotalTorpedoCount, getAvailableHeroicSlots } from '../../utils/shipUpgrades';
+import { generateShipName } from '../../data/oracles';
 import Button from '../ui/Button';
 import UpgradeShop from './UpgradeShop';
 import HeroicRewardsModal from './HeroicRewardsModal';
 
 export default function ShipManager() {
-  const { gameState } = useGame();
+  const { gameState, updateGameState } = useGame();
   const [shopOpen, setShopOpen] = useState(false);
   const [rewardsOpen, setRewardsOpen] = useState(false);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
   
   const ship = gameState.ship || {
     name: 'The Rebel Corvette',
@@ -30,15 +33,75 @@ export default function ShipManager() {
     return SHIP_UPGRADES[upgradeId]?.name || upgradeId;
   };
 
+  // Ship name handlers
+  const handleRerollName = () => {
+    const newName = generateShipName();
+    updateGameState((state) => ({
+      ...state,
+      ship: { ...state.ship, name: newName }
+    }));
+  };
+
+  const handleStartEdit = () => {
+    setEditedName(ship.name);
+    setIsEditingName(true);
+  };
+
+  const handleSaveName = () => {
+    if (editedName.trim()) {
+      updateGameState((state) => ({
+        ...state,
+        ship: { ...state.ship, name: editedName.trim() }
+      }));
+    }
+    setIsEditingName(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingName(false);
+    setEditedName('');
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSaveName();
+    } else if (e.key === 'Escape') {
+      handleCancelEdit();
+    }
+  };
+
   return (
     <div className="space-y-4">
       {/* Ship Name and Status */}
       <div className="border-b-2 border-accent-cyan/30 pb-3">
         <div className="flex items-center gap-2 mb-2">
-          <Ship className="w-5 h-5 text-accent-cyan" />
-          <h3 className="font-orbitron font-bold text-accent-cyan text-lg">
-            {ship.name}
-          </h3>
+          <Ship className="w-5 h-5 text-accent-cyan flex-shrink-0" />
+          {isEditingName ? (
+            <input
+              type="text"
+              value={editedName}
+              onChange={(e) => setEditedName(e.target.value)}
+              onBlur={handleSaveName}
+              onKeyDown={handleKeyDown}
+              autoFocus
+              className="flex-1 bg-bg-primary border-2 border-accent-cyan text-accent-cyan font-orbitron font-bold text-lg px-2 py-1 focus:outline-none focus:border-accent-yellow"
+            />
+          ) : (
+            <h3 
+              onClick={handleStartEdit}
+              className="font-orbitron font-bold text-accent-cyan text-lg cursor-pointer hover:text-accent-yellow transition-colors"
+              title="Click to edit ship name"
+            >
+              {ship.name}
+            </h3>
+          )}
+          <button
+            onClick={handleRerollName}
+            className="flex-shrink-0 p-1.5 text-accent-cyan hover:text-accent-yellow hover:bg-accent-cyan/10 transition-all border-2 border-transparent hover:border-accent-cyan rounded"
+            title="Generate new ship name"
+          >
+            <Dices className="w-4 h-4" />
+          </button>
         </div>
         <div className="flex items-center gap-4 text-sm text-gray-400">
           <span className="flex items-center gap-1">

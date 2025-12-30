@@ -544,6 +544,33 @@ export const nameOracles = {
     "Boreal / Storm", "Nova / Dragon", "Shadow / Huntress", "Light / Banshee", 
     "Fallen / Chimera", "Centurion / Hawk"
   ],
+
+  // Ship Name Generator - d100 for first part, d100 for second part
+  shipNameFirstParts: [
+    "Androm", "Anth", "Aph", "Aqu", "Ar", "Arc", "Ast", "Astr", "Ath", "Aur",
+    "Bell", "Cael", "Cap", "Cass", "Cast", "Ch", "Chron", "Cr", "Crys", "Cyg",
+    "D", "Dr", "Drac", "El", "Elys", "Erid", "Eryth", "G", "Gal", "Galax",
+    "Geos", "H", "Heli", "Hesp", "Hul", "Hulv", "Hydr", "Hyp", "Icar", "Ir",
+    "Jup", "L", "Lar", "Lum", "Lumi", "Lun", "Lyr", "M", "Mar", "Min",
+    "Mon", "N", "Neb", "Nep", "Nept", "Nim", "Nom", "Nov", "Nyx", "Or",
+    "Os", "P", "Peg", "Per", "Pers", "Ph", "Phaet", "Pis", "Plut", "Pol",
+    "Prox", "Pyr", "Pyth", "R", "Rhex", "Rhiz", "S", "Sel", "Selen", "Sol",
+    "Solar", "Solv", "Stas", "Stel", "Styg", "T", "Tar", "Taur", "Th", "Thalas",
+    "Tir", "Titan", "Ur", "Urb", "Urs", "V", "Vir", "Virg", "Z", "Zeph"
+  ],
+
+  shipNameSecondParts: [
+    "a", "adan", "aelios", "aidon", "alis", "an", "anithos", "anthys", "antia", "aphos",
+    "ar", "ara", "aras", "arax", "archos", "arex", "aria", "arion", "aros", "arpos",
+    "arubra", "aryx", "as", "aster", "astra", "astria", "astrias", "astro", "ate", "athos",
+    "axis", "edon", "elios", "ella", "emoros", "eneon", "eneus", "entus", "eon", "eonia",
+    "eonis", "ephyra", "erato", "eratus", "ere", "erium", "eron", "erra", "ex", "exus",
+    "ia", "iarex", "ichthon", "idon", "ilia", "ilion", "ima", "imatra", "ina", "ion",
+    "ios", "ipolis", "irra", "is", "isaurum", "isilva", "ithos", "ius", "oclia", "ocris",
+    "odon", "olis", "olith", "on", "onexus", "onis", "onox", "onyx", "or", "ora",
+    "oria", "oros", "os", "oterra", "otos", "ox", "ubra", "ulon", "ulos", "urox",
+    "us", "usis", "usmaris", "ux", "ygia", "ympus", "ys", "ythos", "ythron", "yx"
+  ],
   
   planetNames: [
     "Corinath", "Mardestine", "Poxor", "Faergonh", "Bal'poex", 
@@ -1374,6 +1401,13 @@ export function generateCrimeLord() {
     weapon: criminalOracles.dastardlyWeapons[weaponRoll - 1],
     base: criminalOracles.criminalBases[baseRoll - 1]
   };
+}
+
+// Generate ship name - combines first and second parts
+export function generateShipName() {
+  const firstPart = rollOnTable(nameOracles.shipNameFirstParts);
+  const secondPart = rollOnTable(nameOracles.shipNameSecondParts);
+  return `The ${firstPart}${secondPart}`;
 }
 
 // ==========================================

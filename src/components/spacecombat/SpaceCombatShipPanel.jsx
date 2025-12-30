@@ -1,19 +1,22 @@
 import { useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Ship, Star, Zap, ShoppingCart, Award, Settings, X } from 'lucide-react';
+import { Ship, Star, Zap, ShoppingCart, Award, Settings, X, Dices } from 'lucide-react';
 import { useGame } from '../../context/GameContext';
 import { SHIP_UPGRADES } from '../../data/spaceCombatData';
 import { getUpgradeById } from '../../data/shipShopData';
 import { getAllUpgrades, getTotalTorpedoCount, getAvailableHeroicSlots } from '../../utils/shipUpgrades';
+import { generateShipName } from '../../data/oracles';
 import Button from '../ui/Button';
 import UpgradeShop from '../ship/UpgradeShop';
 import HeroicRewardsModal from '../ship/HeroicRewardsModal';
 
 export default function SpaceCombatShipPanel() {
-  const { gameState } = useGame();
+  const { gameState, updateGameState } = useGame();
   const [shopOpen, setShopOpen] = useState(false);
   const [rewardsOpen, setRewardsOpen] = useState(false);
   const [selectedUpgrade, setSelectedUpgrade] = useState(null);
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editedName, setEditedName] = useState('');
   
   const ship = gameState.ship || {
     name: 'The Rebel Corvette',
@@ -50,18 +53,78 @@ export default function SpaceCombatShipPanel() {
     return words.slice(0, 2).join(' ');
   };
 
+  // Ship name handlers
+  const handleRerollName = () => {
+    const newName = generateShipName();
+    updateGameState((state) => ({
+      ...state,
+      ship: { ...state.ship, name: newName }
+    }));
+  };
+
+  const handleStartEdit = () => {
+    setEditedName(ship.name);
+    setIsEditingName(true);
+  };
+
+  const handleSaveName = () => {
+    if (editedName.trim()) {
+      updateGameState((state) => ({
+        ...state,
+        ship: { ...state.ship, name: editedName.trim() }
+      }));
+    }
+    setIsEditingName(false);
+  };
+
+  const handleCancelEdit = () => {
+    setIsEditingName(false);
+    setEditedName('');
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      handleSaveName();
+    } else if (e.key === 'Escape') {
+      handleCancelEdit();
+    }
+  };
+
   return (
     <div className="space-y-3">
       {/* Compact Header */}
       <div className="border-b-2 border-accent-cyan/30 pb-2">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 flex-1">
+          <div className="flex items-center gap-2 flex-1 min-w-0">
             <Ship className="w-4 h-4 text-accent-cyan flex-shrink-0" />
-            <span className="font-orbitron font-bold text-accent-cyan text-sm truncate">
-              {ship.name}
-            </span>
+            {isEditingName ? (
+              <input
+                type="text"
+                value={editedName}
+                onChange={(e) => setEditedName(e.target.value)}
+                onBlur={handleSaveName}
+                onKeyDown={handleKeyDown}
+                autoFocus
+                className="flex-1 min-w-0 bg-bg-primary border-2 border-accent-cyan text-accent-cyan font-orbitron font-bold text-sm px-2 py-1 focus:outline-none focus:border-accent-yellow"
+              />
+            ) : (
+              <span 
+                onClick={handleStartEdit}
+                className="font-orbitron font-bold text-accent-cyan text-sm truncate cursor-pointer hover:text-accent-yellow transition-colors"
+                title="Click to edit ship name"
+              >
+                {ship.name}
+              </span>
+            )}
+            <button
+              onClick={handleRerollName}
+              className="flex-shrink-0 p-1 text-accent-cyan hover:text-accent-yellow hover:bg-accent-cyan/10 transition-all border-2 border-transparent hover:border-accent-cyan rounded"
+              title="Generate new ship name"
+            >
+              <Dices className="w-3.5 h-3.5" />
+            </button>
           </div>
-          <div className="flex items-center gap-3 text-xs text-gray-400">
+          <div className="flex items-center gap-3 text-xs text-gray-400 flex-shrink-0 ml-2">
             <span className="flex items-center gap-1" title={`${allUpgrades.length} upgrades installed`}>
               <Settings className="w-3 h-3 text-accent-cyan" />
               {allUpgrades.length}

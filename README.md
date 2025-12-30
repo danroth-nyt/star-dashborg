@@ -40,6 +40,7 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - **Planet Generator** - Terrain, weather, population, control, and scenes
 - **Settlement Generator** - Extended with leader, landmark, rumors, and NPC hook-ups
 - **Mission Generator** - Detailed missions, quick missions, villains, and scenario titles
+- **Ship Name Generator** - d100 table combining prefixes and suffixes (100 each) for 10,000 possible names
 
 ### 🎯 Session Management
 - **Real-time Multiplayer** - Supabase-powered sync across all connected players
@@ -58,6 +59,10 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - **Ship Status** - Track armor tier, torpedo count, and hyperdrive charge
 - **Combat Log** - Detailed action log with d20 rolls, modifiers, and success/fail results
 - **Sound Effects** - Immersive combat audio (laser fire, torpedoes, shield hits, hyperdrive)
+- **Ship Name Generator** - d100 table generates procedural ship names (e.g., "The Androma", "The Stelloterra")
+  - Click ship name to edit manually
+  - Click dice icon to generate new names
+  - All names prefixed with "The"
 - **Ship Upgrades** - Purchase and equip ship upgrades (Turbo Lasers, Torpedo Winch, Overcharge Shields)
 - **Torpedoes** - Load and fire different torpedo types (Standard, Cluster, Hunter-Killer, Ion, Chaff)
 - **Heroic Rewards** - Earn heroic upgrades by saving galaxies
@@ -92,6 +97,10 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - **Real-time Combat**: d20 + character stat vs DR with automatic success/fail calculation
 - **Ship Systems**: Armor tiers, torpedo loading (d2), hyperdrive charging (3 rounds)
 - **Combat Audio**: Laser fire, torpedo launch, shield impacts, hyperdrive charge, critical alarms
+- **Ship Name Generator**: d100 procedural naming system generates names like "The Androma" or "The Proxonyx"
+  - Editable ship name (click to edit)
+  - Reroll button (dice icon) for instant new names
+  - All names automatically prefixed with "The"
 - **Ship Upgrades**: Turbo Laser Turrets (d8 damage), Torpedo Winch (any station loads), Overcharge Shields (Tier 3 max)
 - **Torpedo Types**: Standard, Cluster, Hunter-Killer, Ion, Chaff with unique effects
 
@@ -335,7 +344,7 @@ star-dashborg/
 │   │   └── SpaceCombatContext.jsx   # Space combat state management
 │   ├── data/
 │   │   ├── characterData.js     # Character classes and species data
-│   │   ├── oracles.js           # All oracle tables and generator functions
+│   │   ├── oracles.js           # All oracle tables and generator functions (includes ship name generator)
 │   │   ├── spaceCombatData.js   # Space combat stations and actions
 │   │   ├── shipShopData.js      # Ship upgrades and torpedo types
 │   │   └── trackerHelpContent.js  # Help content for tracker components
