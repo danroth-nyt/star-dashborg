@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ShoppingCart, Coins, Check, Zap, Award, Lock, Star, Target, Settings } from 'lucide-react';
 import { useGame } from '../../context/GameContext';
+import { useCharacter } from '../../context/CharacterContext';
 import { SHOP_CATEGORIES, getUpgradeById } from '../../data/shipShopData';
 import { SHIP_UPGRADES } from '../../data/spaceCombatData';
 import { canPurchase, hasUpgrade, getAvailableHeroicSlots } from '../../utils/shipUpgrades';
@@ -9,6 +10,7 @@ import Button from '../ui/Button';
 
 export default function UpgradeShop({ isOpen, onClose }) {
   const { gameState, updateGameState, addLog } = useGame();
+  const { character, updateField } = useCharacter();
   const [activeCategory, setActiveCategory] = useState('galaxyRewards');
   const [purchaseSuccess, setPurchaseSuccess] = useState(null);
 
@@ -38,16 +40,31 @@ export default function UpgradeShop({ isOpen, onClose }) {
 
   if (!isOpen) return null;
 
-  // Mock bits system - in real implementation would come from character
-  const playerBits = 4; // TODO: Get from character state
+  // Get player bits from active character
+  const playerBits = character?.bits || 0;
   const ship = gameState.ship || {};
   const availableRewardSlots = getAvailableHeroicSlots(ship);
 
-  const handlePurchase = (upgradeId) => {
+  const handlePurchase = async (upgradeId) => {
     const upgrade = getUpgradeById(upgradeId);
+    
+    // Check if character exists
+    if (!character) {
+      addLog('No active character to purchase from', 'error');
+      return;
+    }
     
     if (!canPurchase(playerBits, upgrade.cost)) {
       addLog(`Not enough Bits to purchase ${upgrade.name}`, 'error');
+      return;
+    }
+
+    // Deduct bits from character
+    try {
+      await updateField('bits', playerBits - upgrade.cost);
+    } catch (error) {
+      console.error('Failed to deduct bits:', error);
+      addLog('Failed to complete purchase', 'error');
       return;
     }
 
@@ -360,9 +377,9 @@ export default function UpgradeShop({ isOpen, onClose }) {
                     </div>
                     
                     <Button
-                      variant={canAfford ? 'primary' : 'ghost'}
+                      variant={canAfford && character ? 'primary' : 'ghost'}
                       onClick={() => handlePurchase(itemId)}
-                      disabled={!canAfford || justPurchased}
+                      disabled={!canAfford || justPurchased || !character}
                       className={`flex-1 px-4 py-2 text-sm ${
                         justPurchased ? 'bg-accent-yellow border-accent-yellow text-bg-primary' : ''
                       }`}
@@ -372,6 +389,8 @@ export default function UpgradeShop({ isOpen, onClose }) {
                           <Check className="w-4 h-4" />
                           Purchased!
                         </span>
+                      ) : !character ? (
+                        'No Character'
                       ) : canAfford ? (
                         'Purchase'
                       ) : (

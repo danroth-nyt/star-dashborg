@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useGame } from './GameContext';
+import { getMaxArmorTier } from '../utils/shipUpgrades';
 
 const SpaceCombatContext = createContext();
 
@@ -115,12 +116,15 @@ export function SpaceCombatProvider({ children }) {
         audio.play().catch(() => {});
       }
       
+      // Get max tier based on ship upgrades (default 2, or 3 with Overcharge Shields)
+      const maxTier = getMaxArmorTier(gameState.ship || {});
+      
       updateSpaceCombat((prev) => {
-        const newArmor = Math.max(0, Math.min(3, prev.shipArmor + change));
+        const newArmor = Math.max(0, Math.min(maxTier, prev.shipArmor + change));
         return { ...prev, shipArmor: newArmor };
       });
     },
-    [updateSpaceCombat]
+    [updateSpaceCombat, gameState.ship]
   );
 
   // Load torpedoes

@@ -1,9 +1,9 @@
 import { useEffect, useRef } from 'react';
-import { Shield, ShieldAlert, ShieldOff, AlertTriangle, Zap, Rocket } from 'lucide-react';
+import { Shield, ShieldAlert, ShieldOff, AlertTriangle, Zap, Rocket, Star } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
 import { useGame } from '../../context/GameContext';
 import { ARMOR_TIERS } from '../../data/spaceCombatData';
-import { getMaxArmorTier } from '../../utils/shipUpgrades';
+import { getMaxArmorTier, hasUpgrade } from '../../utils/shipUpgrades';
 import { useSoundEffects } from '../../hooks/useSoundEffects';
 
 export default function ShipStatus() {
@@ -103,12 +103,14 @@ export default function ShipStatus() {
 
         {/* Visual armor tier indicator */}
         <div className="flex gap-1 mt-3">
-          {[0, 1, 2].map((tier) => (
+          {Array.from({ length: getMaxArmorTier(ship) }, (_, i) => i).map((tier) => (
             <div
               key={tier}
               className={`flex-1 h-3 border-2 transition-all ${
                 tier < shipArmor
                   ? shipArmor === 1
+                    ? 'bg-accent-yellow border-accent-yellow'
+                    : shipArmor === 3
                     ? 'bg-accent-yellow border-accent-yellow'
                     : 'bg-accent-cyan border-accent-cyan'
                   : 'border-gray-600 bg-transparent'
@@ -116,7 +118,59 @@ export default function ShipStatus() {
             />
           ))}
         </div>
+
+        {/* Max Armor Tier Display */}
+        <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-700/50">
+          <span className="text-xs text-gray-500 font-orbitron">MAX TIER:</span>
+          <span className={`text-sm font-orbitron font-bold ${
+            getMaxArmorTier(ship) === 3 ? 'text-accent-yellow' : 'text-accent-cyan'
+          }`}>
+            Tier {getMaxArmorTier(ship)}
+            {getMaxArmorTier(ship) === 3 && (
+              <span className="ml-1 text-xs">(Overcharged)</span>
+            )}
+          </span>
+        </div>
       </div>
+
+      {/* Active Ship Upgrades */}
+      {(hasUpgrade(ship, 'overchargeShields') || hasUpgrade(ship, 'boosterRockets') || 
+        hasUpgrade(ship, 'torpedoWinch') || hasUpgrade(ship, 'turboLasers')) && (
+        <div className="border-2 border-accent-yellow/40 bg-accent-yellow/5 p-3 space-y-2">
+          <div className="flex items-center gap-2 mb-2">
+            <Star className="w-4 h-4 text-accent-yellow" />
+            <p className="text-xs font-orbitron font-bold uppercase text-accent-yellow">
+              Active Upgrades
+            </p>
+          </div>
+          <div className="space-y-1">
+            {hasUpgrade(ship, 'overchargeShields') && (
+              <div className="text-xs text-gray-300 font-mono flex items-start gap-2">
+                <span className="text-accent-cyan">›</span>
+                <span>Overcharge Shields: Max Tier 3</span>
+              </div>
+            )}
+            {hasUpgrade(ship, 'boosterRockets') && (
+              <div className="text-xs text-gray-300 font-mono flex items-start gap-2">
+                <span className="text-accent-cyan">›</span>
+                <span>Booster Rockets: Steady affects D2 attacks</span>
+              </div>
+            )}
+            {hasUpgrade(ship, 'torpedoWinch') && (
+              <div className="text-xs text-gray-300 font-mono flex items-start gap-2">
+                <span className="text-accent-cyan">›</span>
+                <span>Torpedo Winch: Any station can load</span>
+              </div>
+            )}
+            {hasUpgrade(ship, 'turboLasers') && (
+              <div className="text-xs text-gray-300 font-mono flex items-start gap-2">
+                <span className="text-accent-cyan">›</span>
+                <span>Turbo Lasers: {ship.turboLaserStation ? `${ship.turboLaserStation} deals D8` : 'Not configured'}</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Armor Warning */}
       {shipArmor === 0 && (
