@@ -310,6 +310,14 @@ export default function CharacterGenerator({ onSave, onCancel }) {
     updateStat(statName, newValue);
   };
 
+  // Reroll species (only for non-bots)
+  const rerollSpecies = () => {
+    if (character.class === 'bot') return; // Bots can't change species
+    
+    const newSpecies = SPECIES[rollD(10) - 1].name;
+    updateCharacter('species', newSpecies);
+  };
+
   // Add equipment item
   const addEquipment = () => {
     setCharacter(prev => ({
@@ -657,7 +665,18 @@ export default function CharacterGenerator({ onSave, onCancel }) {
         {/* Species & Bits */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-mono text-text-secondary mb-1">SPECIES</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-mono text-text-secondary">SPECIES</label>
+              {!editMode && character.class !== 'bot' && (
+                <button
+                  onClick={rerollSpecies}
+                  className="text-accent-yellow hover:text-accent-yellow/80 transition-colors"
+                  title="Reroll species"
+                >
+                  <Dices className="w-3 h-3" />
+                </button>
+              )}
+            </div>
             {editMode ? (
               <select
                 value={character.species}
