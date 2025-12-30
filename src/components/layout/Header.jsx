@@ -1,13 +1,15 @@
-import { Copy, Check, Plus, BookOpen, BookMarked, User } from 'lucide-react';
+import { Copy, Check, Plus, BookOpen, BookMarked, User, Rocket } from 'lucide-react';
 import { useState } from 'react';
 import Button from '../ui/Button';
 import { generateRoomCode } from '../../lib/utils';
 import GameFlowDrawer from './GameFlowDrawer';
 import QuickReferenceDrawer from '../ui/QuickReferenceDrawer';
 import { useCharacter } from '../../context/CharacterContext';
+import { useSpaceCombat } from '../../context/SpaceCombatContext';
 
 export default function Header({ roomCode, onOpenCharacterSheet }) {
   const { character } = useCharacter();
+  const { spaceCombat, enterCombat, exitCombat } = useSpaceCombat();
   const [copied, setCopied] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isRefOpen, setIsRefOpen] = useState(false);
@@ -23,6 +25,14 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
     const newRoomCode = generateRoomCode();
     const url = `${window.location.origin}${window.location.pathname}?room=${newRoomCode}`;
     window.location.href = url;
+  };
+
+  const toggleSpaceCombat = () => {
+    if (spaceCombat.isActive) {
+      exitCombat();
+    } else {
+      enterCombat();
+    }
   };
 
   return (
@@ -52,6 +62,14 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
                   <span className="max-w-[100px] truncate">{character.name || 'Character'}</span>
                 </Button>
               )}
+              <Button
+                variant={spaceCombat.isActive ? 'primary' : 'secondary'}
+                onClick={toggleSpaceCombat}
+                className={`flex items-center gap-2 ${spaceCombat.isActive ? 'glow-pulse-red border-accent-red text-accent-red' : ''}`}
+              >
+                <Rocket className="w-4 h-4" />
+                Battle Stations
+              </Button>
               <Button
                 variant="primary"
                 onClick={() => setIsGuideOpen(true)}
@@ -110,7 +128,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
           </div>
 
           {/* Guide Buttons for mobile - full width on new line */}
-          <div className={`md:hidden w-full grid gap-2 ${character && onOpenCharacterSheet ? 'grid-cols-3' : 'grid-cols-2'}`}>
+          <div className={`md:hidden w-full grid gap-2 ${character && onOpenCharacterSheet ? 'grid-cols-4' : 'grid-cols-3'}`}>
             {character && onOpenCharacterSheet && (
               <Button
                 variant="primary"
@@ -119,16 +137,24 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
                 title={character.name || 'Character Sheet'}
               >
                 <User className="w-4 h-4" />
-                <span className="truncate">{character.name || 'Char'}</span>
+                <span className="truncate text-xs">{character.name || 'Char'}</span>
               </Button>
             )}
+            <Button
+              variant={spaceCombat.isActive ? 'primary' : 'secondary'}
+              onClick={toggleSpaceCombat}
+              className={`flex items-center justify-center gap-2 ${spaceCombat.isActive ? 'glow-pulse-red border-accent-red text-accent-red' : ''}`}
+            >
+              <Rocket className="w-4 h-4" />
+              <span className="text-xs">Combat</span>
+            </Button>
             <Button
               variant="primary"
               onClick={() => setIsGuideOpen(true)}
               className="flex items-center justify-center gap-2"
             >
               <BookOpen className="w-4 h-4" />
-              Game Flow
+              <span className="text-xs">Guide</span>
             </Button>
             <Button
               variant="secondary"
@@ -136,7 +162,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
               className="flex items-center justify-center gap-2"
             >
               <BookMarked className="w-4 h-4" />
-              Quick Ref
+              <span className="text-xs">Ref</span>
             </Button>
           </div>
         </div>

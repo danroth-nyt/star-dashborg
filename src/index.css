@@ -583,6 +583,164 @@ h1, h2, h3, h4, h5, h6 {
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  /* Space Combat Animations */
+  
+  /* Space background */
+  .bg-space-background {
+    background: radial-gradient(ellipse at bottom, #1B2735 0%, #090A0F 100%);
+  }
+
+  /* Star field layers */
+  @keyframes stars-drift-1 {
+    from {
+      transform: translateX(0) translateY(0);
+    }
+    to {
+      transform: translateX(-100px) translateY(-50px);
+    }
+  }
+
+  @keyframes stars-drift-2 {
+    from {
+      transform: translateX(0) translateY(0);
+    }
+    to {
+      transform: translateX(-50px) translateY(-100px);
+    }
+  }
+
+  @keyframes stars-drift-3 {
+    from {
+      transform: translateX(0) translateY(0);
+    }
+    to {
+      transform: translateX(-25px) translateY(-75px);
+    }
+  }
+
+  .stars-layer-1,
+  .stars-layer-2,
+  .stars-layer-3 {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    background-repeat: repeat;
+  }
+
+  .stars-layer-1 {
+    background-image: radial-gradient(2px 2px at 20px 30px, white, transparent),
+      radial-gradient(2px 2px at 60px 70px, white, transparent),
+      radial-gradient(1px 1px at 50px 50px, white, transparent),
+      radial-gradient(1px 1px at 130px 80px, white, transparent),
+      radial-gradient(2px 2px at 90px 10px, white, transparent);
+    background-size: 200px 200px;
+    animation: stars-drift-1 120s linear infinite;
+    opacity: 0.4;
+  }
+
+  .stars-layer-2 {
+    background-image: radial-gradient(1px 1px at 40px 60px, white, transparent),
+      radial-gradient(1px 1px at 110px 90px, white, transparent),
+      radial-gradient(1px 1px at 80px 30px, white, transparent);
+    background-size: 150px 150px;
+    animation: stars-drift-2 80s linear infinite;
+    opacity: 0.3;
+  }
+
+  .stars-layer-3 {
+    background-image: radial-gradient(1px 1px at 70px 40px, rgba(0, 240, 255, 0.8), transparent),
+      radial-gradient(1px 1px at 120px 100px, rgba(255, 252, 0, 0.8), transparent),
+      radial-gradient(1px 1px at 30px 80px, rgba(255, 0, 60, 0.8), transparent);
+    background-size: 180px 180px;
+    animation: stars-drift-3 60s linear infinite;
+    opacity: 0.5;
+  }
+
+  /* Combat scanlines */
+  .scanlines-combat {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(0, 0, 0, 0.1),
+      rgba(0, 0, 0, 0.1) 1px,
+      transparent 1px,
+      transparent 2px
+    );
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0.3;
+  }
+
+  /* Shield effects */
+  @keyframes shield-pulse {
+    0%, 100% {
+      opacity: 0.3;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.6;
+      transform: scale(1.02);
+    }
+  }
+
+  .shield-pulse {
+    animation: shield-pulse 3s ease-in-out infinite;
+  }
+
+  .shield-active {
+    filter: drop-shadow(0 0 20px rgba(0, 240, 255, 0.5));
+  }
+
+  /* Hyperdrive charge animation */
+  @keyframes hyperdrive-charge-pulse {
+    0%, 100% {
+      opacity: 1;
+      box-shadow: 0 0 5px rgba(255, 252, 0, 0.5);
+    }
+    50% {
+      opacity: 0.7;
+      box-shadow: 0 0 15px rgba(255, 252, 0, 0.9);
+    }
+  }
+
+  .hyperdrive-charge-pulse {
+    animation: hyperdrive-charge-pulse 1s ease-in-out infinite;
+  }
+
+  /* Fade in/out transitions */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes fade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  .fade-in {
+    animation: fade-in 0.5s ease-in forwards;
+  }
+
+  .fade-out {
+    animation: fade-out 0.3s ease-out forwards;
+  }
+
   /* Enhance panel backgrounds with subtle gradients */
   .bg-bg-secondary {
     background: linear-gradient(135deg, #1a1a1a 0%, #161616 100%);

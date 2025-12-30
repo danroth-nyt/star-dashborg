@@ -12,7 +12,9 @@ import OraclePanel from '../oracles/OraclePanel';
 import HelpModal from '../ui/HelpModal';
 import PartyPanel from '../character/PartyPanel';
 import CharacterSheetDrawer from '../character/CharacterSheetDrawer';
+import SpaceCombatView from '../spacecombat/SpaceCombatView';
 import { useParty } from '../../context/PartyContext';
+import { useSpaceCombat } from '../../context/SpaceCombatContext';
 
 const PANEL_ORDER_KEY = 'star-dashborg-panel-order';
 const PANEL_VERSION_KEY = 'star-dashborg-panel-version';
@@ -31,6 +33,7 @@ const defaultPanels = [
 
 export default function Dashboard({ roomCode }) {
   const { refreshPartyMembers } = useParty();
+  const { spaceCombat } = useSpaceCombat();
   
   // Refresh party members on mount to catch any missed realtime events
   useEffect(() => {
@@ -280,6 +283,20 @@ export default function Dashboard({ roomCode }) {
       />
     );
   };
+
+  // If space combat is active, show space combat view
+  if (spaceCombat.isActive) {
+    return (
+      <>
+        <SpaceCombatView />
+        {/* Character Sheet Drawer is available in combat too */}
+        <CharacterSheetDrawer 
+          isOpen={characterSheetOpen}
+          onClose={() => setCharacterSheetOpen(false)}
+        />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-bg-primary scanlines flex flex-col">

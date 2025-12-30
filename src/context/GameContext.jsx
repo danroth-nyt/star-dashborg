@@ -17,6 +17,21 @@ const initialGameState = {
   dangerClocks: [],
   journal: '',
   log: [],
+  spaceCombat: {
+    isActive: false,
+    shipArmor: 2,
+    torpedoesLoaded: 0,
+    hyperdriveCharge: 0,
+    stationAssignments: {
+      pilot: null,
+      copilot: null,
+      engineer1: null,
+      engineer2: null,
+      gunner1: null,
+      gunner2: null,
+    },
+    combatLog: [],
+  },
 };
 
 export function GameProvider({ children, roomCode }) {

@@ -3,6 +3,7 @@ import { useAuth } from './context/AuthContext';
 import { CharacterProvider, useCharacter } from './context/CharacterContext';
 import { PartyProvider } from './context/PartyContext';
 import { GameProvider } from './context/GameContext';
+import { SpaceCombatProvider } from './context/SpaceCombatContext';
 import { supabase } from './lib/supabaseClient';
 import { generateRoomCode, getRoomFromURL, updateURLWithRoom } from './lib/utils';
 import Dashboard from './components/layout/Dashboard';
@@ -170,7 +171,9 @@ function AppContent({ roomCode }) {
   // Has character - show dashboard
   return (
     <GameProvider roomCode={roomCode}>
-      <Dashboard roomCode={roomCode} />
+      <SpaceCombatProvider>
+        <Dashboard roomCode={roomCode} />
+      </SpaceCombatProvider>
     </GameProvider>
   );
 }
