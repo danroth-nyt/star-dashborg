@@ -12,6 +12,7 @@ import OraclePanel from '../oracles/OraclePanel';
 import HelpModal from '../ui/HelpModal';
 import PartyPanel from '../character/PartyPanel';
 import CharacterSheetDrawer from '../character/CharacterSheetDrawer';
+import { useParty } from '../../context/PartyContext';
 
 const PANEL_ORDER_KEY = 'star-dashborg-panel-order';
 const PANEL_VERSION_KEY = 'star-dashborg-panel-version';
@@ -29,6 +30,13 @@ const defaultPanels = [
 ];
 
 export default function Dashboard({ roomCode }) {
+  const { refreshPartyMembers } = useParty();
+  
+  // Refresh party members on mount to catch any missed realtime events
+  useEffect(() => {
+    refreshPartyMembers();
+  }, [refreshPartyMembers]);
+
   const [panels, setPanels] = useState(() => {
     // Check version - reset if outdated
     const savedVersion = localStorage.getItem(PANEL_VERSION_KEY);

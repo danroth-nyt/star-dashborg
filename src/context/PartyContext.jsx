@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 const PartyContext = createContext();
@@ -16,34 +16,35 @@ export function PartyProvider({ children, roomCode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Load all characters in the room
-  useEffect(() => {
+  // Load all characters in the room (extracted to be callable)
+  const loadPartyMembers = useCallback(async () => {
     if (!roomCode) {
       setLoading(false);
       return;
     }
 
-    async function loadPartyMembers() {
-      try {
-        const { data, error } = await supabase
-          .from('characters')
-          .select('*')
-          .eq('room_code', roomCode)
-          .order('created_at', { ascending: true });
+    try {
+      const { data, error } = await supabase
+        .from('characters')
+        .select('*')
+        .eq('room_code', roomCode)
+        .order('created_at', { ascending: true });
 
-        if (error) throw error;
+      if (error) throw error;
 
-        setPartyMembers(data || []);
-      } catch (err) {
-        console.error('Error loading party members:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-      }
+      setPartyMembers(data || []);
+    } catch (err) {
+      console.error('Error loading party members:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-
-    loadPartyMembers();
   }, [roomCode]);
+
+  // Load on mount
+  useEffect(() => {
+    loadPartyMembers();
+  }, [loadPartyMembers]);
 
   // Subscribe to realtime changes for all characters in the room
   useEffect(() => {
@@ -107,6 +108,7 @@ export function PartyProvider({ children, roomCode }) {
     partyMembers,
     loading,
     error,
+    refreshPartyMembers: loadPartyMembers,
   };
 
   return <PartyContext.Provider value={value}>{children}</PartyContext.Provider>;
