@@ -5,7 +5,7 @@ import { useParty } from '../../context/PartyContext';
 import { useGame } from '../../context/GameContext';
 import { ACTIONS } from '../../data/spaceCombatData';
 import { TORPEDO_TYPES } from '../../data/shipShopData';
-import { rollDice } from '../../utils/dice';
+import { rollDice, rollD } from '../../utils/dice';
 import { getMaxArmorTier, getGunnerDamage, canAnyStationLoadTorpedoes, hasUpgrade } from '../../utils/shipUpgrades';
 import TorpedoSelector from './TorpedoSelector';
 import { useSoundEffects } from '../../hooks/useSoundEffects';
@@ -61,8 +61,8 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
   }
 
   const getAbilityScore = (ability) => {
-    if (!character || !character.abilities) return 0;
-    return character.abilities[ability.toLowerCase()] || 0;
+    if (!character || !character.stats) return 0;
+    return character.stats[ability.toLowerCase()] || 0;
   };
 
   const performAction = async (action) => {
@@ -89,7 +89,7 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
     await new Promise(resolve => setTimeout(resolve, 600));
 
     // Roll d20
-    const d20Roll = rollDice(20);
+    const d20Roll = rollD(20);
     const abilityScore = getAbilityScore(action.ability);
     const total = d20Roll + abilityScore;
     const success = total >= action.dr;
@@ -138,7 +138,7 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
         modifyArmor(1);
         logMessage += ` - Shield repaired! (Max tier: ${maxTier})`;
       } else if (action.id === 'loadTorpedo') {
-        const torpedoCount = rollDice(2);
+        const torpedoCount = rollD(2);
         loadTorpedoes(torpedoCount);
         logMessage += ` - Loaded ${torpedoCount} torpedo${torpedoCount > 1 ? 'es' : ''}!`;
       } else if (action.id === 'hyperdriveJump') {

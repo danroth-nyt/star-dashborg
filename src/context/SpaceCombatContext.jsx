@@ -41,14 +41,16 @@ export function SpaceCombatProvider({ children }) {
   // Update space combat state
   const updateSpaceCombat = useCallback(
     (updates) => {
-      const newSpaceCombat = typeof updates === 'function' 
-        ? updates(localState) 
-        : { ...localState, ...updates };
-      
-      setLocalState(newSpaceCombat);
-      updateGameState({ spaceCombat: newSpaceCombat });
+      setLocalState((currentState) => {
+        const newSpaceCombat = typeof updates === 'function' 
+          ? updates(currentState) 
+          : { ...currentState, ...updates };
+        
+        updateGameState({ spaceCombat: newSpaceCombat });
+        return newSpaceCombat;
+      });
     },
-    [localState, updateGameState]
+    [updateGameState]
   );
 
   // Enter space combat mode
