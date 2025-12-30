@@ -1,11 +1,11 @@
 import { useState } from 'react';
-import { Dices, Target, Shield, Wrench, Zap } from 'lucide-react';
+import { Dices, Target, Shield, Wrench, Zap, ChevronDown, ChevronUp, Minus, Plus } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
 import { useParty } from '../../context/PartyContext';
 import { useGame } from '../../context/GameContext';
 import { ACTIONS } from '../../data/spaceCombatData';
 import { TORPEDO_TYPES } from '../../data/shipShopData';
-import { rollDice, rollD } from '../../utils/dice';
+import { rollDice, rollD, rollTest } from '../../utils/dice';
 import { getMaxArmorTier, getGunnerDamage, canAnyStationLoadTorpedoes, hasUpgrade } from '../../utils/shipUpgrades';
 import TorpedoSelector from './TorpedoSelector';
 import { useSoundEffects } from '../../hooks/useSoundEffects';
@@ -24,6 +24,12 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
   const { play } = useSoundEffects();
   const [rollingAction, setRollingAction] = useState(null);
   const [selectedTorpedoType, setSelectedTorpedoType] = useState('standard');
+  
+  // Per-action modifiers state: { [actionId]: { rollMode: 'normal'|'advantage'|'disadvantage', drAdjust: number } }
+  const [actionModifiers, setActionModifiers] = useState({});
+  
+  // Track which action's modifier controls are expanded
+  const [expandedActionId, setExpandedActionId] = useState(null);
 
   const character = partyMembers.find(m => m.id === assignedCharacterId);
   const ship = gameState.ship || {
@@ -65,6 +71,24 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
     return character.stats[ability.toLowerCase()] || 0;
   };
 
+  // Get modifier for an action (default: normal roll, 0 DR adjust)
+  const getActionModifier = (actionId) => {
+    return actionModifiers[actionId] || { rollMode: 'normal', drAdjust: 0 };
+  };
+
+  // Update modifier for an action
+  const updateActionModifier = (actionId, updates) => {
+    setActionModifiers(prev => ({
+      ...prev,
+      [actionId]: { ...getActionModifier(actionId), ...updates }
+    }));
+  };
+
+  // Toggle modifier controls visibility
+  const toggleModifierControls = (actionId) => {
+    setExpandedActionId(prev => prev === actionId ? null : actionId);
+  };
+
   const performAction = async (action) => {
     if (!character) return;
     
@@ -88,20 +112,35 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
     // Simulate rolling delay
     await new Promise(resolve => setTimeout(resolve, 600));
 
-    // Roll d20
-    const d20Roll = rollD(20);
+    // Get action modifiers
+    const modifier = getActionModifier(action.id);
+    const effectiveDR = action.dr + modifier.drAdjust;
     const abilityScore = getAbilityScore(action.ability);
-    const total = d20Roll + abilityScore;
-    const success = total >= action.dr;
+
+    // Use rollTest with advantage/disadvantage support
+    const testResult = rollTest(
+      abilityScore,
+      effectiveDR,
+      modifier.rollMode === 'advantage',
+      modifier.rollMode === 'disadvantage'
+    );
+
+    const { roll: d20Roll, total, success, crit, blunder } = testResult;
 
     let logMessage = `${character.name} - ${action.name}: `;
     let logType = action.type;
+    let logData = {
+      rollMode: modifier.rollMode,
+      drAdjust: modifier.drAdjust,
+      baseDR: action.dr,
+      effectiveDR: effectiveDR
+    };
 
     // Handle crit/blunder
-    if (d20Roll === 20) {
+    if (crit) {
       logMessage += `CRITICAL! (20 + ${abilityScore} = ${total})`;
       logType = 'attack';
-    } else if (d20Roll === 1) {
+    } else if (blunder) {
       logMessage += `BLUNDER! (1 + ${abilityScore} = ${total})`;
       logType = 'damage';
       // Reduce armor on blunder for defense actions
@@ -110,7 +149,21 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
         logMessage += ' - Shield degraded!';
       }
     } else {
-      logMessage += `${success ? 'SUCCESS' : 'FAIL'} (${d20Roll} + ${abilityScore} = ${total} vs DR${action.dr})`;
+      // Build roll display with advantage/disadvantage info
+      let rollDisplay = '';
+      if (modifier.rollMode === 'advantage' || modifier.rollMode === 'disadvantage') {
+        rollDisplay = `[ADV/DIS: ${d20Roll}]`;
+      } else {
+        rollDisplay = `${d20Roll}`;
+      }
+      
+      // Build DR display with adjustment info
+      let drDisplay = `DR${effectiveDR}`;
+      if (modifier.drAdjust !== 0) {
+        drDisplay += ` (base ${action.dr} ${modifier.drAdjust > 0 ? '+' : ''}${modifier.drAdjust})`;
+      }
+      
+      logMessage += `${success ? 'SUCCESS' : 'FAIL'} (${rollDisplay} + ${abilityScore} = ${total} vs ${drDisplay})`;
     }
 
     // Handle damage rolls for attacks
@@ -159,7 +212,7 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
       }
     }
 
-    addCombatLog(logMessage, logType);
+    addCombatLog(logMessage, logType, logData);
     setRollingAction(null);
   };
 
@@ -186,67 +239,196 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
         const Icon = ACTION_ICONS[action.type] || Dices;
         const isRolling = rollingAction === action.id;
         const isDisabled = action.requiresTorpedo && spaceCombat.torpedoesLoaded === 0;
+        const modifier = getActionModifier(action.id);
+        const isExpanded = expandedActionId === action.id;
+        const effectiveDR = action.dr + modifier.drAdjust;
 
         return (
-          <button
-            key={`${stationId}-${action.id}-${btnIndex}`}
-            onClick={() => performAction(action)}
-            disabled={isRolling || isDisabled || !character}
-            className={`w-full p-2 border-2 text-left transition-all group ${
-              isRolling
-                ? 'border-accent-yellow bg-accent-yellow/20 cursor-wait'
-                : isDisabled
-                ? 'border-gray-700 bg-gray-900/50 opacity-50 cursor-not-allowed'
-                : action.type === 'attack'
-                ? 'border-accent-red/30 hover:border-accent-red hover:bg-accent-red/10'
-                : action.type === 'defense'
-                ? 'border-accent-cyan/30 hover:border-accent-cyan hover:bg-accent-cyan/10'
-                : 'border-accent-yellow/30 hover:border-accent-yellow hover:bg-accent-yellow/10'
-            }`}
-          >
-            <div className="flex items-start gap-2">
-              <Icon className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
-                isRolling ? 'animate-spin' : ''
-              } ${
-                action.type === 'attack' ? 'text-accent-red' :
-                action.type === 'defense' ? 'text-accent-cyan' :
-                'text-accent-yellow'
-              }`} />
-              
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between gap-2 mb-1">
-                  <p className="text-xs font-orbitron font-bold text-text-primary">
-                    {action.name}
+          <div key={`${stationId}-${action.id}-${btnIndex}`} className="space-y-1">
+            <div
+              className={`w-full p-2 border-2 transition-all ${
+                isRolling
+                  ? 'border-accent-yellow bg-accent-yellow/20'
+                  : isDisabled
+                  ? 'border-gray-700 bg-gray-900/50 opacity-50'
+                  : modifier.rollMode === 'advantage'
+                  ? 'border-accent-yellow/50 bg-accent-yellow/5'
+                  : modifier.rollMode === 'disadvantage'
+                  ? 'border-accent-red/50 bg-accent-red/5'
+                  : action.type === 'attack'
+                  ? 'border-accent-red/30 hover:border-accent-red hover:bg-accent-red/10'
+                  : action.type === 'defense'
+                  ? 'border-accent-cyan/30 hover:border-accent-cyan hover:bg-accent-cyan/10'
+                  : 'border-accent-yellow/30 hover:border-accent-yellow hover:bg-accent-yellow/10'
+              }`}
+            >
+              <div className="flex items-start gap-2">
+                <Icon className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
+                  isRolling ? 'animate-spin' : ''
+                } ${
+                  action.type === 'attack' ? 'text-accent-red' :
+                  action.type === 'defense' ? 'text-accent-cyan' :
+                  'text-accent-yellow'
+                }`} />
+                
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between gap-2 mb-1">
+                    <p className="text-xs font-orbitron font-bold text-text-primary">
+                      {action.name}
+                    </p>
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs font-orbitron text-gray-400">
+                        {action.ability} DR{effectiveDR}
+                        {modifier.drAdjust !== 0 && (
+                          <span className="text-accent-yellow ml-1">
+                            ({modifier.drAdjust > 0 ? '+' : ''}{modifier.drAdjust})
+                          </span>
+                        )}
+                      </span>
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleModifierControls(action.id);
+                        }}
+                        className="p-0.5 text-gray-500 hover:text-accent-cyan transition-colors"
+                        title="Toggle modifiers"
+                      >
+                        {isExpanded ? (
+                          <ChevronUp className="w-3 h-3" />
+                        ) : (
+                          <ChevronDown className="w-3 h-3" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <p className="text-xs text-gray-400">
+                    {action.description}
                   </p>
-                  <span className="text-xs font-orbitron text-gray-400">
-                    {action.ability} DR{action.dr}
-                  </span>
+                  
+                  {action.damage && (
+                    <p className="text-xs text-accent-red font-orbitron mt-1">
+                      Damage: {action.damage}
+                    </p>
+                  )}
+                  
+                  {isDisabled && (
+                    <p className="text-xs text-accent-red font-orbitron mt-1">
+                      No torpedoes loaded!
+                    </p>
+                  )}
+                  
+                  {action.warning && (
+                    <p className="text-xs text-accent-yellow font-orbitron mt-1">
+                      ⚠ {action.warning}
+                    </p>
+                  )}
                 </div>
-                
-                <p className="text-xs text-gray-400">
-                  {action.description}
-                </p>
-                
-                {action.damage && (
-                  <p className="text-xs text-accent-red font-orbitron mt-1">
-                    Damage: {action.damage}
-                  </p>
-                )}
-                
-                {isDisabled && (
-                  <p className="text-xs text-accent-red font-orbitron mt-1">
-                    No torpedoes loaded!
-                  </p>
-                )}
-                
-                {action.warning && (
-                  <p className="text-xs text-accent-yellow font-orbitron mt-1">
-                    ⚠ {action.warning}
-                  </p>
-                )}
               </div>
+
+              {/* Roll Button */}
+              <button
+                onClick={() => performAction(action)}
+                disabled={isRolling || isDisabled || !character}
+                className={`w-full mt-2 px-2 py-1 text-xs font-orbitron font-bold uppercase border transition-all ${
+                  isRolling || isDisabled || !character
+                    ? 'opacity-50 cursor-not-allowed'
+                    : 'hover:bg-accent-cyan hover:text-bg-primary'
+                } ${
+                  action.type === 'attack'
+                    ? 'border-accent-red text-accent-red hover:bg-accent-red'
+                    : action.type === 'defense'
+                    ? 'border-accent-cyan text-accent-cyan'
+                    : 'border-accent-yellow text-accent-yellow hover:bg-accent-yellow'
+                }`}
+              >
+                {isRolling ? 'Rolling...' : 'Roll Action'}
+              </button>
             </div>
-          </button>
+
+            {/* Modifier Controls - Collapsible */}
+            {isExpanded && (
+              <div className="bg-bg-secondary/50 border border-accent-cyan/20 p-2 space-y-2">
+                {/* Roll Mode Toggle */}
+                <div>
+                  <p className="text-xs text-gray-500 font-orbitron uppercase mb-1">
+                    Roll Mode:
+                  </p>
+                  <div className="flex gap-1">
+                    <button
+                      onClick={() => updateActionModifier(action.id, { rollMode: 'normal' })}
+                      className={`flex-1 px-2 py-1 font-orbitron font-bold uppercase text-xs border transition-all ${
+                        modifier.rollMode === 'normal'
+                          ? 'bg-accent-cyan text-bg-primary border-accent-cyan'
+                          : 'bg-transparent text-accent-cyan border-accent-cyan hover:bg-accent-cyan/20'
+                      }`}
+                    >
+                      Normal
+                    </button>
+                    <button
+                      onClick={() => updateActionModifier(action.id, { rollMode: 'advantage' })}
+                      className={`flex-1 px-2 py-1 font-orbitron font-bold uppercase text-xs border transition-all ${
+                        modifier.rollMode === 'advantage'
+                          ? 'bg-accent-yellow text-bg-primary border-accent-yellow'
+                          : 'bg-transparent text-accent-yellow border-accent-yellow hover:bg-accent-yellow/20'
+                      }`}
+                    >
+                      ADV
+                    </button>
+                    <button
+                      onClick={() => updateActionModifier(action.id, { rollMode: 'disadvantage' })}
+                      className={`flex-1 px-2 py-1 font-orbitron font-bold uppercase text-xs border transition-all ${
+                        modifier.rollMode === 'disadvantage'
+                          ? 'bg-accent-red text-bg-primary border-accent-red'
+                          : 'bg-transparent text-accent-red border-accent-red hover:bg-accent-red/20'
+                      }`}
+                    >
+                      DIS
+                    </button>
+                  </div>
+                </div>
+
+                {/* DR Adjustment */}
+                <div>
+                  <p className="text-xs text-gray-500 font-orbitron uppercase mb-1">
+                    DR Adjustment:
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => updateActionModifier(action.id, { drAdjust: Math.max(-4, modifier.drAdjust - 1) })}
+                      disabled={modifier.drAdjust <= -4}
+                      className="px-2 py-1 border border-accent-cyan text-accent-cyan hover:bg-accent-cyan hover:text-bg-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <div className="flex-1 text-center">
+                      <div className="text-sm font-orbitron font-bold text-accent-cyan">
+                        DR {effectiveDR}
+                      </div>
+                      <div className="text-xs text-gray-500 font-orbitron">
+                        (Base: {action.dr})
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => updateActionModifier(action.id, { drAdjust: Math.min(4, modifier.drAdjust + 1) })}
+                      disabled={modifier.drAdjust >= 4}
+                      className="px-2 py-1 border border-accent-cyan text-accent-cyan hover:bg-accent-cyan hover:text-bg-primary disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+                  {modifier.drAdjust !== 0 && (
+                    <button
+                      onClick={() => updateActionModifier(action.id, { drAdjust: 0 })}
+                      className="w-full mt-1 px-2 py-1 text-xs font-orbitron text-gray-400 border border-gray-600 hover:border-accent-cyan hover:text-accent-cyan transition-all"
+                    >
+                      Reset to Base DR
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         );
       })}
     </div>

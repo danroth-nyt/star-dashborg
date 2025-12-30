@@ -154,7 +154,7 @@ export function SpaceCombatProvider({ children }) {
 
   // Add combat log entry
   const addCombatLog = useCallback(
-    (message, type = 'info') => {
+    (message, type = 'info', data = null) => {
       updateSpaceCombat((prev) => ({
         ...prev,
         combatLog: [
@@ -163,6 +163,7 @@ export function SpaceCombatProvider({ children }) {
             timestamp: new Date().toISOString(),
             message,
             type,
+            data, // Additional metadata like rollMode, drAdjust, etc.
           },
           ...prev.combatLog,
         ].slice(0, 50), // Keep last 50 entries
