@@ -83,11 +83,11 @@ export default function UpgradeShop({ isOpen, onClose }) {
 
   const modalContent = (
     <div 
-      className="fixed inset-0 bg-black/95 backdrop-blur-lg z-[9999] flex items-center justify-center p-4 animate-fadeIn"
+      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center p-4 md:p-12 lg:p-16 animate-fadeIn"
       onClick={onClose}
     >
       <div 
-        className={`bg-bg-secondary border-3 w-[95vw] h-[90vh] max-w-[1600px] overflow-hidden flex flex-col shadow-2xl ${
+        className={`bg-bg-secondary/95 backdrop-blur-md border-3 w-full h-full max-w-[1000px] max-h-[82vh] overflow-hidden flex flex-col shadow-2xl ${
           isGalaxyRewardsTab ? 'border-accent-yellow shadow-accent-yellow/30' : 'border-accent-cyan shadow-accent-cyan/30'
         }`}
         onClick={(e) => e.stopPropagation()}
@@ -202,7 +202,7 @@ export default function UpgradeShop({ isOpen, onClose }) {
 
         {/* Items Grid */}
         <div className="flex-1 overflow-y-auto p-8 custom-scrollbar">
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 max-w-[1400px] mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {isGalaxyRewardsTab ? (
               // Render Galaxy Rewards (Heroic Upgrades)
               Object.entries(SHIP_UPGRADES).map(([upgradeId, upgrade]) => {
