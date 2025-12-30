@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from './context/AuthContext';
 import { CharacterProvider, useCharacter } from './context/CharacterContext';
+import { PartyProvider } from './context/PartyContext';
 import { GameProvider } from './context/GameContext';
 import { supabase } from './lib/supabaseClient';
 import { generateRoomCode, getRoomFromURL, updateURLWithRoom } from './lib/utils';
@@ -172,7 +173,9 @@ function App() {
 
   return (
     <CharacterProvider userId={session.user.id} roomCode={roomCode}>
-      <AppContent roomCode={roomCode} />
+      <PartyProvider roomCode={roomCode}>
+        <AppContent roomCode={roomCode} />
+      </PartyProvider>
     </CharacterProvider>
   );
 }

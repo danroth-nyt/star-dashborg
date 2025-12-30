@@ -10,17 +10,19 @@ import SessionJournal from '../journal/SessionJournal';
 import DiceRoller from '../oracles/DiceRoller';
 import OraclePanel from '../oracles/OraclePanel';
 import HelpModal from '../ui/HelpModal';
-import CharacterPanel from '../character/CharacterPanel';
+import PartyPanel from '../character/PartyPanel';
 import CharacterSheetDrawer from '../character/CharacterSheetDrawer';
 
 const PANEL_ORDER_KEY = 'star-dashborg-panel-order';
+const PANEL_VERSION_KEY = 'star-dashborg-panel-version';
+const CURRENT_PANEL_VERSION = '2'; // Increment when making breaking changes
 
 const defaultPanels = [
-  { id: 'character-panel', component: 'CharacterPanel', title: 'Character', variant: 'red', column: 'left' },
   { id: 'threat-die', component: 'ThreatDie', title: 'Threat Die', variant: 'red', column: 'left' },
   { id: 'mission-tracks', component: 'MissionTrack', title: 'Mission Tracks', variant: 'cyan', column: 'left' },
   { id: 'danger-clocks', component: 'DangerClock', title: 'Danger Clocks', variant: 'red', column: 'left' },
   { id: 'dice-roller', component: 'DiceRoller', title: 'Dice Roller', variant: 'yellow', column: 'center' },
+  { id: 'party-panel', component: 'PartyPanel', title: 'Party', variant: 'red', column: 'center' },
   { id: 'ship-log', component: 'DiceLog', title: 'Ship Log', variant: 'cyan', column: 'center' },
   { id: 'oracle-compendium', component: 'OraclePanel', title: 'Oracle Compendium', variant: 'cyan', column: 'right' },
   { id: 'session-journal', component: 'SessionJournal', title: 'Session Journal', variant: 'yellow', column: 'right' },
@@ -28,24 +30,44 @@ const defaultPanels = [
 
 export default function Dashboard({ roomCode }) {
   const [panels, setPanels] = useState(() => {
+    // Check version - reset if outdated
+    const savedVersion = localStorage.getItem(PANEL_VERSION_KEY);
+    if (savedVersion !== CURRENT_PANEL_VERSION) {
+      // Clear old config and set new version
+      localStorage.removeItem(PANEL_ORDER_KEY);
+      localStorage.setItem(PANEL_VERSION_KEY, CURRENT_PANEL_VERSION);
+      return defaultPanels;
+    }
+
     const saved = localStorage.getItem(PANEL_ORDER_KEY);
     if (saved) {
       const savedPanels = JSON.parse(saved);
       // Create a map of default panel configs for easy lookup
       const defaultPanelMap = new Map(defaultPanels.map(p => [p.id, p]));
       
-      // Update saved panels with any new default properties (like variant changes)
-      const updatedPanels = savedPanels.map(savedPanel => {
-        const defaultPanel = defaultPanelMap.get(savedPanel.id);
-        if (defaultPanel) {
-          // Merge default properties, but keep user's column preference
-          return { ...defaultPanel, column: savedPanel.column };
+      // Migrate old character-panel to party-panel
+      const migratedPanels = savedPanels.map(savedPanel => {
+        if (savedPanel.id === 'character-panel') {
+          // Replace old character-panel with party-panel
+          return { ...defaultPanelMap.get('party-panel'), column: savedPanel.column };
         }
         return savedPanel;
       });
       
+      // Update saved panels with any new default properties (like variant changes)
+      const updatedPanels = migratedPanels
+        .map(savedPanel => {
+          const defaultPanel = defaultPanelMap.get(savedPanel.id);
+          if (defaultPanel) {
+            // Merge default properties, but keep user's column preference
+            return { ...defaultPanel, column: savedPanel.column };
+          }
+          return null; // Remove panels that don't exist in defaults
+        })
+        .filter(Boolean); // Remove null entries
+      
       // Add any new panels that don't exist in saved config
-      const savedIds = new Set(savedPanels.map(p => p.id));
+      const savedIds = new Set(migratedPanels.map(p => p.id));
       const newPanels = defaultPanels.filter(p => !savedIds.has(p.id));
       
       return [...newPanels, ...updatedPanels];
@@ -160,7 +182,7 @@ export default function Dashboard({ roomCode }) {
 
   const renderPanel = (panel) => {
     const components = {
-      CharacterPanel: <CharacterPanel onExpand={() => setCharacterSheetOpen(true)} />,
+      PartyPanel: <PartyPanel onExpand={() => setCharacterSheetOpen(true)} />,
       ThreatDie: <ThreatDie />,
       MissionTrack: <MissionTrack />,
       DangerClock: <DangerClock />,
@@ -169,6 +191,11 @@ export default function Dashboard({ roomCode }) {
       OraclePanel: <OraclePanel />,
       SessionJournal: <SessionJournal />,
     };
+
+    // Skip rendering if component doesn't exist (e.g., old CharacterPanel)
+    if (!components[panel.component]) {
+      return null;
+    }
 
     const isBeingDragged = draggedPanel === panel.id;
     const isDragOver = dragOverPanel === panel.id;
