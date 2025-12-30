@@ -16,6 +16,22 @@ export function PartyProvider({ children, roomCode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Transform database character to UI format (snake_case to camelCase)
+  const transformCharacterFromDB = (dbCharacter) => {
+    if (!dbCharacter) return null;
+    
+    return {
+      ...dbCharacter,
+      classFeatures: dbCharacter.class_features,
+      className: dbCharacter.class_name,
+      destinyPoints: dbCharacter.destiny_points,
+      hpCurrent: dbCharacter.hp_current,
+      hpMax: dbCharacter.hp_max,
+      userId: dbCharacter.user_id,
+      roomCode: dbCharacter.room_code,
+    };
+  };
+
   // Load all characters in the room (extracted to be callable)
   const loadPartyMembers = useCallback(async () => {
     if (!roomCode) {
@@ -32,7 +48,8 @@ export function PartyProvider({ children, roomCode }) {
 
       if (error) throw error;
 
-      setPartyMembers(data || []);
+      const transformedData = (data || []).map(transformCharacterFromDB);
+      setPartyMembers(transformedData);
     } catch (err) {
       console.error('Error loading party members:', err);
       setError(err.message);
@@ -62,7 +79,7 @@ export function PartyProvider({ children, roomCode }) {
         },
         (payload) => {
           console.log('Character added to party:', payload.new);
-          setPartyMembers((current) => [...current, payload.new]);
+          setPartyMembers((current) => [...current, transformCharacterFromDB(payload.new)]);
         }
       )
       .on(
@@ -77,7 +94,7 @@ export function PartyProvider({ children, roomCode }) {
           console.log('Character updated in party:', payload.new);
           setPartyMembers((current) =>
             current.map((member) =>
-              member.id === payload.new.id ? payload.new : member
+              member.id === payload.new.id ? transformCharacterFromDB(payload.new) : member
             )
           );
         }
