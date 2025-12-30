@@ -1,7 +1,7 @@
 import { useCallback, useRef, useEffect } from 'react';
 
 const sounds = {
-  laserFire: `${import.meta.env.BASE_URL}sounds/laser-fire.mp3`,
+  laserFire: `${import.meta.env.BASE_URL}sounds/laser-fire-short.mp3`, // Testing: 10ms shorter with fade
   torpedoFire: `${import.meta.env.BASE_URL}sounds/torpedo-fire.mp3`,
   shieldHit: `${import.meta.env.BASE_URL}sounds/shield-hit.mp3`,
   hyperdriveCharge: `${import.meta.env.BASE_URL}sounds/hyperdrive-charge.mp3`,
