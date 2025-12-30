@@ -1016,4 +1016,93 @@ h1, h2, h3, h4, h5, h6 {
   .badge-pulse {
     animation: badge-pulse 2s ease-in-out infinite;
   }
+
+  /* Space Combat Modifier Controls */
+  
+  /* Modifier controls expand animation */
+  @keyframes modifier-expand {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+      max-height: 0;
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+      max-height: 200px;
+    }
+  }
+
+  .modifier-expand {
+    animation: modifier-expand 0.25s ease-out;
+  }
+
+  /* Advantage active glow */
+  @keyframes advantage-glow {
+    0%, 100% {
+      box-shadow: 0 0 8px rgba(255, 252, 0, 0.4), inset 0 0 8px rgba(255, 252, 0, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 16px rgba(255, 252, 0, 0.6), inset 0 0 12px rgba(255, 252, 0, 0.2);
+    }
+  }
+
+  .advantage-active-glow {
+    animation: advantage-glow 2s ease-in-out infinite;
+  }
+
+  /* Disadvantage active glow */
+  @keyframes disadvantage-glow {
+    0%, 100% {
+      box-shadow: 0 0 8px rgba(255, 0, 60, 0.4), inset 0 0 8px rgba(255, 0, 60, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 16px rgba(255, 0, 60, 0.6), inset 0 0 12px rgba(255, 0, 60, 0.2);
+    }
+  }
+
+  .disadvantage-active-glow {
+    animation: disadvantage-glow 2s ease-in-out infinite;
+  }
+
+  /* DR modifier badge */
+  @keyframes dr-modifier-badge-pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+
+  .dr-modifier-badge {
+    animation: dr-modifier-badge-pulse 1.5s ease-in-out infinite;
+  }
+
+  /* Chevron rotate animation */
+  @keyframes chevron-rotate-down {
+    from {
+      transform: rotate(-180deg);
+    }
+    to {
+      transform: rotate(0deg);
+    }
+  }
+
+  @keyframes chevron-rotate-up {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(-180deg);
+    }
+  }
+
+  .chevron-expand {
+    animation: chevron-rotate-down 0.2s ease-out;
+  }
+
+  .chevron-collapse {
+    animation: chevron-rotate-up 0.2s ease-out;
+  }
 }

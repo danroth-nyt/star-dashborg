@@ -99,6 +99,7 @@ export default function CombatLog() {
             {spaceCombat.combatLog.map((entry, index) => {
               const Icon = LOG_ICONS[entry.type] || LOG_ICONS.info;
               const isRecent = index < 3;
+              const hasModifiers = entry.data && (entry.data.rollMode !== 'normal' || entry.data.drAdjust !== 0);
               
               return (
                 <div
@@ -113,6 +114,28 @@ export default function CombatLog() {
                       <p className="text-xs text-text-primary break-words">
                         {entry.message}
                       </p>
+                      
+                      {/* Display modifier badges if present */}
+                      {hasModifiers && (
+                        <div className="flex gap-1 mt-1">
+                          {entry.data.rollMode === 'advantage' && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-orbitron font-bold uppercase bg-accent-yellow/20 text-accent-yellow border border-accent-yellow/30">
+                              ADV
+                            </span>
+                          )}
+                          {entry.data.rollMode === 'disadvantage' && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-orbitron font-bold uppercase bg-accent-red/20 text-accent-red border border-accent-red/30">
+                              DIS
+                            </span>
+                          )}
+                          {entry.data.drAdjust !== 0 && (
+                            <span className="inline-flex items-center px-1.5 py-0.5 text-[9px] font-orbitron font-bold bg-accent-cyan/20 text-accent-cyan border border-accent-cyan/30">
+                              DR {entry.data.drAdjust > 0 ? '+' : ''}{entry.data.drAdjust}
+                            </span>
+                          )}
+                        </div>
+                      )}
+                      
                       <p className="text-[10px] text-gray-500 mt-1 font-mono">
                         {formatTime(entry.timestamp)}
                       </p>

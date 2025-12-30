@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useGame } from './GameContext';
+import { getMaxArmorTier } from '../utils/shipUpgrades';
 
 const SpaceCombatContext = createContext();
 
@@ -104,17 +105,26 @@ export function SpaceCombatProvider({ children }) {
     (change) => {
       // Play shield hit sound when armor decreases
       if (change < 0) {
-        const audio = new Audio('/sounds/shield-hit.mp3');
+        const audio = new Audio(`${import.meta.env.BASE_URL}sounds/shield-hit.mp3`);
         audio.volume = 0.5;
         audio.play().catch(() => {}); // Silently fail if autoplay blocked
       }
+      // Play shield power-up sound when armor increases
+      else if (change > 0) {
+        const audio = new Audio(`${import.meta.env.BASE_URL}sounds/shield-power-up.mp3`);
+        audio.volume = 0.5;
+        audio.play().catch(() => {});
+      }
+      
+      // Get max tier based on ship upgrades (default 2, or 3 with Overcharge Shields)
+      const maxTier = getMaxArmorTier(gameState.ship || {});
       
       updateSpaceCombat((prev) => {
-        const newArmor = Math.max(0, Math.min(3, prev.shipArmor + change));
+        const newArmor = Math.max(0, Math.min(maxTier, prev.shipArmor + change));
         return { ...prev, shipArmor: newArmor };
       });
     },
-    [updateSpaceCombat]
+    [updateSpaceCombat, gameState.ship]
   );
 
   // Load torpedoes
@@ -144,6 +154,14 @@ export function SpaceCombatProvider({ children }) {
     }));
   }, [updateSpaceCombat]);
 
+  // Decrement hyperdrive
+  const decrementHyperdrive = useCallback(() => {
+    updateSpaceCombat((prev) => ({
+      ...prev,
+      hyperdriveCharge: Math.max(0, prev.hyperdriveCharge - 1),
+    }));
+  }, [updateSpaceCombat]);
+
   // Reset hyperdrive
   const resetHyperdrive = useCallback(() => {
     updateSpaceCombat((prev) => ({
@@ -154,7 +172,7 @@ export function SpaceCombatProvider({ children }) {
 
   // Add combat log entry
   const addCombatLog = useCallback(
-    (message, type = 'info') => {
+    (message, type = 'info', data = null) => {
       updateSpaceCombat((prev) => ({
         ...prev,
         combatLog: [
@@ -163,6 +181,7 @@ export function SpaceCombatProvider({ children }) {
             timestamp: new Date().toISOString(),
             message,
             type,
+            data, // Additional metadata like rollMode, drAdjust, etc.
           },
           ...prev.combatLog,
         ].slice(0, 50), // Keep last 50 entries
@@ -182,6 +201,7 @@ export function SpaceCombatProvider({ children }) {
     loadTorpedoes,
     fireTorpedo,
     chargeHyperdrive,
+    decrementHyperdrive,
     resetHyperdrive,
     addCombatLog,
   };
