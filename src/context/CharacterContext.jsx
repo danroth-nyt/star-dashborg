@@ -18,8 +18,8 @@ export function CharacterProvider({ children, userId, roomCode }) {
 
   // Load character on mount
   useEffect(() => {
+    // Don't set loading false prematurely - wait for valid props
     if (!userId || !roomCode) {
-      setLoading(false);
       return;
     }
 

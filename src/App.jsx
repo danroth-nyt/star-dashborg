@@ -9,6 +9,7 @@ import Dashboard from './components/layout/Dashboard';
 import Auth from './components/auth/Auth';
 import PendingApproval from './components/auth/PendingApproval';
 import CharacterGenerator from './components/character/CharacterGenerator';
+import LoadingScreen from './components/ui/LoadingScreen';
 
 function App() {
   const { session, loading: authLoading, approved, checkingApproval } = useAuth();
@@ -94,20 +95,7 @@ function App() {
 
   // Show loading while checking auth
   if (authLoading) {
-    return (
-      <div className="min-h-screen bg-bg-primary flex items-center justify-center scanlines">
-        <div className="text-center space-y-4">
-          <div className="text-accent-cyan text-3xl font-orbitron text-glow-cyan typewriter">
-            AUTHENTICATING
-          </div>
-          <div className="flex justify-center gap-1">
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></span>
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '150ms' }}></span>
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></span>
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="AUTHENTICATING" />;
   }
 
   // Show Auth component if not logged in
@@ -117,20 +105,7 @@ function App() {
 
   // Check approval status
   if (checkingApproval) {
-    return (
-      <div className="min-h-screen bg-bg-primary flex items-center justify-center scanlines">
-        <div className="text-center space-y-4">
-          <div className="text-accent-cyan text-3xl font-orbitron text-glow-cyan typewriter">
-            CHECKING ACCESS
-          </div>
-          <div className="flex justify-center gap-1">
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></span>
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '150ms' }}></span>
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></span>
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="CHECKING ACCESS" />;
   }
 
   // Show pending approval if user is not approved
@@ -141,23 +116,14 @@ function App() {
   // Show loading while initializing room
   if (loading) {
     return (
-      <div className="min-h-screen bg-bg-primary flex items-center justify-center scanlines">
-        <div className="text-center space-y-4">
-          <div className="text-accent-cyan text-3xl font-orbitron text-glow-cyan typewriter">
-            INITIALIZING SESSION
-          </div>
-          <div className="flex justify-center gap-1">
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></span>
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '150ms' }}></span>
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></span>
-          </div>
-          <div className="text-accent-yellow/50 text-sm font-mono mt-6">
-            {'>'} Establishing secure connection...<br />
-            {'>'} Loading rebel systems...<br />
-            {'>'} Syncing mission data...
-          </div>
-        </div>
-      </div>
+      <LoadingScreen
+        message="INITIALIZING SESSION"
+        details={[
+          'Establishing secure connection...',
+          'Loading rebel systems...',
+          'Syncing mission data...',
+        ]}
+      />
     );
   }
 
@@ -184,25 +150,14 @@ function App() {
 function AppContent({ roomCode }) {
   const { character, loading: characterLoading } = useCharacter();
 
+  // Show loading screen while character state is being determined
   if (characterLoading) {
-    return (
-      <div className="min-h-screen bg-bg-primary flex items-center justify-center scanlines">
-        <div className="text-center space-y-4">
-          <div className="text-accent-cyan text-3xl font-orbitron text-glow-cyan typewriter">
-            LOADING CHARACTER
-          </div>
-          <div className="flex justify-center gap-1">
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></span>
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '150ms' }}></span>
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></span>
-          </div>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="LOADING CHARACTER" />;
   }
 
-  // No character yet - show generator
-  if (!character) {
+  // Only show CharacterGenerator if loading is complete AND character is confirmed null
+  // This prevents the flash when character is still being loaded
+  if (!characterLoading && character === null) {
     return (
       <div className="min-h-screen bg-bg-primary p-4 md:p-8 scanlines">
         <div className="max-w-6xl mx-auto">
