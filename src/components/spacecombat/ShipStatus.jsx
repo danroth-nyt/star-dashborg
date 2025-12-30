@@ -4,10 +4,12 @@ import { useSpaceCombat } from '../../context/SpaceCombatContext';
 import { useGame } from '../../context/GameContext';
 import { ARMOR_TIERS } from '../../data/spaceCombatData';
 import { getMaxArmorTier } from '../../utils/shipUpgrades';
+import { useSoundEffects } from '../../hooks/useSoundEffects';
 
 export default function ShipStatus() {
-  const { spaceCombat, modifyArmor } = useSpaceCombat();
+  const { spaceCombat, modifyArmor, chargeHyperdrive, decrementHyperdrive } = useSpaceCombat();
   const { gameState } = useGame();
+  const { play } = useSoundEffects();
   const { shipArmor, hyperdriveCharge } = spaceCombat;
   const ship = gameState.ship || { heroicUpgrades: [], purchasedUpgrades: [] };
   const prevArmorRef = useRef(shipArmor);
@@ -133,47 +135,10 @@ export default function ShipStatus() {
         </div>
       )}
 
-      {/* Hyperdrive Charge Status */}
-      {hyperdriveCharge > 0 && (
-        <div className="border-3 border-accent-yellow bg-accent-yellow/10 p-3">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <Rocket className="w-4 h-4 text-accent-yellow" />
-              <p className="text-accent-yellow text-xs font-orbitron font-bold uppercase">
-                Hyperdrive Charging
-              </p>
-            </div>
-            <span className="text-accent-yellow font-orbitron text-sm">
-              {hyperdriveCharge}/3
-            </span>
-          </div>
-          
-          {/* Charge progress bar */}
-          <div className="flex gap-1">
-            {[1, 2, 3].map((charge) => (
-              <div
-                key={charge}
-                className={`flex-1 h-2 border-2 transition-all ${
-                  charge <= hyperdriveCharge
-                    ? 'bg-accent-yellow border-accent-yellow hyperdrive-charge-pulse'
-                    : 'border-gray-600 bg-transparent'
-                }`}
-              />
-            ))}
-          </div>
-
-          {hyperdriveCharge === 3 && (
-            <p className="text-accent-yellow text-xs mt-2 font-orbitron text-center animate-pulse">
-              READY TO JUMP!
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* Dev Controls (for testing) */}
+      {/* Armor Manual Controls */}
       <div className="border-t border-gray-700 pt-3 space-y-2">
         <p className="text-xs text-gray-500 font-orbitron uppercase text-center">
-          Manual Controls
+          Armor Controls
         </p>
         <div className="flex gap-2">
           <button
@@ -191,6 +156,88 @@ export default function ShipStatus() {
             + Tier
           </button>
         </div>
+      </div>
+
+      {/* Hyperdrive Charge Status - Always Visible */}
+      <div className={`border-3 p-3 transition-all ${
+        hyperdriveCharge === 3
+          ? 'border-accent-yellow bg-accent-yellow/10'
+          : hyperdriveCharge > 0
+          ? 'border-accent-yellow/60 bg-accent-yellow/5'
+          : 'border-gray-600 bg-gray-900/30'
+      }`}>
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <Rocket className={`w-4 h-4 ${
+              hyperdriveCharge === 3 ? 'text-accent-yellow' :
+              hyperdriveCharge > 0 ? 'text-accent-yellow/80' :
+              'text-gray-500'
+            }`} />
+            <p className={`text-xs font-orbitron font-bold uppercase ${
+              hyperdriveCharge === 3 ? 'text-accent-yellow' :
+              hyperdriveCharge > 0 ? 'text-accent-yellow/80' :
+              'text-gray-500'
+            }`}>
+              {hyperdriveCharge === 3 ? 'Hyperdrive Ready' : hyperdriveCharge > 0 ? 'Hyperdrive Charging' : 'Hyperdrive Idle'}
+            </p>
+          </div>
+          <span className={`font-orbitron text-sm ${
+            hyperdriveCharge === 3 ? 'text-accent-yellow' :
+            hyperdriveCharge > 0 ? 'text-accent-yellow/80' :
+            'text-gray-500'
+          }`}>
+            {hyperdriveCharge}/3
+          </span>
+        </div>
+        
+        {/* Charge progress bar */}
+        <div className="flex gap-1 mb-3">
+          {[1, 2, 3].map((charge) => (
+            <div
+              key={charge}
+              className={`flex-1 h-2 border-2 transition-all ${
+                charge <= hyperdriveCharge
+                  ? hyperdriveCharge === 3
+                    ? 'bg-accent-yellow border-accent-yellow hyperdrive-charge-pulse'
+                    : 'bg-accent-yellow/80 border-accent-yellow/80'
+                  : 'border-gray-600 bg-transparent'
+              }`}
+            />
+          ))}
+        </div>
+
+        {/* Manual Controls */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => decrementHyperdrive()}
+            disabled={hyperdriveCharge === 0}
+            className="flex-1 px-3 py-2 bg-accent-red/20 border-2 border-accent-red text-accent-red font-orbitron text-xs hover:bg-accent-red hover:text-bg-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            - Charge
+          </button>
+          <button
+            onClick={() => {
+              chargeHyperdrive();
+              play('hyperdriveCharge', 0.5);
+            }}
+            disabled={hyperdriveCharge >= 3}
+            className="flex-1 px-3 py-2 bg-accent-yellow/20 border-2 border-accent-yellow text-accent-yellow font-orbitron text-xs hover:bg-accent-yellow hover:text-bg-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+          >
+            + Charge
+          </button>
+        </div>
+
+        {hyperdriveCharge === 3 && (
+          <p className="text-accent-yellow text-xs mt-2 font-orbitron text-center animate-pulse">
+            ⚡ READY TO JUMP! ⚡
+          </p>
+        )}
+        
+        {hyperdriveCharge === 3 && (
+          <p className="text-accent-red text-xs mt-1 font-orbitron text-center">
+            ⚠️ 4+ enemies = ship destroyed
+          </p>
+        )}
       </div>
     </div>
   );

@@ -128,12 +128,10 @@ export const ACTIONS = {
   },
   hyperdriveJump: {
     id: 'hyperdriveJump',
-    name: 'Hyperdrive Jump',
-    type: 'special',
-    ability: 'KNW',
-    dr: 14,
+    name: 'Charge Hyperdrive',
+    type: 'instant',
     description: 'Charting, charging, and engaging takes 3 rounds. Dangerous in combat',
-    effect: 'Charge 1/3 rounds. Jump at 3 rounds (may destroy ship)',
+    effect: 'Charge hyperdrive by 1 pip (3 pips to jump)',
     warning: 'Jumping in combat with 4+ enemies destroys the ship!',
   },
   deflectors: {

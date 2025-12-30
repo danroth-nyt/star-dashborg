@@ -150,6 +150,14 @@ export function SpaceCombatProvider({ children }) {
     }));
   }, [updateSpaceCombat]);
 
+  // Decrement hyperdrive
+  const decrementHyperdrive = useCallback(() => {
+    updateSpaceCombat((prev) => ({
+      ...prev,
+      hyperdriveCharge: Math.max(0, prev.hyperdriveCharge - 1),
+    }));
+  }, [updateSpaceCombat]);
+
   // Reset hyperdrive
   const resetHyperdrive = useCallback(() => {
     updateSpaceCombat((prev) => ({
@@ -189,6 +197,7 @@ export function SpaceCombatProvider({ children }) {
     loadTorpedoes,
     fireTorpedo,
     chargeHyperdrive,
+    decrementHyperdrive,
     resetHyperdrive,
     addCombatLog,
   };

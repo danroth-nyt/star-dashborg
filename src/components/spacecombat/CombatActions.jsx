@@ -120,7 +120,25 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
       play(soundMap[action.id], 0.5);
     }
 
-    // Simulate rolling delay
+    // Handle instant actions (no roll required)
+    if (action.type === 'instant') {
+      // Simulate brief delay for feedback
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      let logMessage = `${character.name} - ${action.name}: `;
+      
+      // Execute instant action effects
+      if (action.id === 'hyperdriveJump') {
+        chargeHyperdrive();
+        logMessage += `Hyperdrive charged (${spaceCombat.hyperdriveCharge + 1}/3)!`;
+      }
+      
+      addCombatLog(logMessage, action.type);
+      setRollingAction(null);
+      return;
+    }
+
+    // Simulate rolling delay for actions that require rolls
     await new Promise(resolve => setTimeout(resolve, 600));
 
     // Get action modifiers
@@ -205,9 +223,6 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
         const torpedoCount = rollD(2);
         loadTorpedoes(torpedoCount);
         logMessage += ` - Loaded ${torpedoCount} torpedo${torpedoCount > 1 ? 'es' : ''}!`;
-      } else if (action.id === 'hyperdriveJump') {
-        chargeHyperdrive();
-        logMessage += ` - Hyperdrive charged (${spaceCombat.hyperdriveCharge + 1}/3)!`;
       } else if (action.id === 'fireTorpedo' && selectedTorpedoType !== 'standard') {
         // Use special torpedo from inventory
         updateGameState((prevState) => {
@@ -287,30 +302,32 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
                     <p className="text-xs font-orbitron font-bold text-text-primary">
                       {action.name}
                     </p>
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs font-orbitron text-gray-400">
-                        {action.ability} DR{effectiveDR}
-                        {modifier.drAdjust !== 0 && (
-                          <span className="text-accent-yellow ml-1">
-                            ({modifier.drAdjust > 0 ? '+' : ''}{modifier.drAdjust})
-                          </span>
-                        )}
-                      </span>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          toggleModifierControls(action.id);
-                        }}
-                        className="p-0.5 text-gray-500 hover:text-accent-cyan transition-colors"
-                        title="Toggle modifiers"
-                      >
-                        {isExpanded ? (
-                          <ChevronUp className="w-3 h-3" />
-                        ) : (
-                          <ChevronDown className="w-3 h-3" />
-                        )}
-                      </button>
-                    </div>
+                    {action.type !== 'instant' && (
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs font-orbitron text-gray-400">
+                          {action.ability} DR{effectiveDR}
+                          {modifier.drAdjust !== 0 && (
+                            <span className="text-accent-yellow ml-1">
+                              ({modifier.drAdjust > 0 ? '+' : ''}{modifier.drAdjust})
+                            </span>
+                          )}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleModifierControls(action.id);
+                          }}
+                          className="p-0.5 text-gray-500 hover:text-accent-cyan transition-colors"
+                          title="Toggle modifiers"
+                        >
+                          {isExpanded ? (
+                            <ChevronUp className="w-3 h-3" />
+                          ) : (
+                            <ChevronDown className="w-3 h-3" />
+                          )}
+                        </button>
+                      </div>
+                    )}
                   </div>
                   
                   <p className="text-xs text-gray-400">
@@ -353,12 +370,12 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
                     : 'border-accent-yellow text-accent-yellow hover:bg-accent-yellow'
                 }`}
               >
-                {isRolling ? 'Rolling...' : 'Roll Action'}
+                {isRolling ? (action.type === 'instant' ? 'Executing...' : 'Rolling...') : (action.type === 'instant' ? 'Execute Action' : 'Roll Action')}
               </button>
             </div>
 
-            {/* Modifier Controls - Collapsible */}
-            {isExpanded && (
+            {/* Modifier Controls - Collapsible (only for actions with rolls) */}
+            {isExpanded && action.type !== 'instant' && (
               <div className="bg-bg-secondary/50 border border-accent-cyan/20 p-2 space-y-2">
                 {/* Roll Mode Toggle */}
                 <div>
