@@ -2,8 +2,12 @@ import { useState } from 'react';
 import { Dices, Target, Shield, Wrench, Zap } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
 import { useParty } from '../../context/PartyContext';
+import { useGame } from '../../context/GameContext';
 import { ACTIONS } from '../../data/spaceCombatData';
+import { TORPEDO_TYPES } from '../../data/shipShopData';
 import { rollDice } from '../../utils/dice';
+import { getMaxArmorTier, getGunnerDamage, canAnyStationLoadTorpedoes, hasUpgrade } from '../../utils/shipUpgrades';
+import TorpedoSelector from './TorpedoSelector';
 
 const ACTION_ICONS = {
   attack: Zap,
@@ -15,11 +19,39 @@ const ACTION_ICONS = {
 export default function CombatActions({ stationId, actionIds, assignedCharacterId }) {
   const { addCombatLog, spaceCombat, fireTorpedo, modifyArmor, loadTorpedoes, chargeHyperdrive } = useSpaceCombat();
   const { partyMembers } = useParty();
+  const { gameState, updateGameState } = useGame();
   const [rollingAction, setRollingAction] = useState(null);
+  const [selectedTorpedoType, setSelectedTorpedoType] = useState('standard');
 
   const character = partyMembers.find(m => m.id === assignedCharacterId);
+  const ship = gameState.ship || {
+    heroicUpgrades: [],
+    purchasedUpgrades: [],
+    torpedoInventory: { standard: 0, cluster: 0, hunterKiller: 0, chaff: 0, ion: 0 },
+    turboLaserStation: null,
+  };
   
-  const actions = actionIds.map(id => ACTIONS[id]).filter(Boolean);
+  // Apply ship upgrades to actions
+  let actions = actionIds.map(id => {
+    const action = { ...ACTIONS[id] };
+    
+    // Apply Turbo Laser upgrade to gunner damage
+    if (action.id === 'fireLaserTurret') {
+      action.damage = getGunnerDamage(ship, stationId);
+    }
+    
+    // Allow any station to load torpedoes if Torpedo Winch is installed
+    if (action.id === 'loadTorpedo' && !canAnyStationLoadTorpedoes(ship)) {
+      // Keep only for engineer stations by default
+    }
+    
+    return action;
+  }).filter(Boolean);
+  
+  // Add loadTorpedo action to all stations if Torpedo Winch installed
+  if (canAnyStationLoadTorpedoes(ship) && !actionIds.includes('loadTorpedo')) {
+    actions.push({ ...ACTIONS.loadTorpedo });
+  }
 
   const getAbilityScore = (ability) => {
     if (!character || !character.abilities) return 0;
@@ -86,8 +118,9 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
     // Handle special effects
     if (success) {
       if (action.id === 'repairShield') {
+        const maxTier = getMaxArmorTier(ship);
         modifyArmor(1);
-        logMessage += ' - Shield repaired!';
+        logMessage += ` - Shield repaired! (Max tier: ${maxTier})`;
       } else if (action.id === 'loadTorpedo') {
         const torpedoCount = rollDice(2);
         loadTorpedoes(torpedoCount);
@@ -95,6 +128,18 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
       } else if (action.id === 'hyperdriveJump') {
         chargeHyperdrive();
         logMessage += ` - Hyperdrive charged (${spaceCombat.hyperdriveCharge + 1}/3)!`;
+      } else if (action.id === 'fireTorpedo' && selectedTorpedoType !== 'standard') {
+        // Use special torpedo from inventory
+        updateGameState((prevState) => {
+          const newShip = { ...prevState.ship };
+          newShip.torpedoInventory = {
+            ...newShip.torpedoInventory,
+            [selectedTorpedoType]: Math.max(0, (newShip.torpedoInventory[selectedTorpedoType] || 0) - 1),
+          };
+          return { ...prevState, ship: newShip };
+        });
+        const torpedoName = TORPEDO_TYPES[selectedTorpedoType].name;
+        logMessage += ` - Used ${torpedoName}!`;
       }
     }
 
@@ -107,6 +152,19 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
       <p className="text-xs text-gray-400 font-orbitron uppercase mb-2">
         Available Actions:
       </p>
+      
+      {/* Torpedo Type Selector for Fire Torpedo action */}
+      {actions.some(a => a.id === 'fireTorpedo') && spaceCombat.torpedoesLoaded > 0 && (
+        <div className="mb-3">
+          <p className="text-xs text-gray-400 font-orbitron uppercase mb-1">
+            Select Torpedo:
+          </p>
+          <TorpedoSelector 
+            selectedType={selectedTorpedoType}
+            onSelect={setSelectedTorpedoType}
+          />
+        </div>
+      )}
       
       {actions.map(action => {
         const Icon = ACTION_ICONS[action.type] || Dices;

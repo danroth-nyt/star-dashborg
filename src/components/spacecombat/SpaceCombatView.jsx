@@ -6,6 +6,7 @@ import Button from '../ui/Button';
 import ShipStatus from './ShipStatus';
 import StationGrid from './StationGrid';
 import CombatLog from './CombatLog';
+import SpaceCombatShipPanel from './SpaceCombatShipPanel';
 
 export default function SpaceCombatView() {
   const { spaceCombat, exitCombat } = useSpaceCombat();
@@ -77,7 +78,7 @@ export default function SpaceCombatView() {
         <div className="flex-1 p-4 lg:p-6">
           <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
-              {/* Left Column - Ship Status */}
+              {/* Left Column - Ship Status & Upgrades */}
               <div className="lg:col-span-4 space-y-4">
                 <ShipStatus />
                 
@@ -107,6 +108,11 @@ export default function SpaceCombatView() {
                       </span>
                     </div>
                   </div>
+                </div>
+
+                {/* Ship Upgrades Manager - Compact */}
+                <div className="bg-bg-secondary/80 backdrop-blur-sm border-3 border-accent-cyan p-3">
+                  <SpaceCombatShipPanel />
                 </div>
 
                 {/* Combat Notes */}

@@ -32,6 +32,20 @@ const initialGameState = {
     },
     combatLog: [],
   },
+  ship: {
+    name: 'The Rebel Corvette',
+    heroicUpgrades: [],
+    purchasedUpgrades: [],
+    torpedoInventory: {
+      standard: 0,
+      cluster: 0,
+      hunterKiller: 0,
+      chaff: 0,
+      ion: 0,
+    },
+    turboLaserStation: null,
+    galaxiesSaved: 0,
+  },
 };
 
 export function GameProvider({ children, roomCode }) {
@@ -64,7 +78,12 @@ export function GameProvider({ children, roomCode }) {
             throw error;
           }
         } else if (data?.game_state) {
-          setGameState(data.game_state);
+          // Migrate old game states that don't have ship property
+          const migratedState = {
+            ...data.game_state,
+            ship: data.game_state.ship || initialGameState.ship,
+          };
+          setGameState(migratedState);
         }
       } catch (err) {
         console.error('Error loading game state:', err);

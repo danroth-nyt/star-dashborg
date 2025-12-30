@@ -18,7 +18,7 @@ import { useSpaceCombat } from '../../context/SpaceCombatContext';
 
 const PANEL_ORDER_KEY = 'star-dashborg-panel-order';
 const PANEL_VERSION_KEY = 'star-dashborg-panel-version';
-const CURRENT_PANEL_VERSION = '2'; // Increment when making breaking changes
+const CURRENT_PANEL_VERSION = '3'; // Increment when making breaking changes
 
 const defaultPanels = [
   { id: 'threat-die', component: 'ThreatDie', title: 'Threat Die', variant: 'red', column: 'left' },

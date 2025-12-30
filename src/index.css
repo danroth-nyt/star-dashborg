@@ -241,6 +241,99 @@ h1, h2, h3, h4, h5, h6 {
     animation: fadeIn 0.5s ease-in;
   }
 
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  /* Card hover animation for shop items */
+  @keyframes card-lift {
+    from {
+      transform: translateY(0) scale(1);
+    }
+    to {
+      transform: translateY(-4px) scale(1.01);
+    }
+  }
+
+  .card-hover:hover {
+    animation: card-lift 0.2s ease-out forwards;
+  }
+
+  /* Lock pulse animation for locked cards */
+  @keyframes lock-pulse {
+    0%, 100% {
+      border-color: rgb(55, 65, 81);
+      background-color: rgba(17, 24, 39, 0.5);
+    }
+    50% {
+      border-color: rgb(75, 85, 99);
+      background-color: rgba(31, 41, 55, 0.5);
+    }
+  }
+
+  .lock-pulse {
+    animation: lock-pulse 3s ease-in-out infinite;
+  }
+
+  /* Unlock glow animation for unlocked cards */
+  @keyframes unlock-glow {
+    0%, 100% {
+      box-shadow: 
+        0 0 15px rgba(255, 252, 0, 0.2),
+        0 0 30px rgba(255, 252, 0, 0.1),
+        inset 0 0 20px rgba(255, 252, 0, 0.05);
+    }
+    50% {
+      box-shadow: 
+        0 0 25px rgba(255, 252, 0, 0.3),
+        0 0 45px rgba(255, 252, 0, 0.15),
+        inset 0 0 25px rgba(255, 252, 0, 0.08);
+    }
+  }
+
+  .unlock-glow {
+    animation: unlock-glow 2.5s ease-in-out infinite;
+  }
+
+  /* Drop shadow glow for icons */
+  .drop-shadow-glow-yellow {
+    filter: drop-shadow(0 0 8px rgba(255, 252, 0, 0.8));
+  }
+
+  /* Custom scrollbar styling */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.3);
+    border-left: 1px solid rgba(55, 65, 81, 0.5);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 240, 255, 0.6),
+      rgba(0, 240, 255, 0.3)
+    );
+    border-radius: 5px;
+    border: 2px solid rgba(0, 0, 0, 0.3);
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(
+      to bottom,
+      rgba(0, 240, 255, 0.8),
+      rgba(0, 240, 255, 0.5)
+    );
+  }
+
+  /* Firefox scrollbar */
+  .custom-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 240, 255, 0.6) rgba(0, 0, 0, 0.3);
+  }
+
   /* Slide up animation */
   @keyframes slideUp {
     from {
@@ -855,5 +948,72 @@ h1, h2, h3, h4, h5, h6 {
 
   .danger-glow-intense {
     animation: danger-glow-intense 1.5s ease-in-out infinite;
+  }
+
+  /* Ship Upgrade Animations */
+  
+  /* Purchase success pulse */
+  @keyframes purchase-success {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 0 0 rgba(255, 252, 0, 0.7);
+    }
+    50% {
+      transform: scale(1.05);
+      box-shadow: 0 0 20px 10px rgba(255, 252, 0, 0);
+    }
+  }
+
+  .purchase-success {
+    animation: purchase-success 0.6s ease-out;
+  }
+
+  /* Upgrade install celebration */
+  @keyframes upgrade-celebrate {
+    0% {
+      transform: scale(0.8) rotate(-5deg);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1) rotate(2deg);
+    }
+    100% {
+      transform: scale(1) rotate(0deg);
+      opacity: 1;
+    }
+  }
+
+  .upgrade-celebrate {
+    animation: upgrade-celebrate 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  /* Torpedo selector glow */
+  @keyframes torpedo-glow {
+    0%, 100% {
+      box-shadow: 0 0 5px rgba(255, 252, 0, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 15px rgba(255, 252, 0, 0.6);
+    }
+  }
+
+  .torpedo-glow {
+    animation: torpedo-glow 1.5s ease-in-out infinite;
+  }
+
+  /* Upgrade badge pulse */
+  @keyframes badge-pulse {
+    0%, 100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% {
+      transform: scale(1.1);
+      opacity: 0.8;
+    }
+  }
+
+  .badge-pulse {
+    animation: badge-pulse 2s ease-in-out infinite;
   }
 }
