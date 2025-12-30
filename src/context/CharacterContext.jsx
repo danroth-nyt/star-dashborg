@@ -16,6 +16,22 @@ export function CharacterProvider({ children, userId, roomCode }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Transform database character to UI format (snake_case to camelCase)
+  const transformCharacterFromDB = (dbCharacter) => {
+    if (!dbCharacter) return null;
+    
+    return {
+      ...dbCharacter,
+      classFeatures: dbCharacter.class_features,
+      className: dbCharacter.class_name,
+      destinyPoints: dbCharacter.destiny_points,
+      hpCurrent: dbCharacter.hp_current,
+      hpMax: dbCharacter.hp_max,
+      userId: dbCharacter.user_id,
+      roomCode: dbCharacter.room_code,
+    };
+  };
+
   // Load character on mount
   useEffect(() => {
     // Don't set loading false prematurely - wait for valid props
@@ -34,7 +50,7 @@ export function CharacterProvider({ children, userId, roomCode }) {
 
         if (error) throw error;
 
-        setCharacter(data);
+        setCharacter(transformCharacterFromDB(data));
       } catch (err) {
         console.error('Error loading character:', err);
         setError(err.message);
@@ -62,7 +78,7 @@ export function CharacterProvider({ children, userId, roomCode }) {
         },
         (payload) => {
           console.log('Character updated:', payload.new);
-          setCharacter(payload.new);
+          setCharacter(transformCharacterFromDB(payload.new));
         }
       )
       .subscribe();
@@ -126,8 +142,9 @@ export function CharacterProvider({ children, userId, roomCode }) {
 
         if (error) throw error;
 
-        setCharacter(data);
-        return data;
+        const transformedData = transformCharacterFromDB(data);
+        setCharacter(transformedData);
+        return transformedData;
       } catch (err) {
         console.error('Error saving character:', err);
         setError(err.message);
@@ -157,8 +174,9 @@ export function CharacterProvider({ children, userId, roomCode }) {
         if (error) throw error;
 
         // Update local state immediately for optimistic updates
-        setCharacter(data);
-        return data;
+        const transformedData = transformCharacterFromDB(data);
+        setCharacter(transformedData);
+        return transformedData;
       } catch (err) {
         console.error('Error updating character:', err);
         setError(err.message);
