@@ -37,6 +37,11 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
   let actions = actionIds.map(id => {
     const action = { ...ACTIONS[id] };
     
+    if (!action || !action.id) {
+      console.error(`Action not found for id: ${id}`);
+      return null;
+    }
+    
     // Apply Turbo Laser upgrade to gunner damage
     if (action.id === 'fireLaserTurret') {
       action.damage = getGunnerDamage(ship, stationId);
@@ -70,6 +75,15 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
     }
 
     setRollingAction(action.id);
+
+    // Play weapon sound effects when action is triggered
+    if (action.id === 'fireLaserTurret' || action.id === 'fixedBeamCannon') {
+      play('laserFire', 0.4);
+    } else if (action.id === 'fireTorpedo') {
+      play('torpedoFire', 0.5);
+    } else if (action.id === 'hyperdriveJump') {
+      play('hyperdriveCharge', 0.6);
+    }
 
     // Simulate rolling delay
     await new Promise(resolve => setTimeout(resolve, 600));
@@ -110,13 +124,6 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
         }
         logMessage += ` - Dealt ${damageTotal} damage!`;
         
-        // Play weapon sound effects
-        if (action.id === 'fireLaserTurret' || action.id === 'fixedBeamCannon') {
-          play('laserFire', 0.4);
-        } else if (action.id === 'fireTorpedo') {
-          play('torpedoFire', 0.5);
-        }
-        
         // Use torpedo if required
         if (action.requiresTorpedo) {
           fireTorpedo();
@@ -136,7 +143,6 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
         logMessage += ` - Loaded ${torpedoCount} torpedo${torpedoCount > 1 ? 'es' : ''}!`;
       } else if (action.id === 'hyperdriveJump') {
         chargeHyperdrive();
-        play('hyperdriveCharge', 0.6);
         logMessage += ` - Hyperdrive charged (${spaceCombat.hyperdriveCharge + 1}/3)!`;
       } else if (action.id === 'fireTorpedo' && selectedTorpedoType !== 'standard') {
         // Use special torpedo from inventory
@@ -176,14 +182,14 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
         </div>
       )}
       
-      {actions.map(action => {
+      {actions.map((action, btnIndex) => {
         const Icon = ACTION_ICONS[action.type] || Dices;
         const isRolling = rollingAction === action.id;
         const isDisabled = action.requiresTorpedo && spaceCombat.torpedoesLoaded === 0;
 
         return (
           <button
-            key={action.id}
+            key={`${stationId}-${action.id}-${btnIndex}`}
             onClick={() => performAction(action)}
             disabled={isRolling || isDisabled || !character}
             className={`w-full p-2 border-2 text-left transition-all group ${

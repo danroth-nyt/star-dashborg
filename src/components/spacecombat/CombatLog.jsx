@@ -17,15 +17,16 @@ export default function CombatLog() {
   const logEndRef = useRef(null);
   const logContainerRef = useRef(null);
 
-  // Auto-scroll to bottom when new entries are added
+  // Auto-scroll to bottom when new entries are added (within container only)
   useEffect(() => {
-    if (logEndRef.current && logContainerRef.current) {
+    if (logContainerRef.current) {
       const container = logContainerRef.current;
       const isScrolledToBottom = 
         container.scrollHeight - container.scrollTop <= container.clientHeight + 100;
       
       if (isScrolledToBottom) {
-        logEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        // Scroll within container only, not the entire page
+        container.scrollTop = container.scrollHeight;
       }
     }
   }, [spaceCombat.combatLog]);
