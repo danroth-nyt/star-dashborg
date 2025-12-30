@@ -662,13 +662,13 @@ export default function CharacterGenerator({ onSave, onCancel }) {
               <select
                 value={character.species}
                 onChange={(e) => updateCharacter('species', e.target.value)}
-                className="w-full bg-bg-secondary border border-accent-cyan/30 rounded px-3 py-2 text-text-primary font-mono focus:outline-none focus:border-accent-cyan"
+                className="w-full bg-bg-secondary border border-accent-cyan/30 rounded px-3 py-2 text-text-primary font-mono focus:outline-none focus:border-accent-cyan [&>option]:bg-bg-secondary [&>option]:text-text-primary"
               >
                 {character.class === 'bot' ? (
-                  <option value="Bot">Bot</option>
+                  <option value="Bot" className="bg-bg-secondary text-text-primary">Bot</option>
                 ) : (
                   SPECIES.map(species => (
-                    <option key={species.id} value={species.name}>{species.name}</option>
+                    <option key={species.id} value={species.name} className="bg-bg-secondary text-text-primary">{species.name}</option>
                   ))
                 )}
               </select>
