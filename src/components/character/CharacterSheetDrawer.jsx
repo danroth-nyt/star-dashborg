@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, Plus, Trash2, Save, AlertTriangle, Dices } from 'lucide-react';
 import { useCharacter } from '../../context/CharacterContext';
-import { SPECIES } from '../../types/starborg';
+import { SPECIES, CHARACTER_CLASSES } from '../../types/starborg';
 import Button from '../ui/Button';
 import { cn } from '../../lib/utils';
 
@@ -211,6 +211,18 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
                 </select>
               </div>
             </div>
+
+            {/* Motivation */}
+            {localCharacter.motivation && (
+              <div className="mt-4">
+                <label className="block text-xs font-mono text-text-secondary mb-1 uppercase">
+                  Rebel Motivation
+                </label>
+                <div className="bg-bg-secondary border-2 border-accent-yellow/30 rounded px-3 py-2 text-text-primary font-mono text-sm">
+                  {localCharacter.motivation}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Stats */}
@@ -359,20 +371,89 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
                 Class Features
               </h3>
               <div className="space-y-3">
-                {Object.entries(localCharacter.classFeatures).map(([key, value]) => (
-                  <div key={key} className="bg-bg-secondary border-2 border-accent-yellow/30 rounded p-3">
-                    <div className="text-xs font-mono text-accent-yellow uppercase mb-1">
-                      {key.replace(/([A-Z])/g, ' $1').trim()}
+                {Object.entries(localCharacter.classFeatures).map(([key, value]) => {
+                  // Skip numeric/non-feature values
+                  if (typeof value === 'number' || typeof value === 'boolean') {
+                    return null;
+                  }
+                  
+                  return (
+                    <div key={key} className="bg-bg-secondary border-2 border-accent-yellow/30 rounded p-3">
+                      <div className="text-xs font-mono text-accent-yellow uppercase mb-1">
+                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                        {value.roll && ` [${value.roll}]`}
+                      </div>
+                      <div className="text-text-primary text-sm font-mono">
+                        {value.name ? (
+                          <>
+                            <div className="font-bold text-accent-yellow">{value.name}</div>
+                            <div className="text-text-secondary text-xs mt-1">{value.description}</div>
+                          </>
+                        ) : (
+                          <div className="text-text-secondary text-xs">{value.result || value}</div>
+                        )}
+                      </div>
                     </div>
-                    <div className="text-text-primary text-sm font-mono">
-                      {typeof value === 'object' ? (
-                        <>
-                          <div className="font-bold text-accent-yellow">{value.name}</div>
-                          <div className="text-text-secondary text-xs mt-1">{value.description}</div>
-                        </>
-                      ) : (
-                        value
-                      )}
+                  );
+                })}
+              </div>
+              
+              {/* Additional Feature Details */}
+              {localCharacter.classFeatures.dragoonThreshold && (
+                <div className="bg-accent-red/10 border-2 border-accent-red/30 rounded p-3">
+                  <div className="text-xs font-mono text-accent-red uppercase mb-1">⚠ Dragoon Detection</div>
+                  <div className="text-text-secondary text-xs">
+                    Current Threshold: {localCharacter.classFeatures.dragoonThreshold} or lower
+                    <br />
+                    <span className="text-accent-yellow">Roll D20 when using Magi Arts or Blazer Sword</span>
+                  </div>
+                </div>
+              )}
+              {localCharacter.classFeatures.containmentPoints && (
+                <div className="bg-accent-yellow/10 border-2 border-accent-yellow/30 rounded p-3">
+                  <div className="text-xs font-mono text-accent-yellow uppercase mb-1">Containment Points</div>
+                  <div className="text-text-secondary text-xs">
+                    Current: {localCharacter.classFeatures.containmentPoints} / 6
+                    <br />
+                    <span className="text-accent-red">Reduces by 1 on each blunder</span>
+                  </div>
+                </div>
+              )}
+              {localCharacter.classFeatures.junkDrawerSlots && (
+                <div className="bg-accent-cyan/10 border-2 border-accent-cyan/30 rounded p-3">
+                  <div className="text-xs font-mono text-accent-cyan uppercase mb-1">Junk Drawer</div>
+                  <div className="text-text-secondary text-xs">
+                    Extra Inventory Slots: +{localCharacter.classFeatures.junkDrawerSlots}
+                    <br />
+                    <span className="text-text-secondary">For small broken machines (Hack Job parts)</span>
+                  </div>
+                </div>
+              )}
+              {localCharacter.classFeatures.ownsShip && (
+                <div className="bg-accent-cyan/10 border-2 border-accent-cyan/30 rounded p-3">
+                  <div className="text-xs font-mono text-accent-cyan uppercase mb-1">Hunk of Junk</div>
+                  <div className="text-text-secondary text-xs">
+                    You own a ramshackle but trustworthy ship
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Class Special Rules */}
+          {CHARACTER_CLASSES[localCharacter.class]?.specialRules && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-orbitron font-bold text-accent-cyan uppercase border-b border-accent-cyan/30 pb-2">
+                Class Special Rules
+              </h3>
+              <div className="space-y-2">
+                {CHARACTER_CLASSES[localCharacter.class].specialRules.map((rule, index) => (
+                  <div key={index} className="bg-bg-secondary border-2 border-accent-cyan/30 rounded p-3">
+                    <div className="text-xs font-mono text-accent-cyan uppercase mb-1">
+                      {rule.name}
+                    </div>
+                    <div className="text-text-secondary text-xs">
+                      {rule.description}
                     </div>
                   </div>
                 ))}
