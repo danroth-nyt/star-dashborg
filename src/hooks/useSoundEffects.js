@@ -1,11 +1,21 @@
 import { useCallback, useRef, useEffect } from 'react';
 
 const sounds = {
-  laserFire: `${import.meta.env.BASE_URL}sounds/laser-fire-short.mp3`, // Testing: 10ms shorter with fade
+  // Existing weapon and system sounds
+  laserFire: `${import.meta.env.BASE_URL}sounds/laser-fire-short.mp3`,
   torpedoFire: `${import.meta.env.BASE_URL}sounds/torpedo-fire.mp3`,
   shieldHit: `${import.meta.env.BASE_URL}sounds/shield-hit.mp3`,
   hyperdriveCharge: `${import.meta.env.BASE_URL}sounds/hyperdrive-charge.mp3`,
   alarmCritical: `${import.meta.env.BASE_URL}sounds/alarm-critical.mp3`,
+  // Battle station action sounds
+  evade: `${import.meta.env.BASE_URL}sounds/evade.mp3`,
+  targetLock: `${import.meta.env.BASE_URL}sounds/target-lock.mp3`,
+  jamming: `${import.meta.env.BASE_URL}sounds/jamming.mp3`,
+  repairShield: `${import.meta.env.BASE_URL}sounds/repair-shield.mp3`,
+  loadTorpedo: `${import.meta.env.BASE_URL}sounds/load-torpedo.mp3`,
+  deflectors: `${import.meta.env.BASE_URL}sounds/deflectors.mp3`,
+  steady: `${import.meta.env.BASE_URL}sounds/steady.mp3`,
+  shieldPowerUp: `${import.meta.env.BASE_URL}sounds/shield-power-up.mp3`,
 };
 
 export function useSoundEffects() {

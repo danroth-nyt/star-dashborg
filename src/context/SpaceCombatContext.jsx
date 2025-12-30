@@ -104,9 +104,15 @@ export function SpaceCombatProvider({ children }) {
     (change) => {
       // Play shield hit sound when armor decreases
       if (change < 0) {
-        const audio = new Audio('/sounds/shield-hit.mp3');
+        const audio = new Audio(`${import.meta.env.BASE_URL}sounds/shield-hit.mp3`);
         audio.volume = 0.5;
         audio.play().catch(() => {}); // Silently fail if autoplay blocked
+      }
+      // Play shield power-up sound when armor increases
+      else if (change > 0) {
+        const audio = new Audio(`${import.meta.env.BASE_URL}sounds/shield-power-up.mp3`);
+        audio.volume = 0.5;
+        audio.play().catch(() => {});
       }
       
       updateSpaceCombat((prev) => {

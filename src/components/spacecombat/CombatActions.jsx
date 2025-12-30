@@ -100,13 +100,24 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
 
     setRollingAction(action.id);
 
-    // Play weapon sound effects when action is triggered
-    if (action.id === 'fireLaserTurret' || action.id === 'fixedBeamCannon') {
-      play('laserFire', 0.4);
-    } else if (action.id === 'fireTorpedo') {
-      play('torpedoFire', 0.5);
-    } else if (action.id === 'hyperdriveJump') {
-      play('hyperdriveCharge', 0.6);
+    // Sound mapping for all battle station actions
+    const soundMap = {
+      fireLaserTurret: 'laserFire',
+      fixedBeamCannon: 'laserFire',
+      fireTorpedo: 'torpedoFire',
+      hyperdriveJump: 'hyperdriveCharge',
+      evade: 'evade',
+      targetLock: 'targetLock',
+      jamming: 'jamming',
+      repairShield: 'repairShield',
+      loadTorpedo: 'loadTorpedo',
+      deflectors: 'deflectors',
+      steady: 'steady',
+    };
+
+    // Play sound effect if action has one mapped
+    if (soundMap[action.id]) {
+      play(soundMap[action.id], 0.5);
     }
 
     // Simulate rolling delay
