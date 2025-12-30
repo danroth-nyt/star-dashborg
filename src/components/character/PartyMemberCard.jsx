@@ -144,7 +144,7 @@ export default function PartyMemberCard({ character: characterProp }) {
               <span className="ml-1 text-[8px] text-accent-yellow/60">(YOU)</span>
             )}
           </h4>
-          <p className="text-text-secondary text-[9px] font-mono">
+          <p className="text-text-secondary text-[9px] font-mono capitalize">
             {character.class_name || character.class} • {character.species}
           </p>
         </div>

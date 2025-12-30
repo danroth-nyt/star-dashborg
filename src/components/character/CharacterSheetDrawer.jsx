@@ -186,7 +186,7 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
                 <label className="block text-xs font-mono text-text-secondary mb-1 uppercase">
                   Class
                 </label>
-                <div className="bg-bg-secondary border-2 border-accent-cyan/30 rounded px-3 py-2 text-text-primary font-mono">
+                <div className="bg-bg-secondary border-2 border-accent-cyan/30 rounded px-3 py-2 text-text-primary font-mono capitalize">
                   {localCharacter.className || localCharacter.class}
                 </div>
               </div>
