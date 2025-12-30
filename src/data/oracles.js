@@ -531,7 +531,8 @@ export const npcOracles = {
 
 export const nameOracles = {
   baselineFirst: ["Mason", "Wren", "Alex", "Luca", "Harper", "Teagan", "Ellis", "Vick", "Dylan", "Jace"],
-  botNames: ["XT-64", "RY-90", "KT-37", "Q-88", "VV-42", "ZZT-5E", "L5R-02", "NTH-16", "ALT-F4", "TM-006"],
+  botNamePrefixes: ["XT", "RY", "KT", "Q", "VV", "ZZT", "L5R", "NTH", "ALT", "TM"],
+  botNameSuffixes: ["64", "90", "37", "88", "42", "5E", "02", "16", "F4", "006"],
   familyNames: ["Parsec", "Lighthour", "Cotorn", "Bastion", "Outlander", "Quasar", "Voyager", "Hadron", "Fraction", "Lysander"],
   ancientNames: ["Anatu", "Belatsunat", "Kishar", "Zirratbanit", "Igigi", "Kinziru", "Nebo", "Ubaratutu", "Gadatas", "Haban"],
   archaicNames: ["Sycorax", "Banquo", "Marullus", "Calphurnia", "Verges", "Escalus", "Egeon", "Caliban", "Oberon", "Cressida"],

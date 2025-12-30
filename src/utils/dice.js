@@ -189,11 +189,15 @@ export function rollBits() {
 /**
  * Roll HP for a character
  * @param {number} strModifier - Character's STR modifier
- * @param {Object} hpDice - Class HP dice { count, sides, modifier }
+ * @param {Object} hpDice - Class HP dice { count, sides, modifier, ignoreSTR }
  * @returns {number} - Maximum HP (minimum 1)
  */
 export function rollHP(strModifier, hpDice = { count: 1, sides: 8, modifier: 0 }) {
   const roll = rollWithModifier(hpDice.count, hpDice.sides, hpDice.modifier);
+  // Bot class ignores STR modifier (METAL rule)
+  if (hpDice.ignoreSTR) {
+    return Math.max(1, roll);
+  }
   return Math.max(1, roll + strModifier);
 }
 

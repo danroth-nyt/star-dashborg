@@ -16,6 +16,7 @@ import {
   technicianData,
   youngsterData
 } from '../../data/characterData';
+import { nameOracles } from '../../data/oracles';
 import { useCharacter } from '../../context/CharacterContext';
 import Button from '../ui/Button';
 import { RefreshCw, Plus, Trash2, Save, Dices } from 'lucide-react';
@@ -95,9 +96,13 @@ export default function CharacterGenerator({ onSave, onCancel }) {
       // Roll species (skip for Bot)
       const species = isBot ? 'Bot' : SPECIES[rollD(10) - 1].name;
 
-      // Roll bits
+      // Roll rebel motivation (D10)
+      const motivationRoll = rollD(10);
+      const motivation = characterOracles.rebelMotivations[motivationRoll - 1];
+
+      // Roll bits (1-3 = No Bits, 4-6 = You got Bits)
       const bitsRoll = rollD(6);
-      const bits = bitsRoll >= 4 ? rollD(6) : 0;
+      const bits = bitsRoll >= 4 ? 1 : 0;
 
       // Roll equipment (3 Bobs)
       const equipment = [
@@ -105,6 +110,11 @@ export default function CharacterGenerator({ onSave, onCancel }) {
         characterOracles.bobsArmor[rollD(6) - 1],
         characterOracles.bobsGear[rollD(6) - 1],
       ];
+
+      // Auto-add class-specific equipment
+      if (classId === 'magiKnight') {
+        equipment.unshift('Blazer Sword (2D6 damage)');
+      }
 
       // Roll class-specific features
       const classFeatures = rollClassFeatures(classId);
@@ -114,6 +124,7 @@ export default function CharacterGenerator({ onSave, onCancel }) {
         class: classId,
         className: classInfo.name,
         species,
+        motivation,
         stats,
         hp_max: hp,
         hp_current: hp,
@@ -129,41 +140,70 @@ export default function CharacterGenerator({ onSave, onCancel }) {
     }, 1500);
   };
 
-  // Roll class-specific features
+  // Roll class-specific features with roll values
   const rollClassFeatures = (classId) => {
     const data = classData[classId];
     const features = {};
 
     switch (classId) {
-      case 'bot':
-        features.function = data.functions[rollD(6) - 1];
-        features.malfunction = data.malfunctions[rollD(6) - 1];
-        features.upgrade = data.upgrades[rollD(6) - 1];
+      case 'bot': {
+        const functionRoll = rollD(6);
+        const malfunctionRoll = rollD(6);
+        const upgradeRoll = rollD(6);
+        features.function = { roll: functionRoll, ...data.functions[functionRoll - 1] };
+        features.malfunction = { roll: malfunctionRoll, ...data.malfunctions[malfunctionRoll - 1] };
+        features.upgrade = { roll: upgradeRoll, result: data.upgrades[upgradeRoll - 1] };
         break;
-      case 'bountyHunter':
-        features.skill = data.skills[rollD(6) - 1];
-        features.heirloom = data.heirlooms[rollD(6) - 1];
-        features.softSpot = data.softSpots[rollD(6) - 1];
+      }
+      case 'bountyHunter': {
+        const skillRoll = rollD(6);
+        const heirloomRoll = rollD(6);
+        const softSpotRoll = rollD(6);
+        features.skill = { roll: skillRoll, ...data.skills[skillRoll - 1] };
+        features.heirloom = { roll: heirloomRoll, ...data.heirlooms[heirloomRoll - 1] };
+        features.softSpot = { roll: softSpotRoll, result: data.softSpots[softSpotRoll - 1] };
         break;
-      case 'magiKnight':
-        features.art = data.arts[rollD(4) - 1];
-        features.nemesis = data.dragoonNemeses[rollD(6) - 1];
-        features.identity = data.burnerIdentities[rollD(6) - 1];
+      }
+      case 'magiKnight': {
+        const artRoll = rollD(4);
+        const nemesisRoll = rollD(6);
+        const identityRoll = rollD(6);
+        features.art = { roll: artRoll, ...data.arts[artRoll - 1] };
+        features.nemesis = { roll: nemesisRoll, result: data.dragoonNemeses[nemesisRoll - 1] };
+        features.identity = { roll: identityRoll, ...data.burnerIdentities[identityRoll - 1] };
+        features.dragoonThreshold = 5; // Detection threshold, increases by 1 each use
         break;
-      case 'smuggler':
-        features.trick = data.tricks[rollD(6) - 1];
-        features.contraband = data.contraband[rollD(6) - 1];
-        features.crimeLord = data.crimeLords[rollD(6) - 1];
+      }
+      case 'smuggler': {
+        const trickRoll = rollD(6);
+        const contrabandRoll = rollD(6);
+        const crimeLordRoll = rollD(6);
+        const containmentRoll = rollD(6);
+        features.trick = { roll: trickRoll, result: data.tricks[trickRoll - 1] };
+        features.contraband = { roll: contrabandRoll, ...data.contraband[contrabandRoll - 1] };
+        features.containmentPoints = containmentRoll; // D6 Containment Points
+        features.crimeLord = { roll: crimeLordRoll, result: data.crimeLords[crimeLordRoll - 1] };
+        features.ownsShip = true; // HUNK OF JUNK: You own a ramshackle ship
         break;
-      case 'technician':
-        features.scratchBuild = data.scratchBuilds[rollD(6) - 1];
-        features.hyperFixation = data.hyperFixations[rollD(6) - 1];
+      }
+      case 'technician': {
+        const scratchBuildRoll = rollD(6);
+        const hyperFixationRoll = rollD(6);
+        const junkDrawerRoll = rollD(4);
+        features.scratchBuild = { roll: scratchBuildRoll, ...data.scratchBuilds[scratchBuildRoll - 1] };
+        features.hyperFixation = { roll: hyperFixationRoll, result: data.hyperFixations[hyperFixationRoll - 1] };
+        features.junkDrawerSlots = junkDrawerRoll; // D4 extra inventory slots
         break;
-      case 'youngster':
-        features.tragedy = data.tragedies[rollD(6) - 1];
-        features.heirloom = data.heirlooms[rollD(6) - 1];
-        features.knack = data.knacks[rollD(6) - 1];
+      }
+      case 'youngster': {
+        const tragedyRoll = rollD(6);
+        const heirloomRoll = rollD(6);
+        const knackRoll = rollD(6);
+        features.tragedy = { roll: tragedyRoll, result: data.tragedies[tragedyRoll - 1] };
+        features.heirloom = { roll: heirloomRoll, ...data.heirlooms[heirloomRoll - 1] };
+        features.knack = { roll: knackRoll, ...data.knacks[knackRoll - 1] };
         break;
+      }
     }
 
     return features;
@@ -219,6 +259,25 @@ export default function CharacterGenerator({ onSave, onCancel }) {
     }));
   };
 
+  // Generate name based on class and species
+  const generateName = () => {
+    let generatedName = '';
+    
+    if (character.class === 'bot') {
+      // Bot names: 2D10 (prefix + suffix)
+      const prefix = nameOracles.botNamePrefixes[rollD(10) - 1];
+      const suffix = nameOracles.botNameSuffixes[rollD(10) - 1];
+      generatedName = `${prefix}-${suffix}`;
+    } else {
+      // Use baseline first name + family name for most species
+      const firstName = nameOracles.baselineFirst[rollD(10) - 1];
+      const familyName = nameOracles.familyNames[rollD(10) - 1];
+      generatedName = `${firstName} ${familyName}`;
+    }
+    
+    updateCharacter('name', generatedName);
+  };
+
   // Reroll single stat
   const rerollStat = (statName) => {
     const classInfo = CHARACTER_CLASSES[character.class];
@@ -255,59 +314,76 @@ export default function CharacterGenerator({ onSave, onCancel }) {
     }));
   };
 
-  // Reroll class feature
+  // Reroll class feature with roll values
   const rerollClassFeature = (featureName) => {
     const data = classData[character.class];
     let newFeature;
+    let roll;
 
     switch (featureName) {
       case 'function':
-        newFeature = data.functions[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, ...data.functions[roll - 1] };
         break;
       case 'malfunction':
-        newFeature = data.malfunctions[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, ...data.malfunctions[roll - 1] };
         break;
       case 'upgrade':
-        newFeature = data.upgrades[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, result: data.upgrades[roll - 1] };
         break;
       case 'skill':
-        newFeature = data.skills[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, ...data.skills[roll - 1] };
         break;
       case 'heirloom':
-        newFeature = data.heirlooms[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, ...data.heirlooms[roll - 1] };
         break;
       case 'softSpot':
-        newFeature = data.softSpots[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, result: data.softSpots[roll - 1] };
         break;
       case 'art':
-        newFeature = data.arts[rollD(4) - 1];
+        roll = rollD(4);
+        newFeature = { roll, ...data.arts[roll - 1] };
         break;
       case 'nemesis':
-        newFeature = data.dragoonNemeses[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, result: data.dragoonNemeses[roll - 1] };
         break;
       case 'identity':
-        newFeature = data.burnerIdentities[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, ...data.burnerIdentities[roll - 1] };
         break;
       case 'trick':
-        newFeature = data.tricks[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, result: data.tricks[roll - 1] };
         break;
       case 'contraband':
-        newFeature = data.contraband[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, ...data.contraband[roll - 1] };
         break;
       case 'crimeLord':
-        newFeature = data.crimeLords[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, result: data.crimeLords[roll - 1] };
         break;
       case 'scratchBuild':
-        newFeature = data.scratchBuilds[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, ...data.scratchBuilds[roll - 1] };
         break;
       case 'hyperFixation':
-        newFeature = data.hyperFixations[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, result: data.hyperFixations[roll - 1] };
         break;
       case 'tragedy':
-        newFeature = data.tragedies[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, result: data.tragedies[roll - 1] };
         break;
       case 'knack':
-        newFeature = data.knacks[rollD(6) - 1];
+        roll = rollD(6);
+        newFeature = { roll, ...data.knacks[roll - 1] };
         break;
     }
 
@@ -416,13 +492,23 @@ export default function CharacterGenerator({ onSave, onCancel }) {
         {/* Name */}
         <div>
           <label className="block text-xs font-mono text-text-secondary mb-1">NAME</label>
-          <input
-            type="text"
-            value={character.name}
-            onChange={(e) => updateCharacter('name', e.target.value)}
-            placeholder="Enter rebel name..."
-            className="w-full bg-bg-secondary border border-accent-cyan/30 rounded px-3 py-2 text-text-primary font-mono focus:outline-none focus:border-accent-cyan focus:shadow-[0_0_10px_rgba(0,240,255,0.4)] transition-all"
-          />
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={character.name}
+              onChange={(e) => updateCharacter('name', e.target.value)}
+              placeholder="Enter rebel name..."
+              className="flex-1 bg-bg-secondary border border-accent-cyan/30 rounded px-3 py-2 text-text-primary font-mono focus:outline-none focus:border-accent-cyan focus:shadow-[0_0_10px_rgba(0,240,255,0.4)] transition-all"
+            />
+            <button
+              onClick={generateName}
+              className="px-3 py-2 bg-transparent border-2 border-accent-yellow text-accent-yellow hover:bg-accent-yellow hover:text-bg-primary transition-all font-orbitron text-xs uppercase flex items-center gap-1"
+              title="Generate random name"
+            >
+              <Dices className="w-4 h-4" />
+              Gen
+            </button>
+          </div>
         </div>
 
         {/* Stats */}
@@ -607,31 +693,81 @@ export default function CharacterGenerator({ onSave, onCancel }) {
           <div>
             <h3 className="text-sm font-orbitron text-accent-cyan uppercase mb-2">Class Features</h3>
             <div className="space-y-3">
-              {Object.entries(character.classFeatures).map(([key, value]) => (
-                <div key={key} className="bg-bg-secondary border border-accent-yellow/30 rounded p-3">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-mono text-accent-yellow uppercase">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
-                    <button
-                      onClick={() => rerollClassFeature(key)}
-                      className="text-accent-cyan hover:text-accent-cyan/80 transition-colors"
-                      title="Reroll"
-                    >
-                      <Dices className="w-3 h-3" />
-                    </button>
+              {Object.entries(character.classFeatures).map(([key, value]) => {
+                // Skip numeric/non-feature values
+                if (typeof value === 'number' || typeof value === 'boolean') {
+                  return null;
+                }
+                
+                return (
+                  <div key={key} className="bg-bg-secondary border border-accent-yellow/30 rounded p-3">
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="text-xs font-mono text-accent-yellow uppercase">
+                        {key.replace(/([A-Z])/g, ' $1').trim()}
+                        {value.roll && ` [${value.roll}]`}
+                      </span>
+                      <button
+                        onClick={() => rerollClassFeature(key)}
+                        className="text-accent-cyan hover:text-accent-cyan/80 transition-colors"
+                        title="Reroll"
+                      >
+                        <Dices className="w-3 h-3" />
+                      </button>
+                    </div>
+                    <div className="text-text-primary text-sm font-mono">
+                      {value.name ? (
+                        <>
+                          <div className="font-bold text-accent-yellow">{value.name}</div>
+                          <div className="text-text-secondary text-xs mt-1">{value.description}</div>
+                        </>
+                      ) : (
+                        <div className="text-text-secondary text-xs">{value.result || value}</div>
+                      )}
+                    </div>
                   </div>
-                  <div className="text-text-primary text-sm font-mono">
-                    {typeof value === 'object' ? (
-                      <>
-                        <div className="font-bold text-accent-yellow">{value.name}</div>
-                        <div className="text-text-secondary text-xs mt-1">{value.description}</div>
-                      </>
-                    ) : (
-                      value
-                    )}
-                  </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
+            
+            {/* Additional Feature Details */}
+            {character.classFeatures.dragoonThreshold && (
+              <div className="bg-accent-red/10 border border-accent-red/30 rounded p-3 mt-3">
+                <div className="text-xs font-mono text-accent-red uppercase mb-1">Dragoon Detection</div>
+                <div className="text-text-secondary text-xs">
+                  Current Threshold: {character.classFeatures.dragoonThreshold} or lower
+                  <br />
+                  <span className="text-accent-yellow">⚠ Roll D20 when using Magi Arts or Blazer Sword</span>
+                </div>
+              </div>
+            )}
+            {character.classFeatures.containmentPoints && (
+              <div className="bg-accent-yellow/10 border border-accent-yellow/30 rounded p-3 mt-3">
+                <div className="text-xs font-mono text-accent-yellow uppercase mb-1">Containment Points</div>
+                <div className="text-text-secondary text-xs">
+                  Current: {character.classFeatures.containmentPoints} / 6
+                  <br />
+                  <span className="text-accent-red">Reduces by 1 on each blunder</span>
+                </div>
+              </div>
+            )}
+            {character.classFeatures.junkDrawerSlots && (
+              <div className="bg-accent-cyan/10 border border-accent-cyan/30 rounded p-3 mt-3">
+                <div className="text-xs font-mono text-accent-cyan uppercase mb-1">Junk Drawer</div>
+                <div className="text-text-secondary text-xs">
+                  Extra Inventory Slots: +{character.classFeatures.junkDrawerSlots}
+                  <br />
+                  <span className="text-text-secondary">For small broken machines (Hack Job parts)</span>
+                </div>
+              </div>
+            )}
+            {character.classFeatures.ownsShip && (
+              <div className="bg-accent-cyan/10 border border-accent-cyan/30 rounded p-3 mt-3">
+                <div className="text-xs font-mono text-accent-cyan uppercase mb-1">Hunk of Junk</div>
+                <div className="text-text-secondary text-xs">
+                  You own a ramshackle but trustworthy ship
+                </div>
+              </div>
+            )}
           </div>
         )}
 
