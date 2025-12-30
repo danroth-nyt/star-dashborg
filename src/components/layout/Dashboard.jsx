@@ -13,8 +13,10 @@ import HelpModal from '../ui/HelpModal';
 import PartyPanel from '../character/PartyPanel';
 import CharacterSheetDrawer from '../character/CharacterSheetDrawer';
 import SpaceCombatView from '../spacecombat/SpaceCombatView';
+import LoadingScreen from '../ui/LoadingScreen';
 import { useParty } from '../../context/PartyContext';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
+import { useGame } from '../../context/GameContext';
 
 const PANEL_ORDER_KEY = 'star-dashborg-panel-order';
 const PANEL_VERSION_KEY = 'star-dashborg-panel-version';
@@ -34,12 +36,9 @@ const defaultPanels = [
 export default function Dashboard({ roomCode }) {
   const { refreshPartyMembers } = useParty();
   const { spaceCombat } = useSpaceCombat();
-  
-  // Refresh party members on mount to catch any missed realtime events
-  useEffect(() => {
-    refreshPartyMembers();
-  }, [refreshPartyMembers]);
+  const { gameState, loading: gameLoading } = useGame();
 
+  // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const [panels, setPanels] = useState(() => {
     // Check version - reset if outdated
     const savedVersion = localStorage.getItem(PANEL_VERSION_KEY);
@@ -110,6 +109,11 @@ export default function Dashboard({ roomCode }) {
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
+
+  // Refresh party members on mount to catch any missed realtime events
+  useEffect(() => {
+    refreshPartyMembers();
+  }, [refreshPartyMembers]);
 
   const handleDragStart = (e, panelId) => {
     setDraggedPanel(panelId);
@@ -284,8 +288,24 @@ export default function Dashboard({ roomCode }) {
     );
   };
 
+  // Show loading screen while game state is loading
+  // This prevents flash when reloading while in space combat
+  if (gameLoading) {
+    return (
+      <LoadingScreen 
+        message="LOADING GAME STATE"
+        details={[
+          'Retrieving session data...',
+          'Syncing ship systems...',
+          'Restoring battle stations...'
+        ]}
+      />
+    );
+  }
+
   // If space combat is active, show space combat view
-  if (spaceCombat.isActive) {
+  // Check gameState directly to avoid flash from SpaceCombatContext sync delay
+  if (gameState.spaceCombat?.isActive) {
     return (
       <>
         <SpaceCombatView />

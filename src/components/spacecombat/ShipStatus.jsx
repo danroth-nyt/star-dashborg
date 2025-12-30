@@ -1,11 +1,15 @@
 import { useEffect, useRef } from 'react';
 import { Shield, ShieldAlert, ShieldOff, AlertTriangle, Zap, Rocket } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
+import { useGame } from '../../context/GameContext';
 import { ARMOR_TIERS } from '../../data/spaceCombatData';
+import { getMaxArmorTier } from '../../utils/shipUpgrades';
 
 export default function ShipStatus() {
   const { spaceCombat, modifyArmor } = useSpaceCombat();
+  const { gameState } = useGame();
   const { shipArmor, hyperdriveCharge } = spaceCombat;
+  const ship = gameState.ship || { heroicUpgrades: [], purchasedUpgrades: [] };
   const prevArmorRef = useRef(shipArmor);
   const alarmAudioRef = useRef(null);
 
@@ -181,7 +185,7 @@ export default function ShipStatus() {
           </button>
           <button
             onClick={() => modifyArmor(1)}
-            disabled={shipArmor === 2}
+            disabled={shipArmor >= getMaxArmorTier(ship)}
             className="flex-1 px-3 py-2 bg-accent-cyan/20 border-2 border-accent-cyan text-accent-cyan font-orbitron text-xs hover:bg-accent-cyan hover:text-bg-primary transition-all disabled:opacity-30 disabled:cursor-not-allowed"
           >
             + Tier
