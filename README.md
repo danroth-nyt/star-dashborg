@@ -1,12 +1,19 @@
 # Star Dashborg
 
-A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an authentic retro sci-fi aesthetic with comprehensive oracle systems, generators, and session management tools.
+A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an authentic retro sci-fi aesthetic with comprehensive oracle systems, character management, and session management tools.
 
 ![Star Borg](https://img.shields.io/badge/Star%20Borg-Rebel%20Dashboard-yellow?style=flat-square)
 ![React](https://img.shields.io/badge/React-18-blue?style=flat-square)
 ![Tailwind](https://img.shields.io/badge/Tailwind-CSS-cyan?style=flat-square)
 
 ## ✨ Features
+
+### 👥 Character & Party Management
+- **Character Creation** - Full character generator with class selection (Smuggler, Tech, Fighter, Psi, Bot)
+- **Character Sheets** - Slide-out drawer with stats, HP tracking, equipment, and destiny points
+- **Party Panel** - Real-time view of all characters in the session with synchronized HP and stats
+- **Quick Stat Rolls** - Click any stat to roll d20 + modifier with crit/fumble detection
+- **Authentication System** - Secure user accounts with admin approval workflow
 
 ### 🎲 Core Gameplay Tools
 - **Threat Die Tracker** - Visual D6 with click-to-cycle functionality and maximum threat alerts
@@ -35,6 +42,8 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 
 ### 🎯 Session Management
 - **Real-time Multiplayer** - Supabase-powered sync across all connected players
+- **Character Persistence** - Each player's character automatically syncs to the session
+- **Party Awareness** - See all party members' stats, HP, and status in real-time
 - **Session Journal** - Collaborative note-taking with auto-save
 - **Customizable Layout** - Drag-and-drop panels between columns
 - **Game Flow Drawer** - Step-by-step campaign and session play procedure guide
@@ -47,8 +56,16 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - **Fully Responsive** - Optimized for desktop, tablet, and mobile with adaptive button sizing
 - **Smooth Animations** - Polished transitions, hover effects, and alert pulses
 - **Visual Alerts** - Pulsing glows for maximum threat and filled danger clocks
+- **Smooth Loading States** - Unified loading experience prevents jarring transitions
 
 ## ⚡ Key Highlights
+
+### Character & Party Features
+- **Full Character System**: Create characters with all Star Borg classes and species
+- **Real-time Party Sync**: See all party members' characters update live
+- **Interactive Stats**: Click stats to roll tests with automatic modifiers
+- **HP Tracking**: Visual HP bars with damage/heal buttons
+- **Character Persistence**: Characters saved to session, no need to recreate
 
 ### Threat-Based Mechanics
 - **Scene Shakeup**: Two-stage threat check with automatic calculation
@@ -59,6 +76,7 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - **Maximum Threat**: Pulsing red alert when Threat Die reaches 6
 - **Filled Danger Clocks**: Visual notification when consequences trigger
 - **Detailed Roll Logs**: All calculations shown in format `[d20] + [Threat] = total`
+- **Smooth Loading**: Unified loading screens prevent flashing during app initialization
 
 ### Context-Sensitive Help
 - **Keyboard Shortcut**: Press `H` or `?` for instant help
@@ -69,6 +87,7 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - Responsive button sizing and text wrapping
 - Touch-friendly interface on phones and tablets
 - Adaptive layout for all screen sizes
+- Capitalized class names for better readability
 
 ## 🚀 Quick Start
 
@@ -94,14 +113,66 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
    
    Create a new project at [supabase.com](https://supabase.com) and run this SQL:
    ```sql
+   -- Sessions table for game state
    create table sessions (
      room_code text primary key,
      game_state jsonb,
      created_at timestamp with time zone default now()
    );
 
+   -- Rooms table
+   create table rooms (
+     code text primary key,
+     gm_id uuid references auth.users(id),
+     created_at timestamp with time zone default now()
+   );
+
+   -- Characters table
+   create table characters (
+     id uuid primary key default gen_random_uuid(),
+     user_id uuid references auth.users(id),
+     room_code text references rooms(code),
+     name text,
+     class text,
+     class_name text,
+     species text,
+     stats jsonb,
+     hp_current integer,
+     hp_max integer,
+     equipment jsonb,
+     bits integer,
+     destiny_points integer,
+     class_features jsonb,
+     created_at timestamp with time zone default now(),
+     updated_at timestamp with time zone default now()
+   );
+
+   -- Admin profiles table for approval system
+   create table admin_profiles (
+     user_id uuid primary key references auth.users(id),
+     approved boolean default false,
+     created_at timestamp with time zone default now()
+   );
+
    -- Enable realtime updates
    alter publication supabase_realtime add table sessions;
+   alter publication supabase_realtime add table characters;
+
+   -- Enable Row Level Security
+   alter table rooms enable row level security;
+   alter table characters enable row level security;
+   alter table admin_profiles enable row level security;
+
+   -- RLS Policies (adjust as needed for your security requirements)
+   create policy "Users can view all rooms" on rooms for select using (true);
+   create policy "Users can create rooms" on rooms for insert with check (auth.uid() = gm_id);
+   
+   create policy "Users can view characters in their rooms" on characters for select using (true);
+   create policy "Users can create their own characters" on characters for insert with check (auth.uid() = user_id);
+   create policy "Users can update their own characters" on characters for update using (auth.uid() = user_id);
+   create policy "Users can delete their own characters" on characters for delete using (auth.uid() = user_id);
+   
+   create policy "Users can view their own profile" on admin_profiles for select using (auth.uid() = user_id);
    ```
 
 4. **Configure environment**
@@ -125,10 +196,29 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 
 ## 🎮 How to Use
 
+### First Time Setup
+1. Create an account using the authentication page
+2. Wait for admin approval (if approval system is enabled)
+3. Once approved, you'll be redirected to character creation
+
+### Creating Your Character
+1. On first login, you'll be prompted to create a character
+2. Select your class (Smuggler, Tech, Fighter, Psi, or Bot)
+3. Stats are automatically rolled using class-specific dice
+4. Your character is automatically saved to the session
+
 ### Starting a Session
 1. Load the app to generate a random 4-character room code
 2. Click **"Copy Invite"** to share the session URL with players
 3. All players with the same room code will see real-time updates
+4. Each player creates their own character in the shared session
+
+### Character Management
+- Click **character icon** in header to open your character sheet
+- View and edit stats, HP, equipment, bits, and destiny points
+- Click any stat to roll a test (d20 + modifier)
+- **Party Panel** shows all characters in the session
+- HP bars update in real-time for all party members
 
 ### Panel Layout
 - **Drag panels** between columns to customize your layout
@@ -187,6 +277,8 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 star-dashborg/
 ├── src/
 │   ├── components/
+│   │   ├── auth/             # Auth, PendingApproval
+│   │   ├── character/        # CharacterGenerator, CharacterSheetDrawer, PartyPanel, PartyMemberCard
 │   │   ├── journal/          # DiceLog, SessionJournal
 │   │   ├── layout/           # Dashboard, Header, Panel, GameFlowDrawer
 │   │   ├── oracles/          # Oracle systems and generators
@@ -198,16 +290,22 @@ star-dashborg/
 │   │   │   ├── AffirmationOracle.jsx
 │   │   │   └── DiceRoller.jsx
 │   │   ├── trackers/         # ThreatDie, MissionTrack, DangerClock, SiteExplorer
-│   │   └── ui/               # Button, Accordion, HelpModal, QuickReference
+│   │   └── ui/               # Button, Accordion, HelpModal, QuickReference, LoadingScreen
 │   ├── context/
+│   │   ├── AuthContext.jsx   # Authentication state management
+│   │   ├── CharacterContext.jsx  # Character data management
+│   │   ├── PartyContext.jsx  # Party members tracking
 │   │   └── GameContext.jsx   # Global game state management
 │   ├── data/
+│   │   ├── characterData.js  # Character classes and species data
 │   │   ├── oracles.js        # All oracle tables and generator functions
 │   │   └── trackerHelpContent.js  # Help content for tracker components
 │   ├── lib/
 │   │   ├── supabaseClient.js # Supabase configuration
 │   │   └── utils.js          # Utility functions
-│   ├── App.jsx               # Root component
+│   ├── types/
+│   │   └── starborg.js       # TypeScript-style type definitions
+│   ├── App.jsx               # Root component with auth flow
 │   ├── main.jsx              # React entry point
 │   └── index.css             # Global styles and custom animations
 ├── public/                   # Static assets
@@ -220,18 +318,20 @@ star-dashborg/
 ## 🛠️ Development
 
 ### Tech Stack
-- **React 18** - UI library
+- **React 18** - UI library with hooks
 - **Vite** - Build tool and dev server
 - **Tailwind CSS** - Utility-first styling
-- **Supabase** - Backend and real-time sync
+- **Supabase** - Backend, auth, and real-time sync
 - **Lucide React** - Icon library
 - **Orbitron Font** - Star Borg-style typography
 
 ### Key Technologies
-- **React Context** - Global state management for game data
-- **Supabase Realtime** - WebSocket-based multiplayer sync
+- **React Context** - Global state management for game data, auth, characters, and party
+- **Supabase Auth** - User authentication with approval workflow
+- **Supabase Realtime** - WebSocket-based multiplayer sync for characters and game state
 - **LocalStorage** - Panel layout and preferences persistence
 - **CSS Custom Properties** - Theme colors and effects
+- **Row Level Security** - Supabase RLS for data access control
 
 ### Code Style
 - Components use functional React with hooks

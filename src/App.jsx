@@ -1,15 +1,29 @@
 import { useEffect, useState } from 'react';
+import { useAuth } from './context/AuthContext';
+import { CharacterProvider, useCharacter } from './context/CharacterContext';
+import { PartyProvider } from './context/PartyContext';
 import { GameProvider } from './context/GameContext';
 import { supabase } from './lib/supabaseClient';
 import { generateRoomCode, getRoomFromURL, updateURLWithRoom } from './lib/utils';
 import Dashboard from './components/layout/Dashboard';
+import Auth from './components/auth/Auth';
+import PendingApproval from './components/auth/PendingApproval';
+import CharacterGenerator from './components/character/CharacterGenerator';
+import LoadingScreen from './components/ui/LoadingScreen';
 
 function App() {
+  const { session, loading: authLoading, approved, checkingApproval } = useAuth();
   const [roomCode, setRoomCode] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Only initialize room if user is authenticated
+    if (!session) {
+      setLoading(false);
+      return;
+    }
+
     async function initializeRoom() {
       try {
         // Check if room code is in URL
@@ -47,7 +61,19 @@ function App() {
     }
 
     async function createRoom(code) {
-      const { error } = await supabase.from('sessions').insert({
+      // First, create the room entry (required for foreign key)
+      const { error: roomError } = await supabase.from('rooms').insert({
+        code: code,
+        gm_id: session.user.id,
+      });
+
+      // Ignore duplicate key errors for rooms
+      if (roomError && roomError.code !== '23505') {
+        throw roomError;
+      }
+
+      // Then create the session
+      const { error: sessionError } = await supabase.from('sessions').insert({
         room_code: code,
         game_state: {
           threatDie: 1,
@@ -58,34 +84,46 @@ function App() {
         },
       });
 
-      if (error && error.code !== '23505') {
-        // Ignore duplicate key errors
-        throw error;
+      // Ignore duplicate key errors for sessions
+      if (sessionError && sessionError.code !== '23505') {
+        throw sessionError;
       }
     }
 
     initializeRoom();
-  }, []);
+  }, [session]);
 
+  // Show loading while checking auth
+  if (authLoading) {
+    return <LoadingScreen message="AUTHENTICATING" />;
+  }
+
+  // Show Auth component if not logged in
+  if (!session) {
+    return <Auth />;
+  }
+
+  // Check approval status
+  if (checkingApproval) {
+    return <LoadingScreen message="CHECKING ACCESS" />;
+  }
+
+  // Show pending approval if user is not approved
+  if (!approved) {
+    return <PendingApproval />;
+  }
+
+  // Show loading while initializing room
   if (loading) {
     return (
-      <div className="min-h-screen bg-bg-primary flex items-center justify-center scanlines">
-        <div className="text-center space-y-4">
-          <div className="text-accent-cyan text-3xl font-orbitron text-glow-cyan typewriter">
-            INITIALIZING SESSION
-          </div>
-          <div className="flex justify-center gap-1">
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></span>
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '150ms' }}></span>
-            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></span>
-          </div>
-          <div className="text-accent-yellow/50 text-sm font-mono mt-6">
-            {'>'} Establishing secure connection...<br />
-            {'>'} Loading rebel systems...<br />
-            {'>'} Syncing mission data...
-          </div>
-        </div>
-      </div>
+      <LoadingScreen
+        message="INITIALIZING SESSION"
+        details={[
+          'Establishing secure connection...',
+          'Loading rebel systems...',
+          'Syncing mission data...',
+        ]}
+      />
     );
   }
 
@@ -99,6 +137,37 @@ function App() {
     );
   }
 
+  return (
+    <CharacterProvider userId={session.user.id} roomCode={roomCode}>
+      <PartyProvider roomCode={roomCode}>
+        <AppContent roomCode={roomCode} />
+      </PartyProvider>
+    </CharacterProvider>
+  );
+}
+
+// Inner component that uses CharacterContext
+function AppContent({ roomCode }) {
+  const { character, loading: characterLoading } = useCharacter();
+
+  // Show loading screen while character state is being determined
+  if (characterLoading) {
+    return <LoadingScreen message="LOADING CHARACTER" />;
+  }
+
+  // Only show CharacterGenerator if loading is complete AND character is confirmed null
+  // This prevents the flash when character is still being loaded
+  if (!characterLoading && character === null) {
+    return (
+      <div className="min-h-screen bg-bg-primary p-4 md:p-8 scanlines">
+        <div className="max-w-6xl mx-auto">
+          <CharacterGenerator />
+        </div>
+      </div>
+    );
+  }
+
+  // Has character - show dashboard
   return (
     <GameProvider roomCode={roomCode}>
       <Dashboard roomCode={roomCode} />

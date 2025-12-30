@@ -1,0 +1,671 @@
+import { useState } from 'react';
+import { CHARACTER_CLASSES, SPECIES } from '../../types/starborg';
+import { 
+  rollStatWithModifier, 
+  rollHP, 
+  rollDestinyPoints, 
+  rollD, 
+  rollTable 
+} from '../../utils/dice';
+import { characterOracles } from '../../data/oracles';
+import {
+  botData,
+  bountyHunterData,
+  magiKnightData,
+  smugglerData,
+  technicianData,
+  youngsterData
+} from '../../data/characterData';
+import { useCharacter } from '../../context/CharacterContext';
+import Button from '../ui/Button';
+import { RefreshCw, Plus, Trash2, Save, Dices } from 'lucide-react';
+
+const classData = {
+  bot: botData,
+  bountyHunter: bountyHunterData,
+  magiKnight: magiKnightData,
+  smuggler: smugglerData,
+  technician: technicianData,
+  youngster: youngsterData
+};
+
+export default function CharacterGenerator({ onSave, onCancel }) {
+  const { saveCharacter } = useCharacter();
+  const [step, setStep] = useState(1); // 1: class selection, 2: generating, 3: results
+  const [selectedClass, setSelectedClass] = useState(null);
+  const [character, setCharacter] = useState(null);
+  const [editMode, setEditMode] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  // Format modifier with +/- prefix (show + for positive, nothing for zero, - already included)
+  const formatModifier = (value) => {
+    if (value > 0) return `+${value}`;
+    return `${value}`;
+  };
+
+  // Generate complete character
+  const generateCharacter = (classId) => {
+    setGenerating(true);
+    setStep(2);
+
+    // Simulate generation delay for animation
+    setTimeout(() => {
+      const classInfo = CHARACTER_CLASSES[classId];
+      const isBot = classId === 'bot';
+
+      // Roll stats with class modifiers
+      const stats = {
+        agi: classInfo.statModifiers?.agi 
+          ? rollStatWithModifier(
+              classInfo.statModifiers.agi.count,
+              classInfo.statModifiers.agi.sides,
+              classInfo.statModifiers.agi.modifier
+            )
+          : rollStatWithModifier(3, 6, 0),
+        knw: classInfo.statModifiers?.knw
+          ? rollStatWithModifier(
+              classInfo.statModifiers.knw.count,
+              classInfo.statModifiers.knw.sides,
+              classInfo.statModifiers.knw.modifier
+            )
+          : rollStatWithModifier(3, 6, 0),
+        prs: classInfo.statModifiers?.prs
+          ? rollStatWithModifier(
+              classInfo.statModifiers.prs.count,
+              classInfo.statModifiers.prs.sides,
+              classInfo.statModifiers.prs.modifier
+            )
+          : rollStatWithModifier(3, 6, 0),
+        str: classInfo.statModifiers?.str
+          ? rollStatWithModifier(
+              classInfo.statModifiers.str.count,
+              classInfo.statModifiers.str.sides,
+              classInfo.statModifiers.str.modifier
+            )
+          : rollStatWithModifier(3, 6, 0),
+      };
+
+      // Roll HP
+      const hp = rollHP(stats.str, classInfo.hpDice);
+
+      // Roll destiny points
+      const destiny = rollDestinyPoints(classInfo.destinyDice);
+
+      // Roll species (skip for Bot)
+      const species = isBot ? 'Bot' : SPECIES[rollD(10) - 1].name;
+
+      // Roll bits
+      const bitsRoll = rollD(6);
+      const bits = bitsRoll >= 4 ? rollD(6) : 0;
+
+      // Roll equipment (3 Bobs)
+      const equipment = [
+        characterOracles.bobsWeapons[rollD(6) - 1],
+        characterOracles.bobsArmor[rollD(6) - 1],
+        characterOracles.bobsGear[rollD(6) - 1],
+      ];
+
+      // Roll class-specific features
+      const classFeatures = rollClassFeatures(classId);
+
+      const newCharacter = {
+        name: '',
+        class: classId,
+        className: classInfo.name,
+        species,
+        stats,
+        hp_max: hp,
+        hp_current: hp,
+        destinyPoints: destiny,
+        bits,
+        equipment,
+        classFeatures,
+      };
+
+      setCharacter(newCharacter);
+      setGenerating(false);
+      setStep(3);
+    }, 1500);
+  };
+
+  // Roll class-specific features
+  const rollClassFeatures = (classId) => {
+    const data = classData[classId];
+    const features = {};
+
+    switch (classId) {
+      case 'bot':
+        features.function = data.functions[rollD(6) - 1];
+        features.malfunction = data.malfunctions[rollD(6) - 1];
+        features.upgrade = data.upgrades[rollD(6) - 1];
+        break;
+      case 'bountyHunter':
+        features.skill = data.skills[rollD(6) - 1];
+        features.heirloom = data.heirlooms[rollD(6) - 1];
+        features.softSpot = data.softSpots[rollD(6) - 1];
+        break;
+      case 'magiKnight':
+        features.art = data.arts[rollD(4) - 1];
+        features.nemesis = data.dragoonNemeses[rollD(6) - 1];
+        features.identity = data.burnerIdentities[rollD(6) - 1];
+        break;
+      case 'smuggler':
+        features.trick = data.tricks[rollD(6) - 1];
+        features.contraband = data.contraband[rollD(6) - 1];
+        features.crimeLord = data.crimeLords[rollD(6) - 1];
+        break;
+      case 'technician':
+        features.scratchBuild = data.scratchBuilds[rollD(6) - 1];
+        features.hyperFixation = data.hyperFixations[rollD(6) - 1];
+        break;
+      case 'youngster':
+        features.tragedy = data.tragedies[rollD(6) - 1];
+        features.heirloom = data.heirlooms[rollD(6) - 1];
+        features.knack = data.knacks[rollD(6) - 1];
+        break;
+    }
+
+    return features;
+  };
+
+  // Handle class selection
+  const handleClassSelect = (classId) => {
+    setSelectedClass(classId);
+    generateCharacter(classId);
+  };
+
+  // Reroll entire character
+  const handleReroll = () => {
+    setStep(1);
+    setSelectedClass(null);
+    setCharacter(null);
+    setEditMode(false);
+  };
+
+  // Save character to Supabase
+  const handleSaveCharacter = async () => {
+    if (!character) return;
+
+    try {
+      setSaving(true);
+      await saveCharacter(character);
+      
+      // Call optional onSave callback if provided
+      if (onSave) {
+        onSave(character);
+      }
+      
+      // Character context will update, triggering App to show Dashboard
+    } catch (error) {
+      console.error('Failed to save character:', error);
+      alert('Failed to save character. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Update character field
+  const updateCharacter = (field, value) => {
+    setCharacter(prev => ({ ...prev, [field]: value }));
+  };
+
+  // Update nested stat
+  const updateStat = (statName, value) => {
+    const clamped = Math.max(-3, Math.min(3, parseInt(value) || 0));
+    setCharacter(prev => ({
+      ...prev,
+      stats: { ...prev.stats, [statName]: clamped }
+    }));
+  };
+
+  // Reroll single stat
+  const rerollStat = (statName) => {
+    const classInfo = CHARACTER_CLASSES[character.class];
+    const modifier = classInfo.statModifiers?.[statName];
+    
+    const newValue = modifier
+      ? rollStatWithModifier(modifier.count, modifier.sides, modifier.modifier)
+      : rollStatWithModifier(3, 6, 0);
+    
+    updateStat(statName, newValue);
+  };
+
+  // Add equipment item
+  const addEquipment = () => {
+    setCharacter(prev => ({
+      ...prev,
+      equipment: [...prev.equipment, 'New Item']
+    }));
+  };
+
+  // Remove equipment item
+  const removeEquipment = (index) => {
+    setCharacter(prev => ({
+      ...prev,
+      equipment: prev.equipment.filter((_, i) => i !== index)
+    }));
+  };
+
+  // Update equipment item
+  const updateEquipment = (index, value) => {
+    setCharacter(prev => ({
+      ...prev,
+      equipment: prev.equipment.map((item, i) => i === index ? value : item)
+    }));
+  };
+
+  // Reroll class feature
+  const rerollClassFeature = (featureName) => {
+    const data = classData[character.class];
+    let newFeature;
+
+    switch (featureName) {
+      case 'function':
+        newFeature = data.functions[rollD(6) - 1];
+        break;
+      case 'malfunction':
+        newFeature = data.malfunctions[rollD(6) - 1];
+        break;
+      case 'upgrade':
+        newFeature = data.upgrades[rollD(6) - 1];
+        break;
+      case 'skill':
+        newFeature = data.skills[rollD(6) - 1];
+        break;
+      case 'heirloom':
+        newFeature = data.heirlooms[rollD(6) - 1];
+        break;
+      case 'softSpot':
+        newFeature = data.softSpots[rollD(6) - 1];
+        break;
+      case 'art':
+        newFeature = data.arts[rollD(4) - 1];
+        break;
+      case 'nemesis':
+        newFeature = data.dragoonNemeses[rollD(6) - 1];
+        break;
+      case 'identity':
+        newFeature = data.burnerIdentities[rollD(6) - 1];
+        break;
+      case 'trick':
+        newFeature = data.tricks[rollD(6) - 1];
+        break;
+      case 'contraband':
+        newFeature = data.contraband[rollD(6) - 1];
+        break;
+      case 'crimeLord':
+        newFeature = data.crimeLords[rollD(6) - 1];
+        break;
+      case 'scratchBuild':
+        newFeature = data.scratchBuilds[rollD(6) - 1];
+        break;
+      case 'hyperFixation':
+        newFeature = data.hyperFixations[rollD(6) - 1];
+        break;
+      case 'tragedy':
+        newFeature = data.tragedies[rollD(6) - 1];
+        break;
+      case 'knack':
+        newFeature = data.knacks[rollD(6) - 1];
+        break;
+    }
+
+    setCharacter(prev => ({
+      ...prev,
+      classFeatures: { ...prev.classFeatures, [featureName]: newFeature }
+    }));
+  };
+
+  // STEP 1: Class Selection
+  if (step === 1) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center space-y-2">
+          <h2 className="text-3xl font-orbitron font-bold text-accent-cyan text-glow-cyan">
+            CREATE REBEL CHARACTER
+          </h2>
+          <p className="text-text-secondary font-mono text-sm">
+            {'>'} SELECT YOUR CLASS
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Object.entries(CHARACTER_CLASSES).map(([id, classInfo]) => (
+            <button
+              key={id}
+              onClick={() => handleClassSelect(id)}
+              className="bg-bg-secondary border-2 border-accent-cyan/30 p-4 rounded hover:border-accent-cyan hover:shadow-[0_0_20px_rgba(0,240,255,0.4)] transition-all duration-200 text-left group"
+            >
+              <h3 className="font-orbitron font-bold text-accent-yellow text-lg mb-2 group-hover:text-glow-yellow">
+                {classInfo.name}
+              </h3>
+              <p className="text-text-secondary text-xs font-mono mb-3 line-clamp-3">
+                {classInfo.description}
+              </p>
+              <div className="text-accent-cyan text-xs font-mono space-y-1">
+                {Object.entries(classInfo.statModifiers || {}).map(([stat, mod]) => (
+                  <div key={stat}>
+                    {stat.toUpperCase()}: {mod.count}d{mod.sides}
+                    {mod.modifier !== 0 && (mod.modifier > 0 ? `+${mod.modifier}` : mod.modifier)}
+                  </div>
+                ))}
+                <div className="text-text-secondary">
+                  HP: {classInfo.hpDice.count}d{classInfo.hpDice.sides}
+                  {classInfo.hpDice.modifier !== 0 && `+${classInfo.hpDice.modifier}`}
+                  {id !== 'bot' && ' + STR'}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {onCancel && (
+          <div className="text-center">
+            <Button onClick={onCancel} variant="ghost">
+              CANCEL
+            </Button>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  // STEP 2: Generating Animation
+  if (step === 2) {
+    return (
+      <div className="min-h-[400px] flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <Dices className="w-16 h-16 text-accent-cyan mx-auto dice-rolling" />
+          <div className="text-2xl font-orbitron text-accent-cyan text-glow-cyan typewriter">
+            GENERATING CHARACTER
+          </div>
+          <div className="flex justify-center gap-1">
+            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '0ms' }}></span>
+            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '150ms' }}></span>
+            <span className="w-2 h-2 bg-accent-cyan rounded-full animate-pulse" style={{ animationDelay: '300ms' }}></span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // STEP 3: Character Sheet with Editing
+  if (step === 3 && character) {
+    return (
+      <div className="space-y-6 fade-in">
+        {/* Header */}
+        <div className="flex items-center justify-between">
+          <h2 className="text-2xl font-orbitron font-bold text-accent-yellow text-glow-yellow">
+            {character.className || 'CHARACTER'}
+          </h2>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setEditMode(!editMode)}
+              variant={editMode ? 'secondary' : 'ghost'}
+              className="text-xs"
+            >
+              {editMode ? 'DONE EDITING' : 'EDIT MODE'}
+            </Button>
+            <Button onClick={handleReroll} variant="ghost" className="text-xs">
+              <RefreshCw className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+
+        {/* Name */}
+        <div>
+          <label className="block text-xs font-mono text-text-secondary mb-1">NAME</label>
+          <input
+            type="text"
+            value={character.name}
+            onChange={(e) => updateCharacter('name', e.target.value)}
+            placeholder="Enter rebel name..."
+            className="w-full bg-bg-secondary border border-accent-cyan/30 rounded px-3 py-2 text-text-primary font-mono focus:outline-none focus:border-accent-cyan focus:shadow-[0_0_10px_rgba(0,240,255,0.4)] transition-all"
+          />
+        </div>
+
+        {/* Stats */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-orbitron text-accent-cyan uppercase">Ability Scores</h3>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {Object.entries(character.stats).map(([statName, value]) => (
+              <div key={statName} className="bg-bg-secondary border border-accent-cyan/30 rounded p-3">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-xs font-mono text-text-secondary uppercase">{statName}</span>
+                  <button
+                    onClick={() => rerollStat(statName)}
+                    className="text-accent-yellow hover:text-accent-yellow/80 transition-colors"
+                    title="Reroll"
+                  >
+                    <Dices className="w-3 h-3" />
+                  </button>
+                </div>
+                <div className="flex items-center gap-2">
+                  {editMode && (
+                    <button
+                      onClick={() => updateStat(statName, value - 1)}
+                      className="text-accent-cyan hover:text-accent-cyan/80 text-lg font-bold"
+                    >
+                      -
+                    </button>
+                  )}
+                  {editMode ? (
+                    <input
+                      type="number"
+                      value={value}
+                      onChange={(e) => updateStat(statName, e.target.value)}
+                      min="-3"
+                      max="3"
+                      className={`w-full text-center text-xl font-orbitron font-bold ${
+                        value >= 2 ? 'text-accent-green' :
+                        value >= 1 ? 'text-accent-cyan' :
+                        value === 0 ? 'text-text-primary' :
+                        value >= -1 ? 'text-accent-yellow' :
+                        'text-accent-red'
+                      } bg-transparent border-0 focus:outline-none cursor-text`}
+                    />
+                  ) : (
+                    <div className={`w-full text-center text-xl font-orbitron font-bold ${
+                      value >= 2 ? 'text-accent-green' :
+                      value >= 1 ? 'text-accent-cyan' :
+                      value === 0 ? 'text-text-primary' :
+                      value >= -1 ? 'text-accent-yellow' :
+                      'text-accent-red'
+                    }`}>
+                      {formatModifier(value)}
+                    </div>
+                  )}
+                  {editMode && (
+                    <button
+                      onClick={() => updateStat(statName, value + 1)}
+                      className="text-accent-cyan hover:text-accent-cyan/80 text-lg font-bold"
+                    >
+                      +
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* HP & Destiny */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="bg-bg-secondary border border-accent-cyan/30 rounded p-3">
+            <label className="block text-xs font-mono text-text-secondary mb-1">HP MAX</label>
+            <input
+              type="number"
+              value={character.hp_max}
+              onChange={(e) => updateCharacter('hp_max', Math.max(1, parseInt(e.target.value) || 1))}
+              readOnly={!editMode}
+              min="1"
+              className="w-full text-2xl font-orbitron font-bold text-accent-red bg-transparent border-0 focus:outline-none"
+            />
+          </div>
+          <div className="bg-bg-secondary border border-accent-cyan/30 rounded p-3">
+            <label className="block text-xs font-mono text-text-secondary mb-1">HP CURRENT</label>
+            <input
+              type="number"
+              value={character.hp_current}
+              onChange={(e) => updateCharacter('hp_current', Math.max(0, parseInt(e.target.value) || 0))}
+              readOnly={!editMode}
+              min="0"
+              className="w-full text-2xl font-orbitron font-bold text-accent-red bg-transparent border-0 focus:outline-none"
+            />
+          </div>
+          <div className="bg-bg-secondary border border-accent-cyan/30 rounded p-3">
+            <label className="block text-xs font-mono text-text-secondary mb-1">DESTINY POINTS</label>
+            <input
+              type="number"
+              value={character.destinyPoints}
+              onChange={(e) => updateCharacter('destinyPoints', Math.max(0, parseInt(e.target.value) || 0))}
+              readOnly={!editMode}
+              min="0"
+              className="w-full text-2xl font-orbitron font-bold text-accent-yellow bg-transparent border-0 focus:outline-none"
+            />
+          </div>
+        </div>
+
+        {/* Species & Bits */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-mono text-text-secondary mb-1">SPECIES</label>
+            {editMode ? (
+              <select
+                value={character.species}
+                onChange={(e) => updateCharacter('species', e.target.value)}
+                className="w-full bg-bg-secondary border border-accent-cyan/30 rounded px-3 py-2 text-text-primary font-mono focus:outline-none focus:border-accent-cyan"
+              >
+                {character.class === 'bot' ? (
+                  <option value="Bot">Bot</option>
+                ) : (
+                  SPECIES.map(species => (
+                    <option key={species.id} value={species.name}>{species.name}</option>
+                  ))
+                )}
+              </select>
+            ) : (
+              <div className="bg-bg-secondary border border-accent-cyan/30 rounded px-3 py-2 text-text-primary font-mono">
+                {character.species}
+              </div>
+            )}
+          </div>
+          <div>
+            <label className="block text-xs font-mono text-text-secondary mb-1">BITS ∆</label>
+            <input
+              type="number"
+              value={character.bits}
+              onChange={(e) => updateCharacter('bits', Math.max(0, parseInt(e.target.value) || 0))}
+              readOnly={!editMode}
+              min="0"
+              className="w-full bg-bg-secondary border border-accent-cyan/30 rounded px-3 py-2 text-text-primary font-mono focus:outline-none focus:border-accent-cyan"
+            />
+          </div>
+        </div>
+
+        {/* Equipment */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-sm font-orbitron text-accent-cyan uppercase">Equipment</h3>
+            {editMode && (
+              <button
+                onClick={addEquipment}
+                className="text-accent-yellow hover:text-accent-yellow/80 transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          <div className="space-y-2">
+            {character.equipment.map((item, index) => (
+              <div key={index} className="flex items-center gap-2">
+                {editMode && (
+                  <button
+                    onClick={() => removeEquipment(index)}
+                    className="text-accent-red hover:text-accent-red/80 transition-colors"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                )}
+                <input
+                  type="text"
+                  value={item}
+                  onChange={(e) => updateEquipment(index, e.target.value)}
+                  readOnly={!editMode}
+                  className={`flex-1 bg-bg-secondary border ${editMode ? 'border-accent-cyan/50 border-dashed' : 'border-accent-cyan/30'} rounded px-3 py-2 text-text-primary font-mono text-sm focus:outline-none focus:border-accent-cyan`}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Class Features */}
+        {character.classFeatures && (
+          <div>
+            <h3 className="text-sm font-orbitron text-accent-cyan uppercase mb-2">Class Features</h3>
+            <div className="space-y-3">
+              {Object.entries(character.classFeatures).map(([key, value]) => (
+                <div key={key} className="bg-bg-secondary border border-accent-yellow/30 rounded p-3">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-mono text-accent-yellow uppercase">{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                    <button
+                      onClick={() => rerollClassFeature(key)}
+                      className="text-accent-cyan hover:text-accent-cyan/80 transition-colors"
+                      title="Reroll"
+                    >
+                      <Dices className="w-3 h-3" />
+                    </button>
+                  </div>
+                  <div className="text-text-primary text-sm font-mono">
+                    {typeof value === 'object' ? (
+                      <>
+                        <div className="font-bold text-accent-yellow">{value.name}</div>
+                        <div className="text-text-secondary text-xs mt-1">{value.description}</div>
+                      </>
+                    ) : (
+                      value
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Actions */}
+        <div className="flex gap-3 pt-4 border-t border-accent-cyan/20">
+          <Button 
+            onClick={handleReroll} 
+            variant="ghost" 
+            className="flex-1"
+            disabled={saving}
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            REROLL ALL
+          </Button>
+          <Button
+            onClick={handleSaveCharacter}
+            variant="primary"
+            className="flex-1"
+            disabled={saving || !character?.name}
+          >
+            <Save className="w-4 h-4 mr-2" />
+            {saving ? 'SAVING...' : 'KEEP CHARACTER'}
+          </Button>
+        </div>
+        
+        {/* Name requirement warning */}
+        {character && !character.name && (
+          <div className="text-accent-yellow text-xs font-mono text-center mt-2">
+            {'>'} Enter a name to save character
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  return null;
+}

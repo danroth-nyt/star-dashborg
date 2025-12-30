@@ -1,11 +1,13 @@
-import { Copy, Check, Plus, BookOpen, BookMarked } from 'lucide-react';
+import { Copy, Check, Plus, BookOpen, BookMarked, User } from 'lucide-react';
 import { useState } from 'react';
 import Button from '../ui/Button';
 import { generateRoomCode } from '../../lib/utils';
 import GameFlowDrawer from './GameFlowDrawer';
 import QuickReferenceDrawer from '../ui/QuickReferenceDrawer';
+import { useCharacter } from '../../context/CharacterContext';
 
-export default function Header({ roomCode }) {
+export default function Header({ roomCode, onOpenCharacterSheet }) {
+  const { character } = useCharacter();
   const [copied, setCopied] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isRefOpen, setIsRefOpen] = useState(false);
@@ -39,6 +41,17 @@ export default function Header({ roomCode }) {
             
             {/* Guide Buttons - moves to new line on mobile */}
             <div className="hidden md:flex items-center gap-2">
+              {character && onOpenCharacterSheet && (
+                <Button
+                  variant="primary"
+                  onClick={onOpenCharacterSheet}
+                  className="flex items-center gap-2"
+                  title={character.name || 'Character Sheet'}
+                >
+                  <User className="w-4 h-4" />
+                  <span className="max-w-[100px] truncate">{character.name || 'Character'}</span>
+                </Button>
+              )}
               <Button
                 variant="primary"
                 onClick={() => setIsGuideOpen(true)}
@@ -97,7 +110,18 @@ export default function Header({ roomCode }) {
           </div>
 
           {/* Guide Buttons for mobile - full width on new line */}
-          <div className="md:hidden w-full grid grid-cols-2 gap-2">
+          <div className={`md:hidden w-full grid gap-2 ${character && onOpenCharacterSheet ? 'grid-cols-3' : 'grid-cols-2'}`}>
+            {character && onOpenCharacterSheet && (
+              <Button
+                variant="primary"
+                onClick={onOpenCharacterSheet}
+                className="flex items-center justify-center gap-2"
+                title={character.name || 'Character Sheet'}
+              >
+                <User className="w-4 h-4" />
+                <span className="truncate">{character.name || 'Char'}</span>
+              </Button>
+            )}
             <Button
               variant="primary"
               onClick={() => setIsGuideOpen(true)}
