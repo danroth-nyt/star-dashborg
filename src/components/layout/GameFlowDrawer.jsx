@@ -12,6 +12,7 @@ import {
   generateEpicTitle,
   generateEpisodeTitle,
   generateVillain,
+  generateMission,
   generateQuickMission,
   generateScene,
   generateNPC,
@@ -63,7 +64,7 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
       description: "Roll on the Epic and Damn Fool Idealistic Crusade Tables to determine your Rebel's main goal to save the galaxy.",
       actions: [
         { label: "Generate Epic Title", specific: "epicTitle" },
-        { label: "Generate Villain", specific: "villain" }
+        { label: "Generate Villain Plot", specific: "villain" }
       ]
     },
     {
@@ -206,8 +207,8 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
         break;
 
       case 'mission':
-        result = generateQuickMission();
-        logMessage = `Mission: ${result.action} ${result.target}`;
+        result = generateMission();
+        logMessage = `Mission [${result.typeRoll}, ${result.goodsRoll}, ${result.spotRoll}, ${result.rewardRoll}]: ${result.type} ${result.goods} ${result.spot} for ${result.reward}`;
         break;
 
       case 'openingScene':

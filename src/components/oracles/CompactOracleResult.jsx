@@ -90,6 +90,28 @@ export default function CompactOracleResult({ result, variant = 'cyan', onDismis
           </div>
         )}
 
+        {/* Detailed Mission */}
+        {result.type && result.typeRoll && (
+          <div className="space-y-1 text-xs">
+            <div>
+              <span className="text-gray-400">Type [{result.typeRoll}]:</span>{' '}
+              <span className={cn('font-bold', textColors[variant])}>{result.type}</span>
+            </div>
+            <div>
+              <span className="text-gray-400">Goods [{result.goodsRoll}]:</span>{' '}
+              <span className={textColors[variant]}>{result.goods}</span>
+            </div>
+            <div>
+              <span className="text-gray-400">Spot [{result.spotRoll}]:</span>{' '}
+              <span className={textColors[variant]}>{result.spot}</span>
+            </div>
+            <div>
+              <span className="text-gray-400">Reward [{result.rewardRoll}]:</span>{' '}
+              <span className="text-accent-yellow">{result.reward}</span>
+            </div>
+          </div>
+        )}
+
         {/* Quick Mission */}
         {result.action && result.target && (
           <div className="space-y-1 text-xs">
