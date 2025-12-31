@@ -2,7 +2,191 @@
 
 All notable changes to Star Dashborg are documented in this file.
 
-## [Unreleased] - feat/game-flow-enhancements branch
+## [Unreleased] - feat/campaign-gen-enhancements branch
+
+### 🎯 Character Progression System
+
+#### ✨ Major Features
+- **Galaxy Save Tracker**: Party-wide progression mechanic
+  - Track galaxies saved across entire party
+  - Increment/decrement controls with validation
+  - Real-time promotion availability alerts
+  - Shows count of party members ready to promote
+  - Integrated into Party Panel for easy access
+  
+- **Character Promotions**: Rank advancement based on galaxies saved
+  - Automatic promotion detection when galaxies saved > claimed promotions
+  - `ProgressionModal` with comprehensive advancement options
+  - HP increase (roll D6) with current HP healing
+  - Choose two ability scores to increase (+1 each, max +6)
+  - Select class-specific advancement ability:
+    - Bot: This Means War, Portable Bot Mind, Legion Transmission
+    - Bounty Hunter: Inheritance, This Is The Way, Friends In Low Places
+    - Magi Knight: Strike Me Down, Foresight, High Ground
+    - Smuggler: Delusions of Grandeur, Be Bygones, Always Shoots First
+    - Technician: More Machine, Superweapon Savant, Always Carry A Spare
+    - Youngster: Rebel Renown, Awakening, Pretty Handy
+  - Advancement abilities roll features (heirlooms, skills, functions, companions)
+  - Visual promotion alerts in character sheet header
+  - Unclaimed promotions badge with animated pulse
+  - `progressionData.js` with complete advancement system
+  
+- **Character Respec**: Reset character to base values
+  - Orange-themed "Respec Character" button in Danger Zone
+  - Comprehensive confirmation modal with impact summary
+  - Resets stats to original rolled values (`base_stats`)
+  - Resets HP to starting HP (`base_hp_max`)
+  - Clears all advancement abilities
+  - Resets `galaxy_saves_claimed` to 0
+  - Shows available galaxy saves for re-promotion
+  - Handles legacy characters without base values
+  - Database migration: `migrations/add_respec_columns.sql`
+
+#### 🗄️ Database Schema Updates
+```sql
+-- Character progression tracking
+ALTER TABLE characters ADD COLUMN galaxy_saves_claimed integer DEFAULT 0;
+ALTER TABLE characters ADD COLUMN advancement_options jsonb DEFAULT '[]'::jsonb;
+ALTER TABLE characters ADD COLUMN motivation text;
+
+-- Character respec support
+ALTER TABLE characters ADD COLUMN base_stats jsonb;
+ALTER TABLE characters ADD COLUMN base_hp_max integer;
+```
+
+### 🔮 Extended Oracle Systems
+
+#### ✨ Perilous Void Integration
+- **10 New Opening Scenes**: "Explosive Opening Scenes" from Perilous Void
+  - Spaceship Battle, Death Station Escape, Hot Pursuit, Prison Break
+  - Rebels Under Fire, Battle Station Defection, and more
+  - Each with 3 follow-up questions for depth
+  - Deduplication: Skips Star Borg "Bounty Hunter" when PV enabled
+  
+- **10 Inciting Incidents**: "Mission Hooks" from Perilous Void
+  - Rescue missions, infiltration, artifact recovery, and more
+  - Rich detail with locations, enemies, and complications
+  
+- **Content Toggle**: Enable/disable Perilous Void in Settings
+  - `includePVOracles` flag in GameContext
+  - Dynamic die size adjustment (d20 vs d29 for opening scenes)
+  - Smart duplicate handling
+
+#### ✨ Starforged Integration
+- **19 Inciting Incidents**: Campaign starts from Ironsworn: Starforged
+  - Aid stranded starships, broker peace, chart passages
+  - Defend settlements, investigate mysteries, escort cargo
+  - Sabotage operations, track beasts, transport refugees
+  - Prison break duplicate excluded when PV enabled
+  
+- **Content Toggle**: Enable/disable Starforged in Settings
+  - `includeStarforgedOracles` flag in GameContext
+  - Dynamic die combinations:
+    - PV only: d10
+    - SF only: d19
+    - Both: d28 (intelligent duplicate removal)
+  
+- **Unified Mission Generator**: All three sources integrated
+  - Star Borg (20) + Perilous Void (10) + Starforged (19)
+  - Settings drawer shows ACTIVE badges for enabled sources
+  - Conditional generation based on toggles
+
+#### 🎲 Enhanced Oracle Mechanics
+- **Two-Stage Scene Shakeup**: Threat Die integration
+  - Stage 1: d20 + Threat Die vs DC 15
+  - Stage 2 (if triggered): d20 + Threat Die on shakeup table
+  - Detailed log output: `[d20] + [Threat] = Total`
+  - "No shakeup" result when check fails
+  
+- **Two-Stage Travel Encounter**: Threat Die integration
+  - Stage 1: d20 + Threat Die vs DC 12
+  - Stage 2 (if triggered): Roll theme + actor
+  - Detailed log output with check results
+  - "No encounter" result when check fails
+
+### 📚 Content Sources Management
+
+#### ✨ Settings Drawer Enhancements
+- **Content Sources Section**: Toggle external oracle content
+  - Perilous Void checkbox with ACTIVE badge
+  - Starforged checkbox with ACTIVE badge
+  - Clear descriptions of content added
+  - Real-time updates to oracle generators
+  
+- **Visual Indicators**: 
+  - Green "ACTIVE" badges for enabled sources
+  - Entry counts shown ("Adds 10 opening scenes")
+  - Organized sections for better UX
+
+### 🎮 Threat Die Enhancements
+
+#### ✨ Maximum Threat Alerts
+- **Visual Warning**: Pulsing glow effect when Threat Die = 6
+- **Inline Alert Box**: Automatic display at max threat
+  - AlertTriangle icon with danger styling
+  - Two consequence options clearly listed:
+    - Advance ALL Danger Clocks by 1
+    - Completely fill ONE Danger Clock
+  - Animated pulse effect draws attention
+  - Positioned directly below Threat Die
+
+### 🎨 UI/UX Improvements
+
+#### ✨ Button Component Updates
+- **Responsive Sizing**: Mobile-friendly button sizing
+  - `px-3 sm:px-4` horizontal padding scales with screen
+  - `text-xs sm:text-sm` font size adjusts for mobile
+  - `leading-tight` prevents text overflow
+  
+- **Improved Touch Targets**: Better mobile interaction
+  - Adequate padding on small screens
+  - Active state feedback with scale transform
+  
+#### ✨ Terminology Updates
+- **"FUMBLE" vs "FAILURE"**: More thematic critical fail text
+  - Oracle roll results now show "✕ FUMBLE ✕" instead of "✕ FAILURE ✕"
+  - Consistent with tabletop RPG terminology
+
+### 🐛 Bug Fixes
+
+#### Event Oracle
+- **Missing Specific Field**: Added `.specific` to event log output
+  - Now logs: `Event (roll): [verb] [subject] - [specific]`
+  - Previously omitted the specific detail
+
+#### Session Journal
+- **Visual Spacing Fix**: Removed extra padding-bottom from save indicator
+  - Cleaner, more compact journal footer
+
+### 📁 Code Organization
+
+#### ✨ New Files Created
+- `src/data/perilousVoidOracles.js` - PV oracle tables and generators
+- `src/data/starforgedOracles.js` - Starforged oracle tables and generators
+- `src/data/progressionData.js` - Character advancement system
+- `migrations/add_respec_columns.sql` - Database migration for respec feature
+- `.cursor/plans/perilous_void_oracle_integration_402b3f4a.plan.md` - PV integration plan
+- `.cursor/plans/starforged_+_duplicate_handling_1b05ebfe.plan.md` - SF integration plan
+- `.cursor/plans/character_respec_button_353df8ab.plan.md` - Respec feature plan
+
+#### 🔧 Modified Files
+- `src/context/GameContext.jsx` - Added PV/SF toggles, galaxy saves
+- `src/context/CharacterContext.jsx` - Added respec function, promotion claiming
+- `src/components/character/CharacterGenerator.jsx` - Store base values
+- `src/components/character/CharacterSheetDrawer.jsx` - Respec UI, promotions
+- `src/components/trackers/GalaxySaveTracker.jsx` - Galaxy save tracking
+- `src/components/trackers/ThreatDie.jsx` - Max threat warning
+- `src/components/oracles/OracleQuickBar.jsx` - Two-stage checks
+- `src/components/oracles/generators/NPCGenerator.jsx` - Two-stage encounters
+- `src/components/oracles/RollResult.jsx` - Fumble terminology
+- `src/components/layout/SettingsDrawer.jsx` - Content source toggles
+- `src/components/ui/Button.jsx` - Responsive sizing
+- `src/data/oracles.js` - PV/SF integration logic
+- `README.md` - Updated database schema, feature documentation
+
+---
+
+## [Previous] - feat/game-flow-enhancements branch
 
 ### 🎮 Desktop Optimization & UI Polish
 
