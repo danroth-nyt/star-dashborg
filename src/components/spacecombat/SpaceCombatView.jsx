@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Zap, Volume2, VolumeX } from 'lucide-react';
+import { X, Volume2, VolumeX } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
 import { useParty } from '../../context/PartyContext';
 import { useSoundEffects } from '../../hooks/useSoundEffects';
@@ -7,7 +7,6 @@ import Button from '../ui/Button';
 import ShipStatus from './ShipStatus';
 import StationGrid from './StationGrid';
 import CombatLog from './CombatLog';
-import SpaceCombatShipPanel from './SpaceCombatShipPanel';
 
 export default function SpaceCombatView() {
   const { spaceCombat, exitCombat } = useSpaceCombat();
@@ -98,44 +97,11 @@ export default function SpaceCombatView() {
 
         {/* Combat Interface */}
         <div className="flex-1 p-4 lg:p-6">
-          <div className="max-w-7xl mx-auto">
+            <div className="max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
-              {/* Left Column - Ship Status & Upgrades */}
+              {/* Left Column - Unified Ship Panel */}
               <div className="lg:col-span-4 space-y-4">
                 <ShipStatus />
-                
-                {/* Quick Stats */}
-                <div className="bg-bg-secondary/80 backdrop-blur-sm border-3 border-accent-cyan p-4 space-y-3">
-                  <h3 className="font-orbitron font-bold text-accent-cyan text-sm uppercase">
-                    Quick Stats
-                  </h3>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400">Crew:</span>
-                      <span className="text-accent-cyan font-orbitron">
-                        {partyMembers.length} Rebel{partyMembers.length !== 1 ? 's' : ''}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400">Stations Manned:</span>
-                      <span className="text-accent-yellow font-orbitron">
-                        {Object.values(spaceCombat.stationAssignments).filter(Boolean).length}/6
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400">Torpedoes:</span>
-                      <span className="text-accent-cyan font-orbitron flex items-center gap-1">
-                        <Zap className="w-3 h-3" />
-                        {spaceCombat.torpedoesLoaded}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Ship Upgrades Manager - Compact */}
-                <div className="bg-bg-secondary/80 backdrop-blur-sm border-3 border-accent-cyan p-3">
-                  <SpaceCombatShipPanel />
-                </div>
 
                 {/* Combat Notes */}
                 <div className="bg-bg-secondary/80 backdrop-blur-sm border-3 border-gray-700 p-4">
