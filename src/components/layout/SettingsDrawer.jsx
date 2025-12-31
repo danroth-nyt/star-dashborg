@@ -95,7 +95,7 @@ export default function SettingsDrawer({ isOpen, onClose }) {
                     )}
                   </div>
                   <p className="text-gray-400 text-xs mt-1">
-                    Adds 10 opening scenes (d20→d30) and Inciting Incident generator for campaign setup
+                    Adds opening scenes (d20→d30) and an Inciting Incident generator for campaign setup
                   </p>
                   {gameState.includePVOracles && (
                     <div className="text-accent-yellow text-xs mt-2 space-y-1">
