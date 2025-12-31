@@ -3,6 +3,9 @@
 // Complete oracle tables from Solo Rules, GM Guide, and Rebel Handbook
 // ==========================================
 
+import { pvOpeningScenes, pvIncitingIncidents } from './perilousVoidOracles';
+import { sfIncitingIncidents } from './starforgedOracles';
+
 // ==========================================
 // 1. SOLO PLAY ORACLES (The core engine)
 // ==========================================
@@ -1453,5 +1456,82 @@ export function rollSettlementNameSuffix() {
   return {
     roll,
     result: nameOracles.settlementNameSuffixes[roll - 1]
+  };
+}
+
+// ==========================================
+// UNIFIED OPENING SCENE GENERATOR
+// Combines Star Borg + Perilous Void with smart duplicate handling
+// When PV enabled: Skip Star Borg #5 (bounty hunter chase) - PV has richer version
+// ==========================================
+
+export function generateOpeningScene(includePV = true) {
+  if (includePV) {
+    // When PV enabled: 19 Star Borg (skip #5) + 9 PV = d28
+    // Build combined table
+    const starBorgScenes = soloOracles.openingScene
+      .map((scene, index) => ({ scene, originalIndex: index }))
+      .filter((_, index) => index !== 4); // Skip index 4 (entry #5 - bounty hunter chase)
+    
+    const totalScenes = starBorgScenes.length + pvOpeningScenes.length; // 19 + 9 = 28
+    const roll = rollDice(totalScenes);
+    
+    if (roll <= starBorgScenes.length) {
+      // Star Borg opening scene (simple string)
+      return {
+        roll,
+        result: starBorgScenes[roll - 1].scene,
+        source: 'starBorg'
+      };
+    } else {
+      // Perilous Void opening scene (structured with follow-up questions)
+      const pvIndex = roll - starBorgScenes.length - 1;
+      const pvScene = pvOpeningScenes[pvIndex];
+      return {
+        roll,
+        incident: pvScene.incident,
+        followUpQuestions: pvScene.followUpQuestions,
+        source: 'perilousVoid'
+      };
+    }
+  } else {
+    // Roll d20: Star Borg only (all entries including #5)
+    const roll = rollDice(20);
+    return {
+      roll,
+      result: soloOracles.openingScene[roll - 1],
+      source: 'starBorg'
+    };
+  }
+}
+
+// ==========================================
+// UNIFIED INCITING INCIDENT GENERATOR
+// Combines Perilous Void + Starforged with smart duplicate handling
+// ==========================================
+
+export function generateIncitingIncident(includePV = true, includeSF = true) {
+  const table = [];
+  
+  // Add PV incidents if enabled
+  if (includePV) {
+    table.push(...pvIncitingIncidents.map(e => ({...e, source: 'perilousVoid'})));
+  }
+  
+  // Add Starforged incidents if enabled
+  if (includeSF) {
+    table.push(...sfIncitingIncidents.map(e => ({...e, source: 'starforged'})));
+  }
+  
+  // If both disabled, return null
+  if (table.length === 0) return null;
+  
+  const roll = rollDice(table.length);
+  const diceType = `d${table.length}`;
+  
+  return {
+    roll,
+    diceType,
+    ...table[roll - 1]
   };
 }

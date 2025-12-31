@@ -126,8 +126,10 @@ export default function CharacterGenerator({ onSave, onCancel }) {
         species,
         motivation,
         stats,
+        base_stats: { ...stats }, // Store original stats for respec
         hp_max: hp,
         hp_current: hp,
+        base_hp_max: hp, // Store original HP for respec
         destiny_points: destiny,
         bits,
         equipment,

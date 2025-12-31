@@ -21,11 +21,27 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
   - Loading states with animations
 - **Galaxy Save Tracker** - Campaign progression system
   - Track galaxies saved as party-wide milestone
-  - Promotion alerts when members can advance
-  - Integrated with character progression
-- **Character Promotions** - Rank advancement based on galaxies saved
-  - Visual alerts for unclaimed promotions
-  - Promotion claiming via character sheet
+  - Increment/decrement controls with validation
+  - Promotion alerts showing count of members ready to advance
+  - Integrated with Party Panel
+- **Character Promotions** - Comprehensive rank advancement system
+  - Automatic detection when galaxies saved exceeds claimed promotions
+  - Visual alerts with animated promotion badge in character sheet
+  - Promotion modal with three advancement choices:
+    - Increase HP (roll D6, also heals current HP)
+    - Choose two ability scores to increase (+1 each, max +6)
+    - Select class-specific advancement ability (3 options per class)
+  - Class advancements include new abilities, companions, and special features
+  - Rolled features (heirlooms, skills, functions) stored in character advancement options
+  - Full progression data system with repeatable/non-repeatable tracking
+- **Character Respec** - Reset character to base values for re-specialization
+  - Orange-themed "Respec Character" button in Danger Zone
+  - Comprehensive confirmation modal showing impact
+  - Resets stats to original rolled values
+  - Resets HP to starting maximum
+  - Clears all advancement abilities
+  - Allows re-promotion if galaxy saves are available
+  - Handles legacy characters gracefully
 - **Quick Stat Rolls** - Click any stat to roll d20 + modifier with crit/fumble detection
 - **Authentication System** - Secure user accounts with admin approval workflow
   - New users require admin approval before access
@@ -33,7 +49,12 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
   - Session persistence across browser refreshes
 
 ### 🎲 Core Gameplay Tools
-- **Threat Die Tracker** - Visual D6 with click-to-cycle functionality and maximum threat alerts
+- **Threat Die Tracker** - Visual D6 with click-to-cycle functionality
+  - Animated die roll effect when cycling
+  - Pulsing glow effect at maximum threat (6)
+  - Inline alert box at max threat with consequence options:
+    - Advance ALL Danger Clocks by 1
+    - Completely fill ONE Danger Clock
 - **Mission Tracks** - Create and manage mission progress with completion attempts (DR10/12/14/16)
 - **Danger Clocks** - Segment trackers (4/6/8/10) with filled state alerts
 - **Dice Roller** - D4, D6, D8, D10, D12, D20, D100, and 2D6 with advantage/disadvantage
@@ -42,12 +63,26 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 ### 🔮 Oracle Systems
 - **Affirmation Oracle** - Yes/No/And/But oracle with advantage/disadvantage rolls and detail fields
 - **Scene Shakeup** - Two-stage threat check (d20 + Threat Die, 15+ triggers)
-- **Event Oracle** - Multi-roll complex event generator with 6 independent tables
-- **Travel Encounter** - Threat-based encounter check (d20 + Threat Die, 12+ triggers)
+  - Stage 1: Check if shakeup occurs (DC 15)
+  - Stage 2: Roll on shakeup table if triggered
+  - Detailed log output with both rolls and modifiers
+- **Event Oracle** - Multi-roll complex event generator with 6 independent tables (verb, subject, specific)
+- **Travel Encounter** - Two-stage threat-based encounter check (d20 + Threat Die, 12+ triggers)
+  - Stage 1: Check if encounter occurs (DC 12)
+  - Stage 2: Generate theme + actor if triggered
+  - Detailed log output showing success/failure
 - **Dangerous Locations** - Ship/Base location generator with obstacle mechanics
 - **Site Explorer** - Procedural dungeon-crawl system for ships and bases
 - **Morale Check** - 2D6 vs MRL with Flee/Surrender outcomes
 - **Oracle Compendium** - Comprehensive tabbed interface with 40+ oracle tables
+- **Perilous Void Integration** - Optional expanded content (toggle in Settings)
+  - 10 explosive opening scenes with 3 follow-up questions each
+  - 10 inciting incidents for campaign starts
+  - Smart duplicate handling with core Star Borg content
+- **Starforged Integration** - Optional Ironsworn: Starforged content (toggle in Settings)
+  - 19 inciting incidents for varied campaign starts
+  - Intelligent deduplication with Perilous Void when both enabled
+  - Combines with Star Borg and PV for maximum variety
 
 ### 🎭 Generators
 - **Monster Generator** - Beast adaptations, monstrosities, and weak spots with d6 rolls
@@ -67,6 +102,11 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - **Game Flow Drawer** - Step-by-step campaign and session play procedure guide
 - **Help Modal** - Context-sensitive help for trackers (press `H` or `?`)
 - **Quick Reference** - Comprehensive rules reference accessible from header
+- **Content Sources Management** - Toggle optional oracle content in Settings
+  - Enable/disable Perilous Void oracles
+  - Enable/disable Starforged oracles
+  - Visual ACTIVE badges show enabled sources
+  - Dynamic die size adjustments based on enabled content
 
 ### 🚀 Space Combat System
 - **Battle Stations** - 6 ship stations with role-specific actions (Pilot, Co-Pilot, Gunner 1/2, Engineer 1/2)
@@ -220,26 +260,31 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
      created_at timestamp with time zone default now()
    );
 
-   -- Characters table
-   create table characters (
-     id uuid primary key default gen_random_uuid(),
-     user_id uuid references auth.users(id),
-     room_code text references rooms(code),
-     name text,
-     class text,
-     class_name text,
-     species text,
-     stats jsonb,
-     hp_current integer,
-     hp_max integer,
-     equipment jsonb,
-     bits integer,
-     destiny_points integer,
-     class_features jsonb,
-     journal text default '',
-     created_at timestamp with time zone default now(),
-     updated_at timestamp with time zone default now()
-   );
+  -- Characters table
+  create table characters (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid references auth.users(id),
+    room_code text references rooms(code),
+    name text,
+    class text,
+    class_name text,
+    species text,
+    stats jsonb,
+    base_stats jsonb,
+    hp_current integer,
+    hp_max integer,
+    base_hp_max integer,
+    equipment jsonb,
+    bits integer,
+    destiny_points integer,
+    motivation text,
+    class_features jsonb,
+    journal text default '',
+    galaxy_saves_claimed integer default 0,
+    advancement_options jsonb default '[]'::jsonb,
+    created_at timestamp with time zone default now(),
+    updated_at timestamp with time zone default now()
+  );
 
    -- Admin profiles table for approval system
    create table admin_profiles (
@@ -269,7 +314,17 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
    create policy "Users can view their own profile" on admin_profiles for select using (auth.uid() = user_id);
    ```
 
-4. **Configure environment**
+4. **Apply migrations (if upgrading existing database)**
+   
+   If you're upgrading from an earlier version, run the migrations in the `migrations/` folder:
+   ```bash
+   # In Supabase SQL Editor, run:
+   # migrations/add_respec_columns.sql
+   ```
+   
+   This adds support for character respec functionality.
+
+5. **Configure environment**
    
    Create a `.env` file in the project root:
    ```env
@@ -279,12 +334,12 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
    
    Get these values from your Supabase project settings (Settings > API)
 
-5. **Start development server**
+6. **Start development server**
    ```bash
    npm run dev
    ```
 
-6. **Open the app**
+7. **Open the app**
    
    Navigate to [http://localhost:5173](http://localhost:5173)
 

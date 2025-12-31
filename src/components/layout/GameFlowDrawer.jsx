@@ -12,10 +12,13 @@ import {
   generateEpicTitle,
   generateEpisodeTitle,
   generateVillain,
+  generateMission,
   generateQuickMission,
   generateScene,
   generateNPC,
   generatePlanet,
+  generateOpeningScene,
+  generateIncitingIncident,
   characterOracles,
   soloOracles,
   visualOracles
@@ -40,6 +43,16 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
+  // Build actions list for Campaign Goal step based on source toggles
+  const campaignGoalActions = [
+    { label: "Generate Epic Title", specific: "epicTitle" },
+    { label: "Generate Villain Plot", specific: "villain" }
+  ];
+  // Show Inciting Incident if either PV or Starforged is enabled
+  if (gameState.includePVOracles || gameState.includeStarforgedOracles) {
+    campaignGoalActions.push({ label: "Generate Inciting Incident", specific: "inciting" });
+  }
+
   const gameFlowSteps = [
     {
       id: 1,
@@ -61,10 +74,7 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
       icon: Target,
       color: "yellow",
       description: "Roll on the Epic and Damn Fool Idealistic Crusade Tables to determine your Rebel's main goal to save the galaxy.",
-      actions: [
-        { label: "Generate Epic Title", specific: "epicTitle" },
-        { label: "Generate Villain", specific: "villain" }
-      ]
+      actions: campaignGoalActions
     },
     {
       id: 3,
@@ -199,6 +209,16 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
         logMessage = `Villain: ${result.villain}`;
         break;
 
+      case 'inciting':
+        result = generateIncitingIncident(gameState.includePVOracles, gameState.includeStarforgedOracles);
+        if (result) {
+          logMessage = `Inciting Incident [${result.diceType} ${result.roll}]: ${result.incident}`;
+        } else {
+          result = { result: 'No inciting incident sources enabled' };
+          logMessage = 'Inciting Incident: No sources enabled';
+        }
+        break;
+
       case 'episodeTitle':
         result = generateEpisodeTitle();
         result.titleType = 'episode';
@@ -206,14 +226,17 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
         break;
 
       case 'mission':
-        result = generateQuickMission();
-        logMessage = `Mission: ${result.action} ${result.target}`;
+        result = generateMission();
+        logMessage = `Mission [${result.typeRoll}, ${result.goodsRoll}, ${result.spotRoll}, ${result.rewardRoll}]: ${result.type} ${result.goods} ${result.spot} for ${result.reward}`;
         break;
 
       case 'openingScene':
-        result = rollOnTable(soloOracles.openingScene);
-        logMessage = `Opening Scene: ${result}`;
-        result = { result, roll: Math.floor(Math.random() * 20) + 1 };
+        result = generateOpeningScene(gameState.includePVOracles);
+        if (result.incident) {
+          logMessage = `Opening Scene [${result.roll}]: ${result.incident}`;
+        } else {
+          logMessage = `Opening Scene [${result.roll}]: ${result.result}`;
+        }
         break;
 
       case 'scene':
@@ -468,7 +491,7 @@ function StepCard({ step, isExpanded, onToggle, onQuickAction, stepResult, onCle
               <div className="grid grid-cols-1 gap-2">
                 {step.actions.map((action, idx) => {
                   const isImplemented = action.specific && [
-                    'species', 'motivation', 'epicTitle', 'villain', 'episodeTitle', 
+                    'species', 'motivation', 'epicTitle', 'villain', 'inciting', 'episodeTitle', 
                     'mission', 'openingScene', 'scene', 'askOracle', 'npc', 
                     'planet', 'shakeup', 'event', 'boost'
                   ].includes(action.specific);

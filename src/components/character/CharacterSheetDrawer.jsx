@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Plus, Trash2, Save, AlertTriangle, Dices, Award, Star } from 'lucide-react';
+import { X, Plus, Trash2, Save, AlertTriangle, Dices, Award, Star, RefreshCw } from 'lucide-react';
 import { useCharacter } from '../../context/CharacterContext';
 import { useGame } from '../../context/GameContext';
 import { SPECIES, CHARACTER_CLASSES } from '../../types/starborg';
@@ -11,10 +11,11 @@ import CharacterJournal from './CharacterJournal';
 import ProgressionModal from './ProgressionModal';
 
 export default function CharacterSheetDrawer({ isOpen, onClose }) {
-  const { character, updateCharacter, updateField, deleteCharacter } = useCharacter();
+  const { character, updateCharacter, updateField, deleteCharacter, respecCharacter } = useCharacter();
   const { gameState } = useGame();
   const [localCharacter, setLocalCharacter] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showRespecConfirm, setShowRespecConfirm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [progressionModalOpen, setProgressionModalOpen] = useState(false);
 
@@ -141,6 +142,21 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
     } catch (error) {
       console.error('Failed to delete character:', error);
       alert('Failed to delete character. Please try again.');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  // Handle respec character
+  const handleRespecCharacter = async () => {
+    try {
+      setSaving(true);
+      await respecCharacter();
+      setShowRespecConfirm(false);
+      alert('Character has been reset to base values! You can now claim promotions if galaxy saves are available.');
+    } catch (error) {
+      console.error('Failed to respec character:', error);
+      alert('Failed to respec character. Please try again.');
     } finally {
       setSaving(false);
     }
@@ -565,6 +581,60 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
               Danger Zone
             </h3>
             
+            {/* Respec Character */}
+            {!showRespecConfirm ? (
+              <Button
+                onClick={() => setShowRespecConfirm(true)}
+                variant="secondary"
+                className="w-full bg-orange-600/20 border-orange-500 text-orange-400 hover:bg-orange-600 hover:text-white"
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                RESPEC CHARACTER
+              </Button>
+            ) : (
+              <div className="bg-orange-900/20 border-2 border-orange-500 rounded p-4">
+                <div className="flex items-start gap-3 mb-4">
+                  <AlertTriangle className="w-5 h-5 text-orange-400 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <h4 className="font-orbitron font-bold text-orange-400 uppercase text-sm mb-1">
+                      Confirm Respec
+                    </h4>
+                    <p className="text-text-primary text-sm mb-2">
+                      This will reset <span className="text-accent-yellow font-bold">{localCharacter.name}</span> to base values:
+                    </p>
+                    <ul className="text-text-secondary text-xs space-y-1 mb-2">
+                      <li>• Stats will reset to original rolled values</li>
+                      <li>• HP will reset to starting HP</li>
+                      <li>• All advancement abilities will be removed</li>
+                      <li>• Promotions claimed: {localCharacter.galaxySavesClaimed || 0} → 0</li>
+                    </ul>
+                    <p className="text-accent-cyan text-xs">
+                      ℹ Galaxy saves available: {galaxiesSaved} 
+                      {galaxiesSaved > 0 && ' (you can re-promote after respec)'}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleRespecCharacter}
+                    variant="secondary"
+                    className="flex-1 bg-orange-600 hover:bg-orange-500 border-orange-500 text-white"
+                    disabled={saving}
+                  >
+                    {saving ? 'RESPECCING...' : 'YES, RESPEC'}
+                  </Button>
+                  <Button
+                    onClick={() => setShowRespecConfirm(false)}
+                    variant="ghost"
+                    className="flex-1"
+                  >
+                    CANCEL
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Delete Character */}
             {!showDeleteConfirm ? (
               <Button
                 onClick={() => setShowDeleteConfirm(true)}

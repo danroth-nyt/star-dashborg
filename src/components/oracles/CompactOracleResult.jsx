@@ -90,6 +90,28 @@ export default function CompactOracleResult({ result, variant = 'cyan', onDismis
           </div>
         )}
 
+        {/* Detailed Mission */}
+        {result.type && result.typeRoll && (
+          <div className="space-y-1 text-xs">
+            <div>
+              <span className="text-gray-400">Type [{result.typeRoll}]:</span>{' '}
+              <span className={cn('font-bold', textColors[variant])}>{result.type}</span>
+            </div>
+            <div>
+              <span className="text-gray-400">Goods [{result.goodsRoll}]:</span>{' '}
+              <span className={textColors[variant]}>{result.goods}</span>
+            </div>
+            <div>
+              <span className="text-gray-400">Spot [{result.spotRoll}]:</span>{' '}
+              <span className={textColors[variant]}>{result.spot}</span>
+            </div>
+            <div>
+              <span className="text-gray-400">Reward [{result.rewardRoll}]:</span>{' '}
+              <span className="text-accent-yellow">{result.reward}</span>
+            </div>
+          </div>
+        )}
+
         {/* Quick Mission */}
         {result.action && result.target && (
           <div className="space-y-1 text-xs">
@@ -183,6 +205,24 @@ export default function CompactOracleResult({ result, variant = 'cyan', onDismis
             <div><span className="text-gray-400">Goal:</span> {result.goal}</div>
             <div><span className="text-gray-400">Plan:</span> {result.plan}</div>
             <div><span className="text-gray-400">Means:</span> {result.means}</div>
+          </div>
+        )}
+
+        {/* Incident (Opening Scene or Inciting Incident) - PV or Starforged */}
+        {result.incident && (
+          <div className="space-y-2 text-xs">
+            {/* Main incident text - display exactly like regular result */}
+            <div className={cn('text-sm font-orbitron font-bold', textColors[variant], textGlowColors[variant])}>
+              {result.incident}
+            </div>
+            {/* Follow-up questions - subtle and compact (PV only) */}
+            {result.followUpQuestions && (
+              <div className="text-gray-500 italic text-[10px] space-y-0.5 border-t border-gray-700 pt-1.5 mt-2">
+                {result.followUpQuestions.map((question, idx) => (
+                  <div key={idx}>• {question}</div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

@@ -37,7 +37,7 @@ import Accordion from '../ui/Accordion';
 export default function OracleCompendium() {
   const [activeTab, setActiveTab] = useState('core');
   const [oracleResult, setOracleResult] = useState(null);
-  const { addLog } = useGame();
+  const { addLog, gameState } = useGame();
 
   // Determine variant based on result type
   const getResultVariant = () => {
@@ -148,19 +148,32 @@ function MoraleButton({ morale, label, onCheck }) {
 // ==========================================
 
 function CoreOraclesTab() {
+  const { gameState } = useGame();
+  const diceType = gameState.includePVOracles ? 'd30' : 'd20';
+  
   return (
     <div className="space-y-4">
       <div className="text-accent-cyan font-orbitron text-lg font-bold uppercase mb-4">
         Core Solo Play Oracles
       </div>
 
-      <Accordion title="Opening Scene (d20)" defaultOpen={false}>
+      <Accordion title={`Opening Scene (${diceType})`} defaultOpen={false}>
         <OracleTable
           title="Opening Scene"
           table={soloOracles.openingScene}
           variant="cyan"
-          diceType="d20"
+          diceType={diceType}
         />
+        {gameState.includePVOracles && (
+          <div className="mt-4 p-3 border-2 border-accent-yellow bg-bg-secondary">
+            <div className="text-accent-yellow font-orbitron text-xs uppercase mb-2">
+              Perilous Void Entries (21-30)
+            </div>
+            <p className="text-gray-300 text-sm">
+              Rolls 21-30 use structured incidents with follow-up questions from The Perilous Void.
+            </p>
+          </div>
+        )}
       </Accordion>
 
       <Accordion title="Crit & Blunder (d4)" defaultOpen={false}>
