@@ -190,6 +190,7 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
 
       case 'epicTitle':
         result = generateEpicTitle();
+        result.titleType = 'epic';
         logMessage = `Epic Title [${result.col1Roll}, ${result.col2Roll}, ${result.col3Roll}, ${result.col4Roll}]: ${result.col1} ${result.col2} ${result.col3} ${result.col4}`;
         break;
 
@@ -200,6 +201,7 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
 
       case 'episodeTitle':
         result = generateEpisodeTitle();
+        result.titleType = 'episode';
         logMessage = `Episode Title [${result.col1Roll}, ${result.col2Roll}, ${result.col3Roll}, ${result.col4Roll}]: ${result.col1} ${result.col2} ${result.col3} ${result.col4}`;
         break;
 
@@ -464,27 +466,47 @@ function StepCard({ step, isExpanded, onToggle, onQuickAction, stepResult, onCle
                 Quick Actions:
               </div>
               <div className="grid grid-cols-1 gap-2">
-                {step.actions.map((action, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      if (action.specific) {
-                        onQuickAction(step.id, action.specific, step.color);
-                      } else {
-                        console.log('Action not yet implemented:', action.tab);
-                      }
-                    }}
-                    className={cn(
-                      'px-3 py-2 text-xs font-orbitron uppercase border-2 transition-all text-left',
-                      colors.border,
-                      colors.text,
-                      'hover:bg-opacity-20',
-                      `hover:${colors.bg}`
-                    )}
-                  >
-                    {action.label}
-                  </button>
-                ))}
+                {step.actions.map((action, idx) => {
+                  const isImplemented = action.specific && [
+                    'species', 'motivation', 'epicTitle', 'villain', 'episodeTitle', 
+                    'mission', 'openingScene', 'scene', 'askOracle', 'npc', 
+                    'planet', 'shakeup', 'event', 'boost'
+                  ].includes(action.specific);
+
+                  const isReminder = action.tab || (!isImplemented && action.specific);
+
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        if (action.specific && isImplemented) {
+                          onQuickAction(step.id, action.specific, step.color);
+                        } else {
+                          console.log('Action not yet implemented:', action.specific || action.tab);
+                        }
+                      }}
+                      disabled={isReminder}
+                      className={cn(
+                        'px-3 py-2 text-xs font-orbitron uppercase border-2 transition-all text-left',
+                        isImplemented ? [
+                          colors.border,
+                          colors.text,
+                          'hover:bg-opacity-20',
+                          `hover:${colors.bg}`
+                        ] : [
+                          'border-gray-500',
+                          'text-gray-400',
+                          'hover:border-gray-400',
+                          'italic'
+                        ]
+                      )}
+                    >
+                      {isReminder && '→ '}
+                      {action.label}
+                      {isReminder && ' (reminder)'}
+                    </button>
+                  );
+                })}
               </div>
 
               {/* Display Result */}
