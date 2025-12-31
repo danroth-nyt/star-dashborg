@@ -1,17 +1,22 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Plus, Trash2, Save, AlertTriangle, Dices } from 'lucide-react';
+import { X, Plus, Trash2, Save, AlertTriangle, Dices, Award, Star } from 'lucide-react';
 import { useCharacter } from '../../context/CharacterContext';
+import { useGame } from '../../context/GameContext';
 import { SPECIES, CHARACTER_CLASSES } from '../../types/starborg';
+import { getUnclaimedPromotions } from '../../data/progressionData';
 import Button from '../ui/Button';
 import { cn } from '../../lib/utils';
 import CharacterJournal from './CharacterJournal';
+import ProgressionModal from './ProgressionModal';
 
 export default function CharacterSheetDrawer({ isOpen, onClose }) {
   const { character, updateCharacter, updateField, deleteCharacter } = useCharacter();
+  const { gameState } = useGame();
   const [localCharacter, setLocalCharacter] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [progressionModalOpen, setProgressionModalOpen] = useState(false);
 
   // Sync local state with character prop
   useEffect(() => {
@@ -39,6 +44,11 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
   if (!localCharacter) {
     return null;
   }
+
+  // Calculate unclaimed promotions
+  const galaxiesSaved = gameState.ship?.galaxiesSaved || 0;
+  const unclaimedPromotions = getUnclaimedPromotions(localCharacter, galaxiesSaved);
+  const hasPromotions = unclaimedPromotions > 0;
 
   // Format modifier with +/- prefix
   const formatModifier = (value) => {
@@ -148,9 +158,19 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
       <div className="fixed top-0 right-0 h-full w-full md:w-[600px] lg:w-[700px] bg-bg-primary border-l-4 border-accent-cyan shadow-2xl z-50 slide-in-right overflow-hidden flex flex-col">
         {/* Header */}
         <div className="bg-bg-secondary border-b-3 border-accent-cyan p-4 flex items-center justify-between shrink-0">
-          <h2 className="text-2xl font-orbitron font-bold text-accent-cyan text-glow-cyan">
-            CHARACTER SHEET
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-2xl font-orbitron font-bold text-accent-cyan text-glow-cyan">
+              CHARACTER SHEET
+            </h2>
+            {hasPromotions && (
+              <div className="flex items-center gap-1 px-2 py-1 bg-purple-900/40 border-2 border-purple-500 rounded animate-pulse">
+                <Award className="w-4 h-4 text-purple-400" />
+                <span className="text-xs font-orbitron font-bold text-purple-300">
+                  {unclaimedPromotions}
+                </span>
+              </div>
+            )}
+          </div>
           <button
             onClick={onClose}
             className="p-2 text-accent-cyan hover:text-accent-red hover:bg-accent-red/10 transition-all rounded"
@@ -161,6 +181,31 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {/* Promotion Alert */}
+          {hasPromotions && (
+            <div className="bg-purple-900/30 border-3 border-purple-500 p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Award className="w-6 h-6 text-purple-400 animate-pulse" />
+                <div>
+                  <h3 className="font-orbitron font-bold text-purple-300 text-lg">
+                    PROMOTION AVAILABLE!
+                  </h3>
+                  <p className="text-sm text-text-secondary font-mono">
+                    You have {unclaimedPromotions} unclaimed promotion{unclaimedPromotions !== 1 ? 's' : ''}
+                  </p>
+                </div>
+              </div>
+              <Button
+                onClick={() => setProgressionModalOpen(true)}
+                variant="primary"
+                className="w-full bg-purple-600 hover:bg-purple-500 border-purple-500 text-white shadow-lg shadow-purple-500/50"
+              >
+                <Award className="w-5 h-5 mr-2" />
+                CLAIM PROMOTION
+              </Button>
+            </div>
+          )}
+
           {/* Basic Info */}
           <div className="space-y-4">
             <h3 className="text-lg font-orbitron font-bold text-accent-yellow uppercase border-b border-accent-yellow/30 pb-2">
@@ -263,9 +308,17 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
 
           {/* HP & Destiny */}
           <div className="space-y-4">
-            <h3 className="text-lg font-orbitron font-bold text-accent-yellow uppercase border-b border-accent-yellow/30 pb-2">
-              Vitals
-            </h3>
+            <div className="flex items-center justify-between border-b border-accent-yellow/30 pb-2">
+              <h3 className="text-lg font-orbitron font-bold text-accent-yellow uppercase">
+                Vitals
+              </h3>
+              {localCharacter.galaxySavesClaimed > 0 && (
+                <div className="flex items-center gap-1 text-xs text-purple-400 font-mono">
+                  <Star className="w-4 h-4" />
+                  <span>Promotions: {localCharacter.galaxySavesClaimed}</span>
+                </div>
+              )}
+            </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-bg-secondary border-2 border-accent-red rounded p-3">
                 <label className="block text-xs font-mono text-text-secondary mb-1 uppercase">
@@ -364,6 +417,52 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
               )}
             </div>
           </div>
+
+          {/* Advancement Abilities */}
+          {localCharacter.advancementOptions && localCharacter.advancementOptions.length > 0 && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-orbitron font-bold text-purple-400 uppercase border-b border-purple-500/30 pb-2 flex items-center gap-2">
+                <Star className="w-5 h-5" />
+                Advancement Abilities
+              </h3>
+              <div className="space-y-3">
+                {localCharacter.advancementOptions.map((advancement, index) => (
+                  <div key={index} className="bg-purple-900/30 border-2 border-purple-500/30 rounded p-3">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="text-sm font-orbitron font-bold text-purple-300">
+                          {advancement.id.replace(/([A-Z])/g, ' $1').trim().toUpperCase()}
+                        </div>
+                        {advancement.result?.advancement && (
+                          <div className="text-xs text-text-secondary mt-1">
+                            {advancement.result.advancement.description}
+                          </div>
+                        )}
+                        {advancement.result?.rolledFeature && (
+                          <div className="text-xs text-purple-400 mt-2">
+                            <span className="font-bold">{advancement.result.rolledFeature.name}</span>
+                            {advancement.result.rolledFeature.description && (
+                              <span className="text-text-secondary"> - {advancement.result.rolledFeature.description}</span>
+                            )}
+                          </div>
+                        )}
+                        {advancement.result?.companion && (
+                          <div className="text-xs text-purple-400 mt-2">
+                            <span className="font-bold">Companion: {advancement.result.companion.name}</span>
+                            <div className="text-text-secondary">
+                              HP {advancement.result.companion.hp}, Morale {advancement.result.companion.morale}, 
+                              Tier {advancement.result.companion.armor} Armor, {advancement.result.companion.weapon}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <Star className="w-4 h-4 text-purple-400 flex-shrink-0 ml-2" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Class Features */}
           {localCharacter.classFeatures && Object.keys(localCharacter.classFeatures).length > 0 && (
@@ -511,6 +610,12 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
           </div>
         </div>
       </div>
+
+      {/* Progression Modal */}
+      <ProgressionModal 
+        isOpen={progressionModalOpen} 
+        onClose={() => setProgressionModalOpen(false)} 
+      />
     </>
   );
 
