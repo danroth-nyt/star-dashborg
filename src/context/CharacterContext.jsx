@@ -31,6 +31,8 @@ export function CharacterProvider({ children, userId, roomCode }) {
       roomCode: dbCharacter.room_code,
       galaxySavesClaimed: dbCharacter.galaxy_saves_claimed || 0,
       advancementOptions: dbCharacter.advancement_options || [],
+      baseStats: dbCharacter.base_stats,
+      baseHpMax: dbCharacter.base_hp_max,
     };
   };
 
@@ -127,8 +129,10 @@ export function CharacterProvider({ children, userId, roomCode }) {
           class: characterData.class,
           species: characterData.species,
           stats: characterData.stats,
+          base_stats: characterData.base_stats || characterData.stats, // Default to current stats if not provided
           hp_current: characterData.hp_current,
           hp_max: characterData.hp_max,
+          base_hp_max: characterData.base_hp_max || characterData.hp_max, // Default to current HP if not provided
           equipment: characterData.equipment || [],
           bits: characterData.bits || 0,
           motivation: characterData.motivation || null,
@@ -311,6 +315,59 @@ export function CharacterProvider({ children, userId, roomCode }) {
     [character]
   );
 
+  // Respec character (reset to base values, clear promotions)
+  const respecCharacter = useCallback(async () => {
+    if (!character?.id) {
+      throw new Error('No character to respec');
+    }
+
+    try {
+      // Use base values if available, otherwise use current values as new base
+      const baseStats = character.base_stats || character.baseStats || character.stats;
+      const baseHpMax = character.base_hp_max || character.baseHpMax || character.hp_max;
+
+      // Remove advancement-added class features
+      const resetClassFeatures = { ...character.classFeatures };
+      delete resetClassFeatures.advancedHeirloom;
+      delete resetClassFeatures.advancedSkill;
+      delete resetClassFeatures.advancedFunction;
+      delete resetClassFeatures.advancedMagiArt;
+      delete resetClassFeatures.advancedDragoonNemesis;
+      delete resetClassFeatures.advancedScratchBuild;
+
+      // Update character in database
+      const updates = {
+        stats: baseStats,
+        hp_max: baseHpMax,
+        hp_current: baseHpMax, // Reset current HP to base max
+        galaxy_saves_claimed: 0,
+        advancement_options: [],
+        class_features: resetClassFeatures,
+        // Ensure base values are stored if they weren't before
+        base_stats: baseStats,
+        base_hp_max: baseHpMax,
+      };
+
+      const { data, error } = await supabase
+        .from('characters')
+        .update(updates)
+        .eq('id', character.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      // Update local state
+      const transformedData = transformCharacterFromDB(data);
+      setCharacter(transformedData);
+      return transformedData;
+    } catch (err) {
+      console.error('Error respeccing character:', err);
+      setError(err.message);
+      throw err;
+    }
+  }, [character]);
+
   const value = {
     character,
     loading,
@@ -320,6 +377,7 @@ export function CharacterProvider({ children, userId, roomCode }) {
     updateField,
     deleteCharacter,
     claimPromotion,
+    respecCharacter,
   };
 
   return <CharacterContext.Provider value={value}>{children}</CharacterContext.Provider>;

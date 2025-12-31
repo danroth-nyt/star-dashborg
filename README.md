@@ -220,26 +220,31 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
      created_at timestamp with time zone default now()
    );
 
-   -- Characters table
-   create table characters (
-     id uuid primary key default gen_random_uuid(),
-     user_id uuid references auth.users(id),
-     room_code text references rooms(code),
-     name text,
-     class text,
-     class_name text,
-     species text,
-     stats jsonb,
-     hp_current integer,
-     hp_max integer,
-     equipment jsonb,
-     bits integer,
-     destiny_points integer,
-     class_features jsonb,
-     journal text default '',
-     created_at timestamp with time zone default now(),
-     updated_at timestamp with time zone default now()
-   );
+  -- Characters table
+  create table characters (
+    id uuid primary key default gen_random_uuid(),
+    user_id uuid references auth.users(id),
+    room_code text references rooms(code),
+    name text,
+    class text,
+    class_name text,
+    species text,
+    stats jsonb,
+    base_stats jsonb,
+    hp_current integer,
+    hp_max integer,
+    base_hp_max integer,
+    equipment jsonb,
+    bits integer,
+    destiny_points integer,
+    motivation text,
+    class_features jsonb,
+    journal text default '',
+    galaxy_saves_claimed integer default 0,
+    advancement_options jsonb default '[]'::jsonb,
+    created_at timestamp with time zone default now(),
+    updated_at timestamp with time zone default now()
+  );
 
    -- Admin profiles table for approval system
    create table admin_profiles (
@@ -269,7 +274,17 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
    create policy "Users can view their own profile" on admin_profiles for select using (auth.uid() = user_id);
    ```
 
-4. **Configure environment**
+4. **Apply migrations (if upgrading existing database)**
+   
+   If you're upgrading from an earlier version, run the migrations in the `migrations/` folder:
+   ```bash
+   # In Supabase SQL Editor, run:
+   # migrations/add_respec_columns.sql
+   ```
+   
+   This adds support for character respec functionality.
+
+5. **Configure environment**
    
    Create a `.env` file in the project root:
    ```env
@@ -279,12 +294,12 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
    
    Get these values from your Supabase project settings (Settings > API)
 
-5. **Start development server**
+6. **Start development server**
    ```bash
    npm run dev
    ```
 
-6. **Open the app**
+7. **Open the app**
    
    Navigate to [http://localhost:5173](http://localhost:5173)
 
