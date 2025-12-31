@@ -59,7 +59,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
                   title={character.name || 'Character Sheet'}
                 >
                   <User className="w-4 h-4" />
-                  <span className="max-w-[100px] truncate">{character.name ? character.name.split(' ')[0] : 'Character'}</span>
+                  <span className="truncate">{character.name ? character.name.split(' ')[0] : 'Character'}</span>
                 </Button>
               )}
               <Button
@@ -137,7 +137,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
                 title={character.name || 'Character Sheet'}
               >
                 <User className="w-4 h-4" />
-                <span className="truncate text-xs">{character.name ? character.name.split(' ')[0] : 'Char'}</span>
+                <span className="truncate">{character.name ? character.name.split(' ')[0] : 'Char'}</span>
               </Button>
             )}
             <Button
@@ -146,7 +146,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
               className={`flex items-center justify-center gap-2 ${spaceCombat.isActive ? 'glow-pulse-red border-accent-red text-accent-red' : ''}`}
             >
               <Rocket className="w-4 h-4" />
-              <span className="text-xs">Combat</span>
+              <span className="truncate">Battle</span>
             </Button>
             <Button
               variant="primary"
@@ -154,7 +154,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
               className="flex items-center justify-center gap-2"
             >
               <BookOpen className="w-4 h-4" />
-              <span className="text-xs">Guide</span>
+              <span className="truncate">Game Flow</span>
             </Button>
             <Button
               variant="secondary"
@@ -162,7 +162,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
               className="flex items-center justify-center gap-2"
             >
               <BookMarked className="w-4 h-4" />
-              <span className="text-xs">Ref</span>
+              <span className="truncate">Quick Ref</span>
             </Button>
           </div>
         </div>

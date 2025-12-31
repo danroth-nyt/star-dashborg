@@ -129,7 +129,8 @@ export function CharacterProvider({ children, userId, roomCode }) {
           hp_max: characterData.hp_max,
           equipment: characterData.equipment || [],
           bits: characterData.bits || 0,
-          destiny_points: characterData.destinyPoints || 0,
+          motivation: characterData.motivation || null,
+          destiny_points: characterData.destiny_points || 0,
           class_features: characterData.classFeatures || null,
           class_name: characterData.className || characterData.class,
         };
