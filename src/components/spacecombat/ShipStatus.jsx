@@ -165,7 +165,7 @@ export default function ShipStatus() {
             {hasUpgrade(ship, 'turboLasers') && (
               <div className="text-xs text-gray-300 font-mono flex items-start gap-2">
                 <span className="text-accent-cyan">›</span>
-                <span>Turbo Lasers: {ship.turboLaserStation ? `${ship.turboLaserStation} deals D8` : 'Not configured'}</span>
+                <span>Turbo Lasers: {ship.turboLaserStation ? `${ship.turboLaserStation === 'gunner1' ? 'Gunner 1' : 'Gunner 2'} deals D8` : 'Not configured'}</span>
               </div>
             )}
           </div>

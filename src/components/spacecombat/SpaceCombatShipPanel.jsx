@@ -8,12 +8,10 @@ import { getAllUpgrades, getTotalTorpedoCount, getAvailableHeroicSlots } from '.
 import { generateShipName } from '../../data/oracles';
 import Button from '../ui/Button';
 import UpgradeShop from '../ship/UpgradeShop';
-import HeroicRewardsModal from '../ship/HeroicRewardsModal';
 
 export default function SpaceCombatShipPanel() {
   const { gameState, updateGameState } = useGame();
   const [shopOpen, setShopOpen] = useState(false);
-  const [rewardsOpen, setRewardsOpen] = useState(false);
   const [selectedUpgrade, setSelectedUpgrade] = useState(null);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState('');
@@ -146,23 +144,76 @@ export default function SpaceCombatShipPanel() {
         <Button
           variant="primary"
           onClick={() => setShopOpen(true)}
-          className="flex-1 px-2 py-2 text-xs flex items-center justify-center gap-1"
+          className="flex-1 px-2 py-2 text-xs flex items-center justify-center gap-1 relative"
         >
           <ShoppingCart className="w-3 h-3" />
           Shop
+          {availableRewards > 0 && (
+            <span className="absolute -top-1 -right-1 bg-violet-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold shadow-lg shadow-violet-500/50 animate-pulse">
+              {availableRewards}
+            </span>
+          )}
         </Button>
-        
-        {availableRewards > 0 && (
-          <Button
-            variant="secondary"
-            onClick={() => setRewardsOpen(true)}
-            className="flex-1 px-2 py-2 text-xs flex items-center justify-center gap-1 glow-pulse-yellow border-accent-yellow text-accent-yellow"
-          >
-            <Award className="w-3 h-3" />
-            Reward ({availableRewards})
-          </Button>
-        )}
       </div>
+
+      {/* Turbo Laser Configuration - Show when owned but not configured */}
+      {allUpgrades.includes('turboLasers') && !ship.turboLaserStation && (
+        <div className="border-2 border-accent-red bg-accent-red/10 p-2 space-y-2 animate-pulse">
+          <p className="text-xs text-accent-red font-orbitron uppercase font-bold">⚠ Configure Turbo Lasers</p>
+          <p className="text-[10px] text-gray-300">Choose which gunner station gets D8 damage:</p>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => {
+                updateGameState((state) => ({
+                  ...state,
+                  ship: { ...state.ship, turboLaserStation: 'gunner1' }
+                }));
+              }}
+              className="flex-1 text-xs border-accent-red text-accent-red hover:bg-accent-red hover:text-bg-primary"
+            >
+              Gunner 1
+            </Button>
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={() => {
+                updateGameState((state) => ({
+                  ...state,
+                  ship: { ...state.ship, turboLaserStation: 'gunner2' }
+                }));
+              }}
+              className="flex-1 text-xs border-accent-red text-accent-red hover:bg-accent-red hover:text-bg-primary"
+            >
+              Gunner 2
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Turbo Laser Status - Show when configured */}
+      {allUpgrades.includes('turboLasers') && ship.turboLaserStation && (
+        <div className="border-2 border-accent-red/50 bg-accent-red/5 p-2 space-y-1">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-accent-red font-orbitron uppercase">Turbo Lasers Active</p>
+            <button
+              onClick={() => {
+                updateGameState((state) => ({
+                  ...state,
+                  ship: { ...state.ship, turboLaserStation: null }
+                }));
+              }}
+              className="text-[10px] text-gray-400 hover:text-accent-yellow transition-colors underline"
+            >
+              Reconfigure
+            </button>
+          </div>
+          <p className="text-[10px] text-gray-300">
+            {ship.turboLaserStation === 'gunner1' ? 'Gunner 1' : 'Gunner 2'} deals D8 damage
+          </p>
+        </div>
+      )}
 
       {/* Current Upgrades - Compact */}
       {allUpgrades.length > 0 && (
@@ -295,7 +346,6 @@ export default function SpaceCombatShipPanel() {
 
       {/* Modals */}
       <UpgradeShop isOpen={shopOpen} onClose={() => setShopOpen(false)} />
-      <HeroicRewardsModal isOpen={rewardsOpen} onClose={() => setRewardsOpen(false)} />
     </div>
   );
 }

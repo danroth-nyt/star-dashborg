@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Dices, Target, Shield, Wrench, Zap, ChevronDown, ChevronUp, Minus, Plus } from 'lucide-react';
+import { Dices, Target, Shield, Wrench, Zap, ChevronDown, ChevronUp, Minus, Plus, Rocket } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
 import { useParty } from '../../context/PartyContext';
 import { useGame } from '../../context/GameContext';
 import { ACTIONS } from '../../data/spaceCombatData';
 import { TORPEDO_TYPES } from '../../data/shipShopData';
 import { rollDice, rollD, rollTest } from '../../utils/dice';
-import { getMaxArmorTier, getGunnerDamage, canAnyStationLoadTorpedoes, hasUpgrade } from '../../utils/shipUpgrades';
+import { getMaxArmorTier, getGunnerDamage, canAnyStationLoadTorpedoes, hasUpgrade, getSteadyTargetCount } from '../../utils/shipUpgrades';
 import TorpedoSelector from './TorpedoSelector';
 import { useSoundEffects } from '../../hooks/useSoundEffects';
 
@@ -51,6 +51,17 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
     // Apply Turbo Laser upgrade to gunner damage
     if (action.id === 'fireLaserTurret') {
       action.damage = getGunnerDamage(ship, stationId);
+      // Add upgrade badge info
+      if (hasUpgrade(ship, 'turboLasers') && ship.turboLaserStation === stationId) {
+        action.upgradeBadge = { text: 'D8', color: 'accent-red', icon: 'zap' };
+      }
+    }
+    
+    // Apply Booster Rockets upgrade to Steady action
+    if (action.id === 'steady' && hasUpgrade(ship, 'boosterRockets')) {
+      action.description = 'Test KNW to grant advantage to the next D2 attacks against enemies';
+      action.effect = 'Next D2 ally attacks have advantage';
+      action.upgradeBadge = { text: 'D2 Targets', color: 'accent-yellow', icon: 'rocket' };
     }
     
     // Allow any station to load torpedoes if Torpedo Winch is installed
@@ -63,7 +74,10 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
   
   // Add loadTorpedo action to all stations if Torpedo Winch installed
   if (canAnyStationLoadTorpedoes(ship) && !actionIds.includes('loadTorpedo')) {
-    actions.push({ ...ACTIONS.loadTorpedo });
+    const loadAction = { ...ACTIONS.loadTorpedo };
+    // Mark as added by Torpedo Winch upgrade
+    loadAction.upgradeBadge = { text: 'Winch', color: 'accent-cyan', icon: 'wrench' };
+    actions.push(loadAction);
   }
 
   const getAbilityScore = (ability) => {
@@ -299,9 +313,20 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
                 
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2 mb-1">
-                    <p className="text-xs font-orbitron font-bold text-text-primary">
-                      {action.name}
-                    </p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-xs font-orbitron font-bold text-text-primary">
+                        {action.name}
+                      </p>
+                      {/* Upgrade Badge */}
+                      {action.upgradeBadge && (
+                        <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 text-[10px] font-orbitron font-bold uppercase bg-${action.upgradeBadge.color}/20 border border-${action.upgradeBadge.color}/50 text-${action.upgradeBadge.color} rounded`}>
+                          {action.upgradeBadge.icon === 'zap' && <Zap className="w-2.5 h-2.5" />}
+                          {action.upgradeBadge.icon === 'rocket' && <Rocket className="w-2.5 h-2.5" />}
+                          {action.upgradeBadge.icon === 'wrench' && <Wrench className="w-2.5 h-2.5" />}
+                          {action.upgradeBadge.text}
+                        </span>
+                      )}
+                    </div>
                     {action.type !== 'instant' && (
                       <div className="flex items-center gap-1">
                         <span className="text-xs font-orbitron text-gray-400">
