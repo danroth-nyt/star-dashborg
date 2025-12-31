@@ -17,6 +17,7 @@ const initialGameState = {
   dangerClocks: [],
   journal: '',
   log: [],
+  includePVOracles: true, // Include Perilous Void oracles by default
   spaceCombat: {
     isActive: false,
     shipArmor: 2,
@@ -190,10 +191,22 @@ export function GameProvider({ children, roomCode }) {
     [updateGameState]
   );
 
+  // Toggle Perilous Void oracles
+  const togglePVOracles = useCallback(
+    (enabled) => {
+      updateGameState((state) => ({
+        ...state,
+        includePVOracles: enabled,
+      }));
+    },
+    [updateGameState]
+  );
+
   const value = {
     gameState,
     updateGameState,
     addLog,
+    togglePVOracles,
     loading,
     error,
   };

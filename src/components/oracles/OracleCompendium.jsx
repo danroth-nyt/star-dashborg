@@ -37,7 +37,7 @@ import Accordion from '../ui/Accordion';
 export default function OracleCompendium() {
   const [activeTab, setActiveTab] = useState('core');
   const [oracleResult, setOracleResult] = useState(null);
-  const { addLog } = useGame();
+  const { addLog, gameState, togglePVOracles } = useGame();
 
   // Determine variant based on result type
   const getResultVariant = () => {
@@ -72,6 +72,26 @@ export default function OracleCompendium() {
 
   return (
     <div className="space-y-4">
+      {/* Perilous Void Toggle */}
+      <div className="border-2 border-accent-yellow bg-bg-secondary p-3">
+        <label className="flex items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={gameState.includePVOracles}
+            onChange={(e) => togglePVOracles(e.target.checked)}
+            className="w-4 h-4 accent-accent-yellow cursor-pointer"
+          />
+          <div>
+            <span className="text-accent-yellow font-orbitron text-sm font-bold uppercase">
+              Include Perilous Void Oracles
+            </span>
+            <p className="text-gray-400 text-xs mt-1">
+              Adds 10 opening scenes (d20→d30) and Inciting Incident generator
+            </p>
+          </div>
+        </label>
+      </div>
+
       {/* Quick Action Bar */}
       <div className="border-3 border-accent-cyan bg-bg-secondary p-3">
         <OracleQuickBar setOracleResult={setOracleResult} />
@@ -148,19 +168,32 @@ function MoraleButton({ morale, label, onCheck }) {
 // ==========================================
 
 function CoreOraclesTab() {
+  const { gameState } = useGame();
+  const diceType = gameState.includePVOracles ? 'd30' : 'd20';
+  
   return (
     <div className="space-y-4">
       <div className="text-accent-cyan font-orbitron text-lg font-bold uppercase mb-4">
         Core Solo Play Oracles
       </div>
 
-      <Accordion title="Opening Scene (d20)" defaultOpen={false}>
+      <Accordion title={`Opening Scene (${diceType})`} defaultOpen={false}>
         <OracleTable
           title="Opening Scene"
           table={soloOracles.openingScene}
           variant="cyan"
-          diceType="d20"
+          diceType={diceType}
         />
+        {gameState.includePVOracles && (
+          <div className="mt-4 p-3 border-2 border-accent-yellow bg-bg-secondary">
+            <div className="text-accent-yellow font-orbitron text-xs uppercase mb-2">
+              Perilous Void Entries (21-30)
+            </div>
+            <p className="text-gray-300 text-sm">
+              Rolls 21-30 use structured incidents with follow-up questions from The Perilous Void.
+            </p>
+          </div>
+        )}
       </Accordion>
 
       <Accordion title="Crit & Blunder (d4)" defaultOpen={false}>

@@ -583,6 +583,31 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           </div>
         )}
 
+        {/* Perilous Void Incident (Opening Scene or Inciting Incident) */}
+        {result.incident && result.followUpQuestions && (
+          <div className="space-y-3">
+            <div className="space-y-1">
+              <div className="text-sm font-orbitron uppercase text-gray-400">
+                INCIDENT:
+              </div>
+              <div className={cn('text-base sm:text-lg font-bold break-words', textColors[variant], textGlowColors[variant])}>
+                {result.incident}
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              <div className="text-sm font-orbitron uppercase text-gray-400">
+                FOLLOW-UP QUESTIONS:
+              </div>
+              <ul className="list-disc list-inside space-y-1 text-sm text-text-primary italic">
+                {result.followUpQuestions.map((question, idx) => (
+                  <li key={idx} className="break-words">{question}</li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+
         {/* Title Generator special formatting - 4 column rolls */}
         {result.titleType && result.col1 && result.col2 && result.col3 && result.col4 && (
           <div className="space-y-3">

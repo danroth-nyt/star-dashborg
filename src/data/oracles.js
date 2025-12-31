@@ -3,6 +3,8 @@
 // Complete oracle tables from Solo Rules, GM Guide, and Rebel Handbook
 // ==========================================
 
+import { pvOpeningScenes } from './perilousVoidOracles';
+
 // ==========================================
 // 1. SOLO PLAY ORACLES (The core engine)
 // ==========================================
@@ -1454,4 +1456,43 @@ export function rollSettlementNameSuffix() {
     roll,
     result: nameOracles.settlementNameSuffixes[roll - 1]
   };
+}
+
+// ==========================================
+// UNIFIED OPENING SCENE GENERATOR
+// Combines Star Borg (d20) + Perilous Void (d10) = d30
+// ==========================================
+
+export function generateOpeningScene(includePV = true) {
+  if (includePV) {
+    // Roll d30: 1-20 Star Borg, 21-30 Perilous Void
+    const roll = rollDice(30);
+    
+    if (roll <= 20) {
+      // Star Borg opening scene (simple string)
+      return {
+        roll,
+        result: soloOracles.openingScene[roll - 1],
+        source: 'starBorg'
+      };
+    } else {
+      // Perilous Void opening scene (structured with follow-up questions)
+      const pvIndex = roll - 21; // 21->0, 22->1, ..., 30->9
+      const pvScene = pvOpeningScenes[pvIndex];
+      return {
+        roll,
+        incident: pvScene.incident,
+        followUpQuestions: pvScene.followUpQuestions,
+        source: 'perilousVoid'
+      };
+    }
+  } else {
+    // Roll d20: Star Borg only
+    const roll = rollDice(20);
+    return {
+      roll,
+      result: soloOracles.openingScene[roll - 1],
+      source: 'starBorg'
+    };
+  }
 }

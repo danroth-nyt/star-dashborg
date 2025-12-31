@@ -17,10 +17,12 @@ import {
   generateScene,
   generateNPC,
   generatePlanet,
+  generateOpeningScene,
   characterOracles,
   soloOracles,
   visualOracles
 } from '../../data/oracles';
+import { generatePVIncitingIncident } from '../../data/perilousVoidOracles';
 
 export default function GameFlowDrawer({ isOpen, onClose }) {
   const [expandedStep, setExpandedStep] = useState(null);
@@ -40,6 +42,15 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
+
+  // Build actions list for Campaign Goal step based on PV toggle
+  const campaignGoalActions = [
+    { label: "Generate Epic Title", specific: "epicTitle" },
+    { label: "Generate Villain Plot", specific: "villain" }
+  ];
+  if (gameState.includePVOracles) {
+    campaignGoalActions.push({ label: "Generate Inciting Incident", specific: "inciting" });
+  }
 
   const gameFlowSteps = [
     {
@@ -62,10 +73,7 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
       icon: Target,
       color: "yellow",
       description: "Roll on the Epic and Damn Fool Idealistic Crusade Tables to determine your Rebel's main goal to save the galaxy.",
-      actions: [
-        { label: "Generate Epic Title", specific: "epicTitle" },
-        { label: "Generate Villain Plot", specific: "villain" }
-      ]
+      actions: campaignGoalActions
     },
     {
       id: 3,
@@ -200,6 +208,11 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
         logMessage = `Villain: ${result.villain}`;
         break;
 
+      case 'inciting':
+        result = generatePVIncitingIncident();
+        logMessage = `Inciting Incident [${result.roll}]: ${result.incident}`;
+        break;
+
       case 'episodeTitle':
         result = generateEpisodeTitle();
         result.titleType = 'episode';
@@ -212,9 +225,12 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
         break;
 
       case 'openingScene':
-        result = rollOnTable(soloOracles.openingScene);
-        logMessage = `Opening Scene: ${result}`;
-        result = { result, roll: Math.floor(Math.random() * 20) + 1 };
+        result = generateOpeningScene(gameState.includePVOracles);
+        if (result.incident) {
+          logMessage = `Opening Scene [${result.roll}]: ${result.incident}`;
+        } else {
+          logMessage = `Opening Scene [${result.roll}]: ${result.result}`;
+        }
         break;
 
       case 'scene':
@@ -469,7 +485,7 @@ function StepCard({ step, isExpanded, onToggle, onQuickAction, stepResult, onCle
               <div className="grid grid-cols-1 gap-2">
                 {step.actions.map((action, idx) => {
                   const isImplemented = action.specific && [
-                    'species', 'motivation', 'epicTitle', 'villain', 'episodeTitle', 
+                    'species', 'motivation', 'epicTitle', 'villain', 'inciting', 'episodeTitle', 
                     'mission', 'openingScene', 'scene', 'askOracle', 'npc', 
                     'planet', 'shakeup', 'event', 'boost'
                   ].includes(action.specific);

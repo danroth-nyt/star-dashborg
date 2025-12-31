@@ -3,12 +3,13 @@ import Button from '../../ui/Button';
 import OracleResultDisplay from '../OracleResultDisplay';
 import { generateMission, generateQuickMission, generateVillain, rollOnTable } from '../../../data/oracles';
 import { missionGenerators } from '../../../data/oracles';
+import { generatePVIncitingIncident } from '../../../data/perilousVoidOracles';
 import { useGame } from '../../../context/GameContext';
 
 export default function MissionGenerator() {
-  const { addLog } = useGame();
+  const { addLog, gameState } = useGame();
   const [result, setResult] = useState(null);
-  const [missionType, setMissionType] = useState('detailed'); // 'detailed', 'quick', or 'villain'
+  const [missionType, setMissionType] = useState('detailed'); // 'detailed', 'quick', 'villain', 'scenario', or 'inciting'
 
   const handleGenerateMission = () => {
     const mission = generateMission();
@@ -37,10 +38,16 @@ export default function MissionGenerator() {
     addLog(`Scenario: ${scenario.title}`, 'mission');
   };
 
+  const handleGenerateIncitingIncident = () => {
+    const incident = generatePVIncitingIncident();
+    setResult(incident);
+    addLog(`Inciting Incident: ${incident.incident}`, 'mission');
+  };
+
   return (
     <div className="space-y-4">
       {/* Mission Type Selector */}
-      <div className="grid grid-cols-4 gap-1 sm:gap-2">
+      <div className={`grid gap-1 sm:gap-2 ${gameState.includePVOracles ? 'grid-cols-5' : 'grid-cols-4'}`}>
         <button
           onClick={() => setMissionType('detailed')}
           className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
@@ -71,6 +78,18 @@ export default function MissionGenerator() {
         >
           Villain
         </button>
+        {gameState.includePVOracles && (
+          <button
+            onClick={() => setMissionType('inciting')}
+            className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
+              missionType === 'inciting'
+                ? 'bg-accent-yellow text-bg-primary border-accent-yellow'
+                : 'bg-transparent text-accent-yellow border-accent-yellow hover:bg-accent-yellow hover:text-bg-primary'
+            }`}
+          >
+            Inciting
+          </button>
+        )}
         <button
           onClick={() => setMissionType('scenario')}
           className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
@@ -102,6 +121,12 @@ export default function MissionGenerator() {
         </Button>
       )}
       
+      {missionType === 'inciting' && (
+        <Button onClick={handleGenerateIncitingIncident} variant="secondary" className="w-full">
+          Generate Inciting Incident
+        </Button>
+      )}
+      
       {missionType === 'scenario' && (
         <Button onClick={handleGenerateScenario} variant="secondary" className="w-full">
           Generate Campaign Scenario
@@ -112,7 +137,7 @@ export default function MissionGenerator() {
       {result && (
         <OracleResultDisplay 
           result={result}
-          variant={missionType === 'villain' ? 'red' : missionType === 'scenario' ? 'yellow' : 'cyan'}
+          variant={missionType === 'villain' ? 'red' : (missionType === 'scenario' || missionType === 'inciting') ? 'yellow' : 'cyan'}
         />
       )}
     </div>
