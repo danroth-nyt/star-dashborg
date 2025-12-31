@@ -29,6 +29,8 @@ export function PartyProvider({ children, roomCode }) {
       hpMax: dbCharacter.hp_max,
       userId: dbCharacter.user_id,
       roomCode: dbCharacter.room_code,
+      galaxySavesClaimed: dbCharacter.galaxy_saves_claimed || 0,
+      advancementOptions: dbCharacter.advancement_options || [],
     };
   };
 

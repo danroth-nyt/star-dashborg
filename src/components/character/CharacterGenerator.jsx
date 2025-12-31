@@ -128,7 +128,7 @@ export default function CharacterGenerator({ onSave, onCancel }) {
         stats,
         hp_max: hp,
         hp_current: hp,
-        destinyPoints: destiny,
+        destiny_points: destiny,
         bits,
         equipment,
         classFeatures,
@@ -316,6 +316,12 @@ export default function CharacterGenerator({ onSave, onCancel }) {
     
     const newSpecies = SPECIES[rollD(10) - 1].name;
     updateCharacter('species', newSpecies);
+  };
+
+  // Reroll motivation
+  const rerollMotivation = () => {
+    const newMotivation = characterOracles.rebelMotivations[rollD(10) - 1];
+    updateCharacter('motivation', newMotivation);
   };
 
   // Add equipment item
@@ -653,8 +659,8 @@ export default function CharacterGenerator({ onSave, onCancel }) {
             <label className="block text-xs font-mono text-text-secondary mb-1">DESTINY POINTS</label>
             <input
               type="number"
-              value={character.destinyPoints}
-              onChange={(e) => updateCharacter('destinyPoints', Math.max(0, parseInt(e.target.value) || 0))}
+              value={character.destiny_points}
+              onChange={(e) => updateCharacter('destiny_points', Math.max(0, parseInt(e.target.value) || 0))}
               readOnly={!editMode}
               min="0"
               className="w-full text-2xl font-orbitron font-bold text-accent-yellow bg-transparent border-0 focus:outline-none"
@@ -707,6 +713,25 @@ export default function CharacterGenerator({ onSave, onCancel }) {
               min="0"
               className="w-full bg-bg-secondary border border-accent-cyan/30 rounded px-3 py-2 text-text-primary font-mono focus:outline-none focus:border-accent-cyan"
             />
+          </div>
+        </div>
+
+        {/* Rebel Motivation */}
+        <div>
+          <div className="flex items-center justify-between mb-1">
+            <label className="text-xs font-mono text-text-secondary">REBEL MOTIVATION</label>
+            {!editMode && (
+              <button
+                onClick={rerollMotivation}
+                className="text-accent-yellow hover:text-accent-yellow/80 transition-colors"
+                title="Reroll motivation"
+              >
+                <Dices className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+          <div className="bg-bg-secondary border border-accent-yellow/30 rounded px-3 py-2 text-text-primary font-mono text-sm">
+            {character.motivation}
           </div>
         </div>
 

@@ -17,7 +17,6 @@ import {
   npcOracles,
   nameOracles,
   characterOracles,
-  classOracles,
   gmExtras,
   monsterOracles,
   equipmentOracles,
@@ -53,8 +52,7 @@ export default function OracleCompendium() {
     { id: 'missions', label: 'Missions', color: 'yellow' },
     { id: 'world', label: 'World', color: 'cyan' },
     { id: 'characters', label: 'Characters', color: 'yellow' },
-    { id: 'combat', label: 'Combat', color: 'red' },
-    { id: 'creation', label: 'Creation', color: 'cyan' }
+    { id: 'combat', label: 'Combat', color: 'red' }
   ];
 
   const tabColors = {
@@ -88,7 +86,7 @@ export default function OracleCompendium() {
       )}
 
       {/* Tab Navigation */}
-      <div className="grid grid-cols-3 sm:grid-cols-6 gap-1">
+      <div className="grid grid-cols-3 sm:grid-cols-5 gap-1">
         {tabs.map((tab) => (
           <button
             key={tab.id}
@@ -112,7 +110,6 @@ export default function OracleCompendium() {
         {activeTab === 'world' && <WorldTab />}
         {activeTab === 'characters' && <CharactersTab />}
         {activeTab === 'combat' && <CombatTab />}
-        {activeTab === 'creation' && <CreationTab />}
       </div>
     </div>
   );
@@ -541,123 +538,4 @@ function CombatTab() {
   );
 }
 
-function CreationTab() {
-  return (
-    <div className="space-y-4">
-      <div className="text-accent-cyan font-orbitron text-lg font-bold uppercase mb-4">
-        Character Creation
-      </div>
-
-      <Accordion title="Starting Character" defaultOpen={true}>
-        <div className="space-y-4">
-          <OracleTable
-            title="Galactic Species"
-            table={characterOracles.galacticSpecies}
-            variant="cyan"
-            diceType="d10"
-          />
-          <OracleTable
-            title="Rebel Motivation"
-            table={characterOracles.rebelMotivations}
-            variant="yellow"
-            diceType="d10"
-          />
-          <OracleTable
-            title="Nick (Special Item)"
-            table={characterOracles.nicks}
-            variant="yellow"
-            diceType="d6"
-          />
-          <OracleTable
-            title="Knack (Special Ability)"
-            table={characterOracles.knacks}
-            variant="cyan"
-            diceType="d6"
-          />
-        </div>
-      </Accordion>
-
-      <Accordion title="Starting Gear (Bobs)" defaultOpen={false}>
-        <div className="space-y-4">
-          <OracleTable
-            title="Starting Weapon"
-            table={characterOracles.bobsWeapons}
-            variant="red"
-            diceType="d6"
-          />
-          <OracleTable
-            title="Starting Gear"
-            table={characterOracles.bobsGear}
-            variant="cyan"
-            diceType="d6"
-          />
-          <OracleTable
-            title="Starting Armor"
-            table={characterOracles.bobsArmor}
-            variant="yellow"
-            diceType="d6"
-          />
-        </div>
-      </Accordion>
-
-      <Accordion title="Class Tables" defaultOpen={false}>
-        <div className="space-y-4">
-          <div className="text-sm font-orbitron text-accent-cyan uppercase">Bot</div>
-          <OracleTable
-            title="Bot Function"
-            table={classOracles.botFunctions}
-            variant="cyan"
-            diceType="d6"
-          />
-          <OracleTable
-            title="Bot Malfunction"
-            table={classOracles.botMalfunctions}
-            variant="red"
-            diceType="d6"
-          />
-          <OracleTable
-            title="Bot Mod"
-            table={classOracles.botMods}
-            variant="yellow"
-            diceType="d6"
-          />
-
-          <div className="text-sm font-orbitron text-accent-cyan uppercase mt-4">Bounty Hunter</div>
-          <OracleTable
-            title="Bounty Hunter Skill"
-            table={classOracles.bountyHunterSkills}
-            variant="cyan"
-            diceType="d6"
-          />
-          <OracleTable
-            title="Soft Spot"
-            table={classOracles.bountyHunterSoftSpots}
-            variant="yellow"
-            diceType="d6"
-          />
-
-          <div className="text-sm font-orbitron text-accent-cyan uppercase mt-4">Other Classes</div>
-          <OracleTable
-            title="Magi Art"
-            table={classOracles.magiArts}
-            variant="cyan"
-            diceType="d4"
-          />
-          <OracleTable
-            title="Smuggler Trick"
-            table={classOracles.smugglerTricks}
-            variant="cyan"
-            diceType="d6"
-          />
-          <OracleTable
-            title="Technician Scratch Build"
-            table={classOracles.technicianScratchBuilds}
-            variant="yellow"
-            diceType="d6"
-          />
-        </div>
-      </Accordion>
-    </div>
-  );
-}
 

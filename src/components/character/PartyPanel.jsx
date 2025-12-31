@@ -2,6 +2,7 @@ import { Maximize2, Users } from 'lucide-react';
 import { useParty } from '../../context/PartyContext';
 import { useAuth } from '../../context/AuthContext';
 import PartyMemberCard from './PartyMemberCard';
+import GalaxySaveTracker from '../trackers/GalaxySaveTracker';
 
 export default function PartyPanel({ onExpand }) {
   const { partyMembers, loading } = useParty();
@@ -36,9 +37,12 @@ export default function PartyPanel({ onExpand }) {
   });
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-3">
+      {/* Galaxy Save Tracker */}
+      <GalaxySaveTracker />
+
       {/* Party Header */}
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <Users className="w-4 h-4 text-accent-cyan" />
           <h3 className="font-orbitron font-bold text-accent-cyan text-sm">

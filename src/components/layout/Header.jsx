@@ -59,7 +59,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
                   title={character.name || 'Character Sheet'}
                 >
                   <User className="w-4 h-4" />
-                  <span className="max-w-[100px] truncate">{character.name ? character.name.split(' ')[0] : 'Character'}</span>
+                  <span>{character.name ? character.name.split(' ')[0] : 'Character'}</span>
                 </Button>
               )}
               <Button
@@ -68,7 +68,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
                 className={`flex items-center gap-2 ${spaceCombat.isActive ? 'glow-pulse-red border-accent-red text-accent-red' : ''}`}
               >
                 <Rocket className="w-4 h-4" />
-                Battle Stations
+                Battle
               </Button>
               <Button
                 variant="primary"
@@ -76,7 +76,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
                 className="flex items-center gap-2"
               >
                 <BookOpen className="w-4 h-4" />
-                Game Flow
+                Flow
               </Button>
               <Button
                 variant="secondary"
@@ -84,7 +84,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
                 className="flex items-center gap-2"
               >
                 <BookMarked className="w-4 h-4" />
-                Quick Ref
+                Ref
               </Button>
             </div>
           </div>
@@ -133,36 +133,36 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
               <Button
                 variant="primary"
                 onClick={onOpenCharacterSheet}
-                className="flex items-center justify-center gap-2"
+                className="flex items-center justify-center gap-1"
                 title={character.name || 'Character Sheet'}
               >
                 <User className="w-4 h-4" />
-                <span className="truncate text-xs">{character.name ? character.name.split(' ')[0] : 'Char'}</span>
+                <span className="whitespace-nowrap">{character.name ? character.name.split(' ')[0] : 'Char'}</span>
               </Button>
             )}
             <Button
               variant={spaceCombat.isActive ? 'primary' : 'secondary'}
               onClick={toggleSpaceCombat}
-              className={`flex items-center justify-center gap-2 ${spaceCombat.isActive ? 'glow-pulse-red border-accent-red text-accent-red' : ''}`}
+              className={`flex items-center justify-center gap-1 ${spaceCombat.isActive ? 'glow-pulse-red border-accent-red text-accent-red' : ''}`}
             >
               <Rocket className="w-4 h-4" />
-              <span className="text-xs">Combat</span>
+              <span className="whitespace-nowrap">Battle</span>
             </Button>
             <Button
               variant="primary"
               onClick={() => setIsGuideOpen(true)}
-              className="flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-1"
             >
               <BookOpen className="w-4 h-4" />
-              <span className="text-xs">Guide</span>
+              <span className="whitespace-nowrap">Flow</span>
             </Button>
             <Button
               variant="secondary"
               onClick={() => setIsRefOpen(true)}
-              className="flex items-center justify-center gap-2"
+              className="flex items-center justify-center gap-1"
             >
               <BookMarked className="w-4 h-4" />
-              <span className="text-xs">Ref</span>
+              <span className="whitespace-nowrap">Ref</span>
             </Button>
           </div>
         </div>

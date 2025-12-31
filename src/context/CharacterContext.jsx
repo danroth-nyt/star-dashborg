@@ -29,6 +29,8 @@ export function CharacterProvider({ children, userId, roomCode }) {
       hpMax: dbCharacter.hp_max,
       userId: dbCharacter.user_id,
       roomCode: dbCharacter.room_code,
+      galaxySavesClaimed: dbCharacter.galaxy_saves_claimed || 0,
+      advancementOptions: dbCharacter.advancement_options || [],
     };
   };
 
@@ -129,9 +131,12 @@ export function CharacterProvider({ children, userId, roomCode }) {
           hp_max: characterData.hp_max,
           equipment: characterData.equipment || [],
           bits: characterData.bits || 0,
-          destiny_points: characterData.destinyPoints || 0,
+          motivation: characterData.motivation || null,
+          destiny_points: characterData.destiny_points || 0,
           class_features: characterData.classFeatures || null,
           class_name: characterData.className || characterData.class,
+          galaxy_saves_claimed: characterData.galaxySavesClaimed || 0,
+          advancement_options: characterData.advancementOptions || [],
         };
 
         const { data, error } = await supabase
@@ -216,6 +221,96 @@ export function CharacterProvider({ children, userId, roomCode }) {
     }
   }, [character?.id]);
 
+  // Claim a promotion (increase HP, stats, and select advancement)
+  const claimPromotion = useCallback(
+    async (promotionData) => {
+      if (!character?.id) {
+        throw new Error('No character to promote');
+      }
+
+      try {
+        const { hpIncrease, statIncreases, advancementId, advancementResult } = promotionData;
+
+        // Calculate new stats
+        const newStats = { ...character.stats };
+        statIncreases.forEach(stat => {
+          if (newStats[stat] < 6) {
+            newStats[stat] += 1;
+          }
+        });
+
+        // Calculate new HP
+        const newHpMax = character.hp_max + hpIncrease;
+        const newHpCurrent = character.hp_current + hpIncrease; // Also heal by the amount gained
+
+        // Update advancement options
+        const newAdvancementOptions = [
+          ...(character.advancementOptions || []),
+          {
+            id: advancementId,
+            claimedAt: new Date().toISOString(),
+            result: advancementResult,
+          },
+        ];
+
+        // Update class features if advancement adds something
+        let newClassFeatures = { ...character.classFeatures };
+        if (advancementResult?.rolledFeature) {
+          const feature = advancementResult.rolledFeature;
+          
+          // Add the rolled feature to class features
+          switch (feature.type) {
+            case 'heirloom':
+              newClassFeatures.advancedHeirloom = feature;
+              break;
+            case 'skill':
+              newClassFeatures.advancedSkill = feature;
+              break;
+            case 'function':
+              newClassFeatures.advancedFunction = feature;
+              break;
+            case 'magiAwakening':
+              newClassFeatures.advancedMagiArt = feature.art;
+              newClassFeatures.advancedDragoonNemesis = feature.nemesis;
+              break;
+            case 'scratchBuild':
+              newClassFeatures.advancedScratchBuild = feature;
+              break;
+          }
+        }
+
+        // Update character in database
+        const updates = {
+          stats: newStats,
+          hp_max: newHpMax,
+          hp_current: newHpCurrent,
+          galaxy_saves_claimed: (character.galaxySavesClaimed || 0) + 1,
+          advancement_options: newAdvancementOptions,
+          class_features: newClassFeatures,
+        };
+
+        const { data, error } = await supabase
+          .from('characters')
+          .update(updates)
+          .eq('id', character.id)
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        // Update local state
+        const transformedData = transformCharacterFromDB(data);
+        setCharacter(transformedData);
+        return transformedData;
+      } catch (err) {
+        console.error('Error claiming promotion:', err);
+        setError(err.message);
+        throw err;
+      }
+    },
+    [character]
+  );
+
   const value = {
     character,
     loading,
@@ -224,6 +319,7 @@ export function CharacterProvider({ children, userId, roomCode }) {
     updateCharacter,
     updateField,
     deleteCharacter,
+    claimPromotion,
   };
 
   return <CharacterContext.Provider value={value}>{children}</CharacterContext.Provider>;

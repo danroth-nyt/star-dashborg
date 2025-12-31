@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Ship, Star, Zap, Settings, ShoppingCart, Award, Dices } from 'lucide-react';
+import { Ship, Star, Zap, Settings, ShoppingCart, Dices } from 'lucide-react';
 import { useGame } from '../../context/GameContext';
 import { SHIP_UPGRADES } from '../../data/spaceCombatData';
 import { getUpgradeById } from '../../data/shipShopData';
@@ -7,12 +7,10 @@ import { getAllUpgrades, getTotalTorpedoCount, getAvailableHeroicSlots } from '.
 import { generateShipName } from '../../data/oracles';
 import Button from '../ui/Button';
 import UpgradeShop from './UpgradeShop';
-import HeroicRewardsModal from './HeroicRewardsModal';
 
 export default function ShipManager() {
   const { gameState, updateGameState } = useGame();
   const [shopOpen, setShopOpen] = useState(false);
-  const [rewardsOpen, setRewardsOpen] = useState(false);
   const [isEditingName, setIsEditingName] = useState(false);
   const [editedName, setEditedName] = useState('');
   
@@ -124,22 +122,16 @@ export default function ShipManager() {
         <Button
           variant="primary"
           onClick={() => setShopOpen(true)}
-          className="flex-1 flex items-center justify-center gap-2"
+          className="flex-1 flex items-center justify-center gap-2 relative"
         >
           <ShoppingCart className="w-4 h-4" />
           Upgrade Shop
+          {availableRewards > 0 && (
+            <span className="absolute -top-2 -right-2 bg-violet-500 text-white text-xs px-2 py-0.5 rounded-full font-bold shadow-lg shadow-violet-500/50 animate-pulse">
+              {availableRewards}
+            </span>
+          )}
         </Button>
-        
-        {availableRewards > 0 && (
-          <Button
-            variant="secondary"
-            onClick={() => setRewardsOpen(true)}
-            className="flex-1 flex items-center justify-center gap-2 glow-pulse-yellow border-accent-yellow text-accent-yellow"
-          >
-            <Award className="w-4 h-4" />
-            Claim Reward ({availableRewards})
-          </Button>
-        )}
       </div>
 
       {/* Heroic Upgrades */}
@@ -247,14 +239,68 @@ export default function ShipManager() {
       )}
 
       {/* Turbo Laser Configuration */}
-      {ship.turboLaserStation && (
+      {allUpgrades.includes('turboLasers') && (
         <div className="border-3 border-accent-red bg-accent-red/10 p-3">
-          <h4 className="text-xs font-orbitron font-bold text-accent-red uppercase mb-1">
+          <h4 className="text-xs font-orbitron font-bold text-accent-red uppercase mb-2">
             Turbo Laser Configuration
           </h4>
-          <p className="text-sm text-text-primary">
-            Station: <span className="text-accent-red font-orbitron">{ship.turboLaserStation}</span>
-          </p>
+          {ship.turboLaserStation ? (
+            <div className="space-y-2">
+              <p className="text-sm text-text-primary">
+                Assigned to: <span className="text-accent-red font-orbitron font-bold">
+                  {ship.turboLaserStation === 'gunner1' ? 'Gunner 1' : 'Gunner 2'}
+                </span>
+              </p>
+              <p className="text-xs text-gray-400">
+                This gunner deals D8 damage instead of D6
+              </p>
+              <Button
+                onClick={() => {
+                  updateGameState((state) => ({
+                    ...state,
+                    ship: { ...state.ship, turboLaserStation: null }
+                  }));
+                }}
+                variant="secondary"
+                size="sm"
+                className="w-full mt-2"
+              >
+                Reconfigure
+              </Button>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-xs text-gray-400 mb-3">
+                Choose which gunner station gets upgraded damage (D8 instead of D6):
+              </p>
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  onClick={() => {
+                    updateGameState((state) => ({
+                      ...state,
+                      ship: { ...state.ship, turboLaserStation: 'gunner1' }
+                    }));
+                  }}
+                  variant="primary"
+                  size="sm"
+                >
+                  Gunner 1
+                </Button>
+                <Button
+                  onClick={() => {
+                    updateGameState((state) => ({
+                      ...state,
+                      ship: { ...state.ship, turboLaserStation: 'gunner2' }
+                    }));
+                  }}
+                  variant="primary"
+                  size="sm"
+                >
+                  Gunner 2
+                </Button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
@@ -269,7 +315,6 @@ export default function ShipManager() {
 
       {/* Modals */}
       <UpgradeShop isOpen={shopOpen} onClose={() => setShopOpen(false)} />
-      <HeroicRewardsModal isOpen={rewardsOpen} onClose={() => setRewardsOpen(false)} />
     </div>
   );
 }

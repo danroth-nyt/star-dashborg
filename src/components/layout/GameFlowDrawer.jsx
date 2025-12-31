@@ -2,9 +2,29 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ChevronRight, Play, Dice6, Target, Clock, Scroll, Map, Zap, CheckCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useGame } from '../../context/GameContext';
+import CompactOracleResult from '../oracles/CompactOracleResult';
+import {
+  rollOnTable,
+  rollAffirmation,
+  rollEventOracle,
+  rollSceneShakeup,
+  generateEpicTitle,
+  generateEpisodeTitle,
+  generateVillain,
+  generateQuickMission,
+  generateScene,
+  generateNPC,
+  generatePlanet,
+  characterOracles,
+  soloOracles,
+  visualOracles
+} from '../../data/oracles';
 
 export default function GameFlowDrawer({ isOpen, onClose }) {
   const [expandedStep, setExpandedStep] = useState(null);
+  const [stepResults, setStepResults] = useState({}); // Store results per step
+  const { addLog, gameState } = useGame();
 
   // Keyboard navigation
   useEffect(() => {
@@ -151,6 +171,121 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
     setExpandedStep(expandedStep === stepId ? null : stepId);
   };
 
+  const handleQuickAction = (stepId, actionType, variant = 'cyan') => {
+    let result = null;
+    let logMessage = '';
+
+    switch (actionType) {
+      case 'species':
+        result = rollOnTable(characterOracles.galacticSpecies);
+        logMessage = `Species: ${result}`;
+        result = { result, roll: Math.floor(Math.random() * 10) + 1 };
+        break;
+
+      case 'motivation':
+        result = rollOnTable(characterOracles.rebelMotivations);
+        logMessage = `Motivation: ${result}`;
+        result = { result, roll: Math.floor(Math.random() * 10) + 1 };
+        break;
+
+      case 'epicTitle':
+        result = generateEpicTitle();
+        result.titleType = 'epic';
+        logMessage = `Epic Title [${result.col1Roll}, ${result.col2Roll}, ${result.col3Roll}, ${result.col4Roll}]: ${result.col1} ${result.col2} ${result.col3} ${result.col4}`;
+        break;
+
+      case 'villain':
+        result = generateVillain();
+        logMessage = `Villain: ${result.villain}`;
+        break;
+
+      case 'episodeTitle':
+        result = generateEpisodeTitle();
+        result.titleType = 'episode';
+        logMessage = `Episode Title [${result.col1Roll}, ${result.col2Roll}, ${result.col3Roll}, ${result.col4Roll}]: ${result.col1} ${result.col2} ${result.col3} ${result.col4}`;
+        break;
+
+      case 'mission':
+        result = generateQuickMission();
+        logMessage = `Mission: ${result.action} ${result.target}`;
+        break;
+
+      case 'openingScene':
+        result = rollOnTable(soloOracles.openingScene);
+        logMessage = `Opening Scene: ${result}`;
+        result = { result, roll: Math.floor(Math.random() * 20) + 1 };
+        break;
+
+      case 'scene':
+        result = generateScene();
+        logMessage = `Scene: ${result.location} - ${result.tone}`;
+        break;
+
+      case 'askOracle':
+        result = rollAffirmation();
+        logMessage = `Oracle (${result.roll}): ${result.result}`;
+        break;
+
+      case 'npc':
+        result = generateNPC();
+        logMessage = `NPC: ${result.role} - ${result.species}`;
+        break;
+
+      case 'planet':
+        result = generatePlanet();
+        logMessage = `Planet: ${result.terrain}${result.name ? ' - ' + result.name : ''}`;
+        break;
+
+      case 'shakeup':
+        const threatDie = gameState.threatDie || 1;
+        const shakeupCheck = rollSceneShakeup(threatDie);
+        if (shakeupCheck.success) {
+          result = {
+            roll: shakeupCheck.total,
+            result: 'Scene Shakeup',
+            detail: shakeupCheck.shakeup.result
+          };
+          logMessage = `Scene Shakeup: ${shakeupCheck.shakeup.result}`;
+        } else {
+          result = {
+            roll: shakeupCheck.total,
+            result: 'No Scene Shakeup',
+            detail: `Rolled ${shakeupCheck.total}, need 15+`
+          };
+          logMessage = `No Scene Shakeup (rolled ${shakeupCheck.total})`;
+        }
+        break;
+
+      case 'event':
+        result = rollEventOracle();
+        logMessage = `Event: ${result.verb} ${result.subject} - ${result.specific}`;
+        break;
+
+      case 'boost':
+        result = rollOnTable(visualOracles.boost);
+        logMessage = `Boost Oracle: ${result}`;
+        result = { result, roll: Math.floor(Math.random() * 20) + 1 };
+        break;
+
+      default:
+        console.log('Quick action:', actionType);
+        return;
+    }
+
+    if (result) {
+      setStepResults((prev) => ({ ...prev, [stepId]: { result, variant } }));
+      addLog(logMessage, 'roll');
+    }
+  };
+
+  const clearStepResult = (stepId) => {
+    setStepResults((prev) => {
+      const updated = { ...prev };
+      delete updated[stepId];
+      return updated;
+    });
+  };
+
   const getStepIcon = (step) => {
     const Icon = step.icon;
     return <Icon className="w-5 h-5" />;
@@ -215,6 +350,9 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
                 step={step}
                 isExpanded={expandedStep === step.id}
                 onToggle={() => handleStepClick(step.id)}
+                onQuickAction={handleQuickAction}
+                stepResult={stepResults[step.id]}
+                onClearResult={clearStepResult}
               />
             ))}
           </div>
@@ -232,6 +370,9 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
                 step={step}
                 isExpanded={expandedStep === step.id}
                 onToggle={() => handleStepClick(step.id)}
+                onQuickAction={handleQuickAction}
+                stepResult={stepResults[step.id]}
+                onClearResult={clearStepResult}
               />
             ))}
           </div>
@@ -252,7 +393,7 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
   );
 }
 
-function StepCard({ step, isExpanded, onToggle }) {
+function StepCard({ step, isExpanded, onToggle, onQuickAction, stepResult, onClearResult }) {
   const Icon = step.icon;
   
   const colorClasses = {
@@ -325,29 +466,57 @@ function StepCard({ step, isExpanded, onToggle }) {
                 Quick Actions:
               </div>
               <div className="grid grid-cols-1 gap-2">
-                {step.actions.map((action, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      console.log('Quick action:', action.specific || action.tab);
-                      // These would ideally trigger navigation or oracle calls
-                      // Implementation would depend on app routing structure
-                    }}
-                    className={cn(
-                      'px-3 py-2 text-xs font-orbitron uppercase border-2 transition-all text-left',
-                      colors.border,
-                      colors.text,
-                      'hover:bg-opacity-20',
-                      `hover:${colors.bg}`
-                    )}
-                  >
-                    {action.label}
-                  </button>
-                ))}
+                {step.actions.map((action, idx) => {
+                  const isImplemented = action.specific && [
+                    'species', 'motivation', 'epicTitle', 'villain', 'episodeTitle', 
+                    'mission', 'openingScene', 'scene', 'askOracle', 'npc', 
+                    'planet', 'shakeup', 'event', 'boost'
+                  ].includes(action.specific);
+
+                  const isReminder = action.tab || (!isImplemented && action.specific);
+
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        if (action.specific && isImplemented) {
+                          onQuickAction(step.id, action.specific, step.color);
+                        } else {
+                          console.log('Action not yet implemented:', action.specific || action.tab);
+                        }
+                      }}
+                      disabled={isReminder}
+                      className={cn(
+                        'px-3 py-2 text-xs font-orbitron uppercase border-2 transition-all text-left',
+                        isImplemented ? [
+                          colors.border,
+                          colors.text,
+                          'hover:bg-opacity-20',
+                          `hover:${colors.bg}`
+                        ] : [
+                          'border-gray-500',
+                          'text-gray-400',
+                          'hover:border-gray-400',
+                          'italic'
+                        ]
+                      )}
+                    >
+                      {isReminder && '→ '}
+                      {action.label}
+                      {isReminder && ' (reminder)'}
+                    </button>
+                  );
+                })}
               </div>
-              <p className="text-gray-500 text-xs mt-2 italic">
-                Note: Actions log to console. Full navigation integration coming soon.
-              </p>
+
+              {/* Display Result */}
+              {stepResult && (
+                <CompactOracleResult
+                  result={stepResult.result}
+                  variant={stepResult.variant}
+                  onDismiss={() => onClearResult(step.id)}
+                />
+              )}
             </div>
           )}
         </div>
