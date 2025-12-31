@@ -37,7 +37,7 @@ import Accordion from '../ui/Accordion';
 export default function OracleCompendium() {
   const [activeTab, setActiveTab] = useState('core');
   const [oracleResult, setOracleResult] = useState(null);
-  const { addLog, gameState, togglePVOracles } = useGame();
+  const { addLog, gameState } = useGame();
 
   // Determine variant based on result type
   const getResultVariant = () => {
@@ -72,26 +72,6 @@ export default function OracleCompendium() {
 
   return (
     <div className="space-y-4">
-      {/* Perilous Void Toggle */}
-      <div className="border-2 border-accent-yellow bg-bg-secondary p-3">
-        <label className="flex items-center gap-3 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={gameState.includePVOracles}
-            onChange={(e) => togglePVOracles(e.target.checked)}
-            className="w-4 h-4 accent-accent-yellow cursor-pointer"
-          />
-          <div>
-            <span className="text-accent-yellow font-orbitron text-sm font-bold uppercase">
-              Include Perilous Void Oracles
-            </span>
-            <p className="text-gray-400 text-xs mt-1">
-              Adds 10 opening scenes (d20→d30) and Inciting Incident generator
-            </p>
-          </div>
-        </label>
-      </div>
-
       {/* Quick Action Bar */}
       <div className="border-3 border-accent-cyan bg-bg-secondary p-3">
         <OracleQuickBar setOracleResult={setOracleResult} />

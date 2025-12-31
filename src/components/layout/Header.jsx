@@ -1,9 +1,10 @@
-import { Copy, Check, Plus, BookOpen, BookMarked, User, Rocket } from 'lucide-react';
+import { Copy, Check, Plus, BookOpen, BookMarked, User, Rocket, Settings } from 'lucide-react';
 import { useState } from 'react';
 import Button from '../ui/Button';
 import { generateRoomCode } from '../../lib/utils';
 import GameFlowDrawer from './GameFlowDrawer';
 import QuickReferenceDrawer from '../ui/QuickReferenceDrawer';
+import SettingsDrawer from './SettingsDrawer';
 import { useCharacter } from '../../context/CharacterContext';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
 
@@ -13,6 +14,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
   const [copied, setCopied] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isRefOpen, setIsRefOpen] = useState(false);
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
   const copyInviteLink = () => {
     const url = `${window.location.origin}${window.location.pathname}?room=${roomCode}`;
@@ -86,6 +88,14 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
                 <BookMarked className="w-4 h-4" />
                 Ref
               </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setIsSettingsOpen(true)}
+                className="flex items-center gap-2"
+              >
+                <Settings className="w-4 h-4" />
+                Settings
+              </Button>
             </div>
           </div>
           
@@ -128,7 +138,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
           </div>
 
           {/* Guide Buttons for mobile - full width on new line */}
-          <div className={`md:hidden w-full grid gap-2 ${character && onOpenCharacterSheet ? 'grid-cols-4' : 'grid-cols-3'}`}>
+          <div className={`md:hidden w-full grid gap-2 ${character && onOpenCharacterSheet ? 'grid-cols-5' : 'grid-cols-4'}`}>
             {character && onOpenCharacterSheet && (
               <Button
                 variant="primary"
@@ -164,6 +174,14 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
               <BookMarked className="w-4 h-4" />
               <span className="whitespace-nowrap">Ref</span>
             </Button>
+            <Button
+              variant="secondary"
+              onClick={() => setIsSettingsOpen(true)}
+              className="flex items-center justify-center gap-1"
+            >
+              <Settings className="w-4 h-4" />
+              <span className="whitespace-nowrap">Settings</span>
+            </Button>
           </div>
         </div>
       </header>
@@ -171,6 +189,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
       {/* Drawers */}
       <GameFlowDrawer isOpen={isGuideOpen} onClose={() => setIsGuideOpen(false)} />
       <QuickReferenceDrawer isOpen={isRefOpen} onClose={() => setIsRefOpen(false)} />
+      <SettingsDrawer isOpen={isSettingsOpen} onClose={() => setIsSettingsOpen(false)} />
     </>
   );
 }
