@@ -135,16 +135,16 @@ export default function PartyMemberCard({ character: characterProp }) {
       <div className="flex items-center justify-between mb-2">
         <div className="flex-1 min-w-0">
           <h4
-            className={`font-orbitron font-bold text-xs truncate ${
+            className={`font-orbitron font-bold text-sm truncate ${
               isOwnCharacter ? 'text-accent-yellow' : 'text-text-primary'
             }`}
           >
             {character.name || 'Unnamed Rebel'}
             {isOwnCharacter && (
-              <span className="ml-1 text-[8px] text-accent-yellow/60">(YOU)</span>
+              <span className="ml-1 text-[9px] text-accent-yellow/60">(YOU)</span>
             )}
           </h4>
-          <p className="text-text-secondary text-[9px] font-mono capitalize">
+          <p className="text-text-secondary text-[10px] font-mono capitalize">
             {character.class_name || character.class} • {character.species}
           </p>
         </div>
@@ -155,9 +155,9 @@ export default function PartyMemberCard({ character: characterProp }) {
         <div className="flex items-center justify-between mb-1">
           <div className="flex items-center gap-1">
             <Heart className="w-2.5 h-2.5 text-accent-red" />
-            <span className="text-[9px] font-mono text-text-secondary uppercase">HP</span>
+            <span className="text-[10px] font-mono text-text-secondary uppercase">HP</span>
           </div>
-          <div className="font-orbitron font-bold text-accent-red text-xs">
+          <div className="font-orbitron font-bold text-accent-red text-sm">
             {character.hp_current} / {character.hp_max}
           </div>
         </div>
@@ -217,10 +217,10 @@ export default function PartyMemberCard({ character: characterProp }) {
                 disabled={rollingStatId === statName}
                 className="bg-bg-primary border border-accent-cyan/30 hover:border-accent-cyan hover:shadow-[0_0_8px_rgba(0,240,255,0.3)] transition-all p-1.5 text-center group disabled:animate-pulse"
               >
-                <div className="text-[9px] font-mono text-text-secondary uppercase mb-0.5">
+                <div className="text-[10px] font-mono text-text-secondary uppercase mb-0.5">
                   {statName}
                 </div>
-                <div className={`text-lg font-orbitron font-bold leading-none ${getStatColor(value)}`}>
+                <div className={`text-xl font-orbitron font-bold leading-none ${getStatColor(value)}`}>
                   {formatModifier(value)}
                 </div>
               </button>
@@ -233,8 +233,8 @@ export default function PartyMemberCard({ character: characterProp }) {
             <div className="flex items-center gap-1.5 flex-1">
               <Sparkles className="w-3 h-3 text-accent-yellow flex-shrink-0" />
               <div className="flex items-center gap-1 flex-1">
-                <span className="text-[9px] font-mono text-text-secondary uppercase">Destiny:</span>
-                <span className="text-base font-orbitron font-bold text-accent-yellow">{character.destiny_points || 0}</span>
+                <span className="text-[10px] font-mono text-text-secondary uppercase">Destiny:</span>
+                <span className="text-lg font-orbitron font-bold text-accent-yellow">{character.destiny_points || 0}</span>
               </div>
               <button
                 onClick={() => handleDestinyChange(-1)}
@@ -258,8 +258,8 @@ export default function PartyMemberCard({ character: characterProp }) {
             <div className="flex items-center gap-1.5 flex-1">
               <Coins className="w-3 h-3 text-accent-cyan flex-shrink-0" />
               <div className="flex items-center gap-1 flex-1">
-                <span className="text-[9px] font-mono text-text-secondary uppercase">Bits:</span>
-                <span className="text-base font-orbitron font-bold text-accent-cyan">{character.bits || 0}</span>
+                <span className="text-[10px] font-mono text-text-secondary uppercase">Bits:</span>
+                <span className="text-lg font-orbitron font-bold text-accent-cyan">{character.bits || 0}</span>
               </div>
               <button
                 onClick={() => handleBitsChange(-1)}
