@@ -1,9 +1,8 @@
 import { useState } from 'react';
 import Button from '../../ui/Button';
 import OracleResultDisplay from '../OracleResultDisplay';
-import { generateMission, generateQuickMission, generateVillain, rollOnTable } from '../../../data/oracles';
+import { generateMission, generateQuickMission, generateVillain, rollOnTable, generateIncitingIncident } from '../../../data/oracles';
 import { missionGenerators } from '../../../data/oracles';
-import { generatePVIncitingIncident } from '../../../data/perilousVoidOracles';
 import { useGame } from '../../../context/GameContext';
 
 export default function MissionGenerator() {
@@ -39,15 +38,23 @@ export default function MissionGenerator() {
   };
 
   const handleGenerateIncitingIncident = () => {
-    const incident = generatePVIncitingIncident();
+    const incident = generateIncitingIncident(gameState.includePVOracles, gameState.includeStarforgedOracles);
+    if (!incident) {
+      // Both sources disabled
+      setResult({ result: 'No inciting incident sources enabled. Enable Perilous Void or Starforged in Settings.' });
+      return;
+    }
     setResult(incident);
-    addLog(`Inciting Incident: ${incident.incident}`, 'mission');
+    addLog(`Inciting Incident [${incident.diceType} ${incident.roll}]: ${incident.incident}`, 'mission');
   };
+
+  // Show Inciting tab if either PV or Starforged is enabled
+  const showIncitingTab = gameState.includePVOracles || gameState.includeStarforgedOracles;
 
   return (
     <div className="space-y-4">
       {/* Mission Type Selector */}
-      <div className={`grid gap-1 sm:gap-2 ${gameState.includePVOracles ? 'grid-cols-5' : 'grid-cols-4'}`}>
+      <div className={`grid gap-1 sm:gap-2 ${showIncitingTab ? 'grid-cols-5' : 'grid-cols-4'}`}>
         <button
           onClick={() => setMissionType('detailed')}
           className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
@@ -78,7 +85,7 @@ export default function MissionGenerator() {
         >
           Villain
         </button>
-        {gameState.includePVOracles && (
+        {showIncitingTab && (
           <button
             onClick={() => setMissionType('inciting')}
             className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${

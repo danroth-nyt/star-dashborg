@@ -583,8 +583,8 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           </div>
         )}
 
-        {/* Perilous Void Incident (Opening Scene or Inciting Incident) */}
-        {result.incident && result.followUpQuestions && (
+        {/* Incident (Opening Scene or Inciting Incident) - PV or Starforged */}
+        {result.incident && (
           <div className="space-y-3">
             <div className="space-y-1">
               <div className="text-sm font-orbitron uppercase text-gray-400">
@@ -595,16 +595,19 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
               </div>
             </div>
             
-            <div className="space-y-2">
-              <div className="text-sm font-orbitron uppercase text-gray-400">
-                FOLLOW-UP QUESTIONS:
+            {/* Follow-up questions only for PV entries */}
+            {result.followUpQuestions && (
+              <div className="space-y-2">
+                <div className="text-sm font-orbitron uppercase text-gray-400">
+                  FOLLOW-UP QUESTIONS:
+                </div>
+                <ul className="list-disc list-inside space-y-1 text-sm text-text-primary italic">
+                  {result.followUpQuestions.map((question, idx) => (
+                    <li key={idx} className="break-words">{question}</li>
+                  ))}
+                </ul>
               </div>
-              <ul className="list-disc list-inside space-y-1 text-sm text-text-primary italic">
-                {result.followUpQuestions.map((question, idx) => (
-                  <li key={idx} className="break-words">{question}</li>
-                ))}
-              </ul>
-            </div>
+            )}
           </div>
         )}
 

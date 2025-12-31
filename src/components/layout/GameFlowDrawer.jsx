@@ -18,11 +18,11 @@ import {
   generateNPC,
   generatePlanet,
   generateOpeningScene,
+  generateIncitingIncident,
   characterOracles,
   soloOracles,
   visualOracles
 } from '../../data/oracles';
-import { generatePVIncitingIncident } from '../../data/perilousVoidOracles';
 
 export default function GameFlowDrawer({ isOpen, onClose }) {
   const [expandedStep, setExpandedStep] = useState(null);
@@ -43,12 +43,13 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Build actions list for Campaign Goal step based on PV toggle
+  // Build actions list for Campaign Goal step based on source toggles
   const campaignGoalActions = [
     { label: "Generate Epic Title", specific: "epicTitle" },
     { label: "Generate Villain Plot", specific: "villain" }
   ];
-  if (gameState.includePVOracles) {
+  // Show Inciting Incident if either PV or Starforged is enabled
+  if (gameState.includePVOracles || gameState.includeStarforgedOracles) {
     campaignGoalActions.push({ label: "Generate Inciting Incident", specific: "inciting" });
   }
 
@@ -209,8 +210,13 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
         break;
 
       case 'inciting':
-        result = generatePVIncitingIncident();
-        logMessage = `Inciting Incident [${result.roll}]: ${result.incident}`;
+        result = generateIncitingIncident(gameState.includePVOracles, gameState.includeStarforgedOracles);
+        if (result) {
+          logMessage = `Inciting Incident [${result.diceType} ${result.roll}]: ${result.incident}`;
+        } else {
+          result = { result: 'No inciting incident sources enabled' };
+          logMessage = 'Inciting Incident: No sources enabled';
+        }
         break;
 
       case 'episodeTitle':

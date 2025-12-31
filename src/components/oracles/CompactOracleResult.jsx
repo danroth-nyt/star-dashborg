@@ -208,19 +208,21 @@ export default function CompactOracleResult({ result, variant = 'cyan', onDismis
           </div>
         )}
 
-        {/* Perilous Void Incident (Opening Scene or Inciting Incident) */}
-        {result.incident && result.followUpQuestions && (
+        {/* Incident (Opening Scene or Inciting Incident) - PV or Starforged */}
+        {result.incident && (
           <div className="space-y-2 text-xs">
             {/* Main incident text - display exactly like regular result */}
             <div className={cn('text-sm font-orbitron font-bold', textColors[variant], textGlowColors[variant])}>
               {result.incident}
             </div>
-            {/* Follow-up questions - subtle and compact */}
-            <div className="text-gray-500 italic text-[10px] space-y-0.5 border-t border-gray-700 pt-1.5 mt-2">
-              {result.followUpQuestions.map((question, idx) => (
-                <div key={idx}>• {question}</div>
-              ))}
-            </div>
+            {/* Follow-up questions - subtle and compact (PV only) */}
+            {result.followUpQuestions && (
+              <div className="text-gray-500 italic text-[10px] space-y-0.5 border-t border-gray-700 pt-1.5 mt-2">
+                {result.followUpQuestions.map((question, idx) => (
+                  <div key={idx}>• {question}</div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 

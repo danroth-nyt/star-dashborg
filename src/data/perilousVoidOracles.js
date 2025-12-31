@@ -48,14 +48,6 @@ export const pvOpeningScenes = [
     ]
   },
   {
-    incident: "Hot Pursuit. You're being chased by a hostile force.",
-    followUpQuestions: [
-      "Who's chasing you?",
-      "Why?",
-      "What's going to happen if they catch up?"
-    ]
-  },
-  {
     incident: "Mutiny. A ship's crew revolts against their commanders.",
     followUpQuestions: [
       "Whose side are you on?",

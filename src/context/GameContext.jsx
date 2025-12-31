@@ -18,6 +18,7 @@ const initialGameState = {
   journal: '',
   log: [],
   includePVOracles: true, // Include Perilous Void oracles by default
+  includeStarforgedOracles: true, // Include Starforged oracles by default
   spaceCombat: {
     isActive: false,
     shipArmor: 2,
@@ -202,11 +203,23 @@ export function GameProvider({ children, roomCode }) {
     [updateGameState]
   );
 
+  // Toggle Starforged oracles
+  const toggleStarforgedOracles = useCallback(
+    (enabled) => {
+      updateGameState((state) => ({
+        ...state,
+        includeStarforgedOracles: enabled,
+      }));
+    },
+    [updateGameState]
+  );
+
   const value = {
     gameState,
     updateGameState,
     addLog,
     togglePVOracles,
+    toggleStarforgedOracles,
     loading,
     error,
   };

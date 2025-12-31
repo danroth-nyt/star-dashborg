@@ -6,7 +6,7 @@ import { useGame } from '../../context/GameContext';
 import Accordion from '../ui/Accordion';
 
 export default function SettingsDrawer({ isOpen, onClose }) {
-  const { gameState, togglePVOracles } = useGame();
+  const { gameState, togglePVOracles, toggleStarforgedOracles } = useGame();
 
   // Keyboard navigation
   useEffect(() => {
@@ -100,6 +100,37 @@ export default function SettingsDrawer({ isOpen, onClose }) {
                   {gameState.includePVOracles && (
                     <div className="text-accent-yellow text-xs mt-2 space-y-1">
                       <div>• Opening Scene: d30 table</div>
+                      <div>• Mission Generator: Inciting tab</div>
+                      <div>• Game Flow: Inciting Incident option</div>
+                    </div>
+                  )}
+                </div>
+              </label>
+
+              {/* Starforged Toggle */}
+              <label className="flex items-start gap-3 cursor-pointer p-3 border-2 border-accent-cyan bg-bg-secondary hover:bg-accent-cyan hover:bg-opacity-10 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={gameState.includeStarforgedOracles}
+                  onChange={(e) => toggleStarforgedOracles(e.target.checked)}
+                  className="w-5 h-5 mt-0.5 accent-accent-cyan cursor-pointer flex-shrink-0"
+                />
+                <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-accent-cyan font-orbitron text-sm font-bold uppercase">
+                      Starforged
+                    </span>
+                    {gameState.includeStarforgedOracles && (
+                      <span className="text-accent-cyan text-xs px-2 py-0.5 border border-accent-cyan rounded">
+                        ACTIVE
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-gray-400 text-xs mt-1">
+                    Adds 19 inciting incidents for campaign setup
+                  </p>
+                  {gameState.includeStarforgedOracles && (
+                    <div className="text-accent-cyan text-xs mt-2 space-y-1">
                       <div>• Mission Generator: Inciting tab</div>
                       <div>• Game Flow: Inciting Incident option</div>
                     </div>
