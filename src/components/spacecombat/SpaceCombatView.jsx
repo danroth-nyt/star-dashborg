@@ -96,11 +96,11 @@ export default function SpaceCombatView() {
         </header>
 
         {/* Combat Interface */}
-        <div className="flex-1 p-4 lg:p-6">
-            <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6">
+        <div className="flex-1 p-4 lg:p-6 xl:p-8">
+            <div className="max-w-[1920px] mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-6 xl:gap-8">
               {/* Left Column - Unified Ship Panel */}
-              <div className="lg:col-span-4 space-y-4">
+              <div className="lg:col-span-4 xl:col-span-3 space-y-4">
                 <ShipStatus />
 
                 {/* Combat Notes */}
@@ -130,12 +130,12 @@ export default function SpaceCombatView() {
               </div>
 
               {/* Center Column - Station Grid */}
-              <div className="lg:col-span-5">
+              <div className="lg:col-span-5 xl:col-span-6">
                 <StationGrid />
               </div>
 
               {/* Right Column - Combat Log */}
-              <div className="lg:col-span-3">
+              <div className="lg:col-span-3 xl:col-span-3">
                 <CombatLog />
               </div>
             </div>

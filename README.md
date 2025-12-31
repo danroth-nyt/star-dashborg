@@ -12,9 +12,25 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - **Character Creation** - Full character generator with all 6 Star Borg classes (Bot, Bounty Hunter, Magi Knight, Smuggler, Technician, Youngster)
 - **Character Sheets** - Slide-out drawer with stats, HP tracking, equipment, destiny points, and class features
 - **Personal Journal** - Cloud-synced personal notes for each character to track goals, relationships, and discoveries
+  - Auto-save with 2-second debounce
+  - Visual saving/synced indicators
+  - Separate from session journal
 - **Party Panel** - Real-time view of all characters in the session with synchronized HP and stats
+  - User's character displayed first
+  - Expandable to full character sheet
+  - Loading states with animations
+- **Galaxy Save Tracker** - Campaign progression system
+  - Track galaxies saved as party-wide milestone
+  - Promotion alerts when members can advance
+  - Integrated with character progression
+- **Character Promotions** - Rank advancement based on galaxies saved
+  - Visual alerts for unclaimed promotions
+  - Promotion claiming via character sheet
 - **Quick Stat Rolls** - Click any stat to roll d20 + modifier with crit/fumble detection
 - **Authentication System** - Secure user accounts with admin approval workflow
+  - New users require admin approval before access
+  - Pending approval screen with clear status
+  - Session persistence across browser refreshes
 
 ### 🎲 Core Gameplay Tools
 - **Threat Die Tracker** - Visual D6 with click-to-cycle functionality and maximum threat alerts
@@ -54,27 +70,57 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 
 ### 🚀 Space Combat System
 - **Battle Stations** - 6 ship stations with role-specific actions (Pilot, Co-Pilot, Gunner 1/2, Engineer 1/2)
+  - Modular station components for clean code organization
+  - Station Grid layout with Command Deck, Weapons Deck, and Engineering Bay
 - **Station Assignments** - Assign party members to stations with real-time sync
 - **Combat Actions** - Character stats automatically applied to space combat tests
+- **Unified Ship Panel** - Consolidated ship information display
+  - Editable ship name as header (click to edit, dice to reroll)
+  - Compact armor display with tier and damage reduction
+  - Active upgrades section with visual indicators
+  - Turbo Laser configuration interface
+  - Quick stats footer (crew, stations, torpedoes)
+  - Shopping cart icon for instant upgrade shop access
 - **Ship Status** - Track armor tier, torpedo count, and hyperdrive charge
 - **Combat Log** - Detailed action log with d20 rolls, modifiers, and success/fail results
 - **Sound Effects** - Immersive combat audio (laser fire, torpedoes, shield hits, hyperdrive)
+  - Toggle mute/unmute with persistent preference
+  - 15+ unique sound effects for different actions
 - **Ship Name Generator** - d100 table generates procedural ship names (e.g., "The Androma", "The Stelloterra")
   - Click ship name to edit manually
   - Click dice icon to generate new names
   - All names prefixed with "The"
-- **Ship Upgrades** - Purchase and equip ship upgrades (Turbo Lasers, Torpedo Winch, Overcharge Shields)
+- **Ship Upgrades** - Purchase and equip ship upgrades (Turbo Lasers, Torpedo Winch, Overcharge Shields, Booster Rockets)
+  - Visual integration with combat actions (badges on actions)
+  - Upgrade icons on affected station headers
+  - In-combat reconfiguration for Turbo Lasers
 - **Torpedoes** - Load and fire different torpedo types (Standard, Cluster, Hunter-Killer, Ion, Chaff)
 - **Heroic Rewards** - Earn heroic upgrades by saving galaxies
+- **Desktop Optimized** - Enhanced layout for large screens (1280px+)
+  - Wider max width (1920px) utilizes full monitor space
+  - Optimized column proportions and spacing
+  - Larger text and better visual hierarchy
 
 ### 🎨 Visual Design
 - **Authentic Star Borg Aesthetic** - Yellow/cyan/red color scheme with neon glow effects
 - **CRT Scanlines & Effects** - Retro terminal styling throughout
 - **Fully Responsive** - Optimized for desktop, tablet, and mobile with adaptive button sizing
+  - Mobile: Compact text and padding for small screens
+  - Desktop: Comfortable sizing for mouse/keyboard
+  - XL screens (1280px+): Enhanced spacing and larger text
+- **Desktop Optimized Layout** - Space combat UI maximizes large monitors
+  - 1920px max width (vs standard 1280px)
+  - Optimized column proportions (3-6-3 on xl screens)
+  - Better use of horizontal space
 - **Smooth Animations** - Polished transitions, hover effects, and alert pulses
 - **Visual Alerts** - Pulsing glows for maximum threat and filled danger clocks
+  - Inline alert panels for critical states
+  - Upgrade badges on combat actions
 - **Smooth Loading States** - Unified loading experience prevents jarring transitions
 - **Sound Effects** - Toggle combat sounds on/off with persistent preference
+  - 15+ immersive audio effects
+  - Volume control per sound
+  - LocalStorage persistence
 
 ## ⚡ Key Highlights
 
@@ -93,16 +139,31 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 
 ### Space Combat Features
 - **6 Battle Stations**: Command Deck (Pilot, Co-Pilot), Weapons Deck (Gunner 1/2), Engineering Bay (Engineer 1/2)
+  - Modular station components with clean architecture
+  - Station Grid organizes stations by deck
 - **Station-Specific Actions**: Each station has unique actions tied to character stats (AGI, KNW, PRS, STR)
 - **Real-time Combat**: d20 + character stat vs DR with automatic success/fail calculation
 - **Ship Systems**: Armor tiers, torpedo loading (d2), hyperdrive charging (3 rounds)
-- **Combat Audio**: Laser fire, torpedo launch, shield impacts, hyperdrive charge, critical alarms
+- **Unified Ship Panel**: Consolidated ship information hub
+  - Editable ship name with reroll functionality
+  - Compact armor visualization
+  - Active upgrades display
+  - Turbo Laser configuration
+  - Quick stats footer
+- **Combat Audio**: 15+ immersive sound effects with mute toggle
+  - Laser fire, torpedo launch, shield impacts, hyperdrive charge, critical alarms
+  - Action-specific sounds (evade, steady, jamming, deflectors, repair, etc.)
+  - Persistent mute preference
 - **Ship Name Generator**: d100 procedural naming system generates names like "The Androma" or "The Proxonyx"
   - Editable ship name (click to edit)
   - Reroll button (dice icon) for instant new names
   - All names automatically prefixed with "The"
-- **Ship Upgrades**: Turbo Laser Turrets (d8 damage), Torpedo Winch (any station loads), Overcharge Shields (Tier 3 max)
+- **Ship Upgrades**: Turbo Laser Turrets (d8 damage), Torpedo Winch (any station loads), Overcharge Shields (Tier 3 max), Booster Rockets (Steady affects D2)
+  - Visual badges on affected actions
+  - Upgrade icons on station headers
+  - In-combat reconfiguration
 - **Torpedo Types**: Standard, Cluster, Hunter-Killer, Ion, Chaff with unique effects
+- **Desktop Optimized**: Enhanced layout for large monitors (1920px max width, optimized spacing)
 
 ### Visual Alerts & Feedback
 - **Maximum Threat**: Pulsing red alert when Threat Die reaches 6

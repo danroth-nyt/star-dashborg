@@ -2,7 +2,259 @@
 
 All notable changes to Star Dashborg are documented in this file.
 
-## [Unreleased] - feature/space-combat branch
+## [Unreleased] - feat/game-flow-enhancements branch
+
+### 🎮 Desktop Optimization & UI Polish
+
+#### ✨ Major Features
+- **Desktop Space Combat Layout**: Optimized for wider screens (1280px+)
+  - Max width increased to 1920px (from 1280px)
+  - XL breakpoint styling (xl:) for better use of large monitors
+  - Column proportions: 3-6-3 on xl screens (vs 4-5-3 on lg)
+  - Increased spacing, padding, and gaps throughout
+  - Larger text sizes for improved readability
+  - Combat log max height: 800px on xl screens
+  
+- **Unified Ship Panel**: Consolidated ship information in space combat
+  - Ship name moved to top as editable header (replaces "Ship Status")
+  - Click ship name to edit inline
+  - Dice icon to reroll ship name
+  - Shopping cart icon to open upgrade shop
+  - Compact armor display with horizontal progress bar
+  - Active upgrades section with visual indicators
+  - Turbo Laser configuration directly in panel
+  - Quick stats footer: crew, manned stations, torpedoes
+  - Removed redundant `SpaceCombatShipPanel` component
+  
+- **Upgrade Integration in Combat**: Ship upgrades visually integrated with actions
+  - Turbo Lasers: "D8" badge on assigned gunner's fire action
+  - Booster Rockets: "D2 Targets" badge on pilot's steady action
+  - Torpedo Winch: "Winch" badge on load torpedo actions at all stations
+  - Station headers show upgrade icons (Lightning for Turbo, Rocket for Boosters)
+  - Action descriptions updated to reflect upgrade effects
+
+### 🔐 Authentication System
+
+#### ✨ Features
+- **Admin Approval Workflow**: New user accounts require admin approval
+  - `AuthContext` for centralized auth state management
+  - `PendingApproval` screen with clear status messaging
+  - `admin_profiles` table with approval tracking
+  - RLS policies for secure access control
+  - Email notifications on approval (future enhancement)
+  
+- **Session Management**: Persistent authentication state
+  - Auto-login on page refresh
+  - Protected routes based on approval status
+  - Graceful sign-out with cleanup
+
+### 🌌 Galaxy Save & Progression System
+
+#### ✨ Features
+- **Galaxy Save Tracker**: Campaign progression tracking
+  - Increment/decrement controls for galaxies saved
+  - Visual counter with neon yellow styling
+  - Integrated with character promotion system
+  - Promotion alerts (shows count of members ready to promote)
+  - Compact design fits in party panel
+  
+- **Character Promotions**: Rank advancement system
+  - Automatic detection of unclaimed promotions
+  - Visual alerts when members can promote
+  - Promotion claiming via character sheet
+  - `promotions_claimed` field tracks progress
+
+### 📖 Character Journal System
+
+#### ✨ Features
+- **Personal Character Journals**: Individual note-taking per character
+  - Separate from session journal
+  - Auto-save with 2-second debounce
+  - Cloud-synced via Supabase
+  - Visual save indicators (saving/synced)
+  - 180px minimum height for better UX
+  - Integrated in character sheet drawer
+
+### 🎲 Enhanced Oracle & Threat Systems
+
+#### ✨ Features
+- **Travel Encounter System**: Threat-based encounter mechanics
+  - Stage 1: d8 + Threat Die ≥ 12 for encounter
+  - Stage 2: Generate theme and actor on success
+  - Detailed log messages with roll breakdown
+  - Clear success/fail messaging
+  - Format: `[d8] + [Threat] = total ✓/✗`
+  
+- **Scene Shakeup System**: Two-stage threat check
+  - Stage 1: d10 + Threat Die ≥ 15 to trigger
+  - Stage 2: d20 + Threat Die for shakeup result
+  - Separate roll logs for each stage
+  - Clear success/fail messaging
+  - Format: `[d10] + [Threat] = total ✓/✗`
+  
+- **Maximum Threat Alert**: Visual warning at Threat Die = 6
+  - Pulsing red glow on die
+  - Inline alert panel with rule reminder
+  - Two options clearly presented:
+    - Advance ALL danger clocks by 1
+    - Completely fill ONE danger clock
+  
+- **Event Oracle Enhancement**: More detailed logging
+  - Now includes specific detail in log
+  - Format: "Event (roll): verb subject - specific"
+
+### 🎨 UI/UX Improvements
+
+#### ✨ Features
+- **Responsive Button Sizing**: Better mobile experience
+  - Mobile: `text-xs sm:px-3`
+  - Desktop: `text-sm sm:px-4`
+  - Improved line-height and leading
+  - Better touch targets on small screens
+  
+- **Mission Generator Buttons**: Mobile-optimized
+  - Smaller gaps on mobile: `gap-1 sm:gap-2`
+  - Smaller text: `text-[10px] sm:text-xs`
+  - Better use of limited screen real estate
+  
+- **Party Panel Enhancements**: Improved member display
+  - User's character always sorted first
+  - Galaxy Save Tracker integration
+  - Loading states with animations
+  - Expand functionality for character sheets
+  - Member count display
+  
+- **Roll Result Terminology**: Changed "FAILURE" to "FUMBLE"
+  - More thematic for critical failures (nat 1)
+  - Consistent with Star Borg terminology
+
+### 🔧 Technical Improvements
+
+#### Context & State Management
+- **AuthContext**: New authentication context
+  - Session tracking
+  - User approval status
+  - Sign-out functionality
+  - Approval checking with timeout protection
+  
+- **GameContext Enhancements**: Ship state migration
+  - Auto-migration for old game states
+  - Ship property added to initialGameState
+  - Torpedo inventory tracking
+  - Turbo laser station assignment
+  - Galaxies saved counter
+  
+- **PartyContext**: Enhanced party management
+  - Better error handling
+  - Improved loading states
+  - User sorting logic
+
+#### Data & Configuration
+- **spaceCombatData.js**: Upgrade metadata
+  - Added `targetStation`, `targetAction`, `requiresConfig` fields
+  - Better upgrade-to-action mapping
+  - Cleaner integration logic
+  
+- **Vite Config**: Environment-aware base path
+  - Production: `/star-dashborg/` for GitHub Pages
+  - Development: `/` for local dev
+  - Fixes asset loading issues
+
+### 🐛 Critical Bug Fixes
+
+- **Missing useParty Import**: Fixed blank screen in SpaceCombatView
+  - Added `import { useParty } from '../../context/PartyContext'`
+  - Root cause of app not loading after UI redesign
+  
+- **JSX Syntax Error**: Fixed unclosed `<button>` tag in UpgradeShop
+  - Line 317-320 had missing closing tag
+  - Prevented app from rendering
+  
+- **Undefined Safety Checks**: Added optional chaining
+  - `partyMembers?.length` instead of `partyMembers.length`
+  - `spaceCombat.stationAssignments || {}`
+  - `spaceCombat.torpedoesLoaded || 0`
+  - Prevents crashes when data is loading
+
+### 📝 Documentation
+
+- **Admin Approval Guide**: `docs/admin-approval-guide.md`
+  - Setup instructions for approval system
+  - Database configuration
+  - RLS policy explanations
+  
+- **README Updates**: Enhanced feature descriptions
+  - Authentication system documentation
+  - Desktop optimization notes
+  - Updated quick start guide
+
+### 🗄️ Database Schema Updates
+
+```sql
+-- Admin profiles table for approval system
+create table admin_profiles (
+  user_id uuid primary key references auth.users(id),
+  approved boolean default false,
+  created_at timestamp with time zone default now()
+);
+
+-- Character journal field
+alter table characters add column journal text default '';
+
+-- Character promotions tracking
+alter table characters add column promotions_claimed integer default 0;
+
+-- Game state enhancements (stored in sessions.game_state JSONB)
+-- ship.galaxiesSaved: integer
+-- ship.turboLaserStation: 'gunner1' | 'gunner2' | null
+```
+
+### 🎯 Performance Optimizations
+
+- Debounced journal saves (2 second delay)
+- Preloaded sound effects
+- Optimized re-renders with proper dependencies
+- Efficient party member sorting
+- Memoized upgrade checks
+
+### 📦 Files Added
+
+**Components:**
+- `src/components/auth/PendingApproval.jsx`
+- `src/components/character/CharacterJournal.jsx`
+- `src/components/character/PartyPanel.jsx`
+- `src/components/trackers/GalaxySaveTracker.jsx`
+- `src/components/spacecombat/stations/PilotStation.jsx`
+- `src/components/spacecombat/stations/CopilotStation.jsx`
+- `src/components/spacecombat/stations/GunnerStation.jsx`
+- `src/components/spacecombat/stations/EngineerStation.jsx`
+- `src/components/spacecombat/StationGrid.jsx`
+
+**Context:**
+- `src/context/AuthContext.jsx`
+
+**Documentation:**
+- `docs/admin-approval-guide.md`
+
+### 🔄 Files Significantly Modified
+
+- `src/components/spacecombat/SpaceCombatView.jsx` - Desktop layout optimization
+- `src/components/spacecombat/ShipStatus.jsx` - Complete redesign as unified panel
+- `src/components/spacecombat/StationCard.jsx` - Added upgrade badges
+- `src/components/spacecombat/CombatActions.jsx` - Integrated upgrade effects
+- `src/components/spacecombat/CombatLog.jsx` - Enhanced max height on xl screens
+- `src/components/ship/UpgradeShop.jsx` - Fixed JSX syntax error
+- `src/components/oracles/generators/NPCGenerator.jsx` - Travel encounter mechanics
+- `src/components/oracles/OracleQuickBar.jsx` - Scene shakeup mechanics
+- `src/components/trackers/ThreatDie.jsx` - Maximum threat alert
+- `src/context/GameContext.jsx` - Ship state migration
+- `src/main.jsx` - Added AuthProvider wrapper
+- `src/App.jsx` - Integrated approval checks
+- `vite.config.js` - Environment-based base path
+
+---
+
+## [Previous] - feature/space-combat branch
 
 ### 🚀 Space Combat System - COMPLETE
 

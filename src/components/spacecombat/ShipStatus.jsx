@@ -119,11 +119,11 @@ export default function ShipStatus() {
   };
 
   return (
-    <div className="bg-bg-secondary/80 backdrop-blur-sm border-3 border-accent-cyan p-4 space-y-4">
+    <div className="bg-bg-secondary/80 backdrop-blur-sm border-3 border-accent-cyan p-4 xl:p-5 space-y-4">
       {/* Ship Name Header with Icon Buttons */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-2 flex-1 min-w-0">
-          <Ship className="w-5 h-5 text-accent-cyan flex-shrink-0" />
+          <Ship className="w-5 h-5 xl:w-6 xl:h-6 text-accent-cyan flex-shrink-0" />
           {isEditingName ? (
             <input
               type="text"
@@ -132,12 +132,12 @@ export default function ShipStatus() {
               onBlur={handleSaveName}
               onKeyDown={handleKeyDown}
               autoFocus
-              className="flex-1 min-w-0 bg-bg-primary border-2 border-accent-cyan text-accent-cyan font-orbitron font-bold text-base px-2 py-1 focus:outline-none focus:border-accent-yellow uppercase"
+              className="flex-1 min-w-0 bg-bg-primary border-2 border-accent-cyan text-accent-cyan font-orbitron font-bold text-base xl:text-lg px-2 py-1 focus:outline-none focus:border-accent-yellow uppercase"
             />
           ) : (
             <h2 
               onClick={handleStartEdit}
-              className="font-orbitron font-bold text-accent-cyan text-base uppercase cursor-pointer hover:text-accent-yellow transition-colors truncate"
+              className="font-orbitron font-bold text-accent-cyan text-base xl:text-lg uppercase cursor-pointer hover:text-accent-yellow transition-colors truncate"
               title="Click to edit ship name"
             >
               {ship.name}

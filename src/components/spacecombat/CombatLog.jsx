@@ -88,7 +88,7 @@ export default function CombatLog() {
       {/* Log entries */}
       <div 
         ref={logContainerRef}
-        className="flex-1 overflow-y-auto p-3 space-y-2 min-h-[300px] max-h-[600px]"
+        className="flex-1 overflow-y-auto p-3 space-y-2 min-h-[300px] max-h-[600px] xl:max-h-[800px]"
       >
         {spaceCombat.combatLog.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500 text-sm font-orbitron">
