@@ -41,7 +41,7 @@ export default function MissionGenerator() {
     const incident = generateIncitingIncident(gameState.includePVOracles, gameState.includeStarforgedOracles);
     if (!incident) {
       // Both sources disabled
-      setResult({ result: 'No inciting incident sources enabled. Enable Perilous Void or Starforged in Settings.' });
+      setResult({ result: 'No inciting incident sources enabled. Enable Perilous Void or Starforged in Settings (gear icon in the header).' });
       return;
     }
     setResult(incident);
