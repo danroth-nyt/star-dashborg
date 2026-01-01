@@ -396,6 +396,19 @@ function CharactersTab() {
     return faction;
   };
 
+  const handleSettlementName = () => {
+    // When PV oracles enabled, randomly pick from old d10 table OR PV template generator
+    if (gameState.includePVOracles && rollDice(2) === 2) {
+      const pvName = generatePVSettlementName();
+      addLog(`PV Settlement Name: ${pvName.fullName}`, 'roll');
+      return pvName;
+    } else {
+      const name = rollOnTable(nameOracles.settlementNames);
+      addLog(`Settlement Name: ${name}`, 'roll');
+      return { result: 'Settlement Name', detail: name };
+    }
+  };
+
   return (
     <div className="space-y-4">
       <div className="text-accent-yellow font-orbitron text-lg font-bold uppercase mb-4">
@@ -440,9 +453,10 @@ function CharactersTab() {
           />
           <OracleTable
             title="Settlement Name"
-            table={nameOracles.settlementNames}
+            table={[]}
             variant="cyan"
-            diceType="d10"
+            diceType={gameState.includePVOracles ? "d10+" : "d10"}
+            rollFunction={handleSettlementName}
           />
           <OracleTable
             title="Legionary Name"
@@ -499,13 +513,6 @@ function CharactersTab() {
                 variant="cyan"
                 diceType="2d100"
                 rollFunction={handleSpaceOperaName}
-              />
-              <OracleTable
-                title="PV Settlement"
-                table={[]}
-                variant="cyan"
-                diceType="Template"
-                rollFunction={handlePVSettlementName}
               />
               <OracleTable
                 title="PV Faction"

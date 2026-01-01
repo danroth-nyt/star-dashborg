@@ -1225,7 +1225,7 @@ export function generatePlanet() {
 }
 
 // Generate settlement - multi-roll for more permutations
-export function generateSettlement() {
+export function generateSettlement(includePV = false) {
   const appearanceRoll = rollDice(worldOracles.settlementAppearance.length);
   const knownForRoll = rollDice(worldOracles.settlementKnownFor.length);
   const currentStateRoll = rollDice(worldOracles.settlementCurrentState.length);
@@ -1239,7 +1239,19 @@ export function generateSettlement() {
   
   const prefix = nameOracles.settlementNamePrefixes[namePrefixRoll - 1];
   const suffix = nameOracles.settlementNameSuffixes[nameSuffixRoll - 1];
-  const name = `${prefix}${suffix}`;
+  
+  let name;
+  // When PV oracles are enabled, randomly pick from old names OR PV template names (additive)
+  if (includePV && rollDice(2) === 2) {
+    // Use PV template-based name for variety
+    const pvName = generatePVSettlementName();
+    name = pvName.fullName;
+  } else {
+    // Fix spacing: add space before standalone words like City, Station, Outpost
+    // If suffix starts with "-", concatenate directly (e.g., "-atoom")
+    // Otherwise, add a space (e.g., " City")
+    name = suffix.startsWith('-') ? `${prefix}${suffix}` : `${prefix} ${suffix}`;
+  }
   
   return {
     appearanceRoll,
