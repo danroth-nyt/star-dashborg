@@ -3,7 +3,24 @@
 // Complete oracle tables from Solo Rules, GM Guide, and Rebel Handbook
 // ==========================================
 
-import { pvOpeningScenes, pvIncitingIncidents } from './perilousVoidOracles';
+import { 
+  pvOpeningScenes, 
+  pvIncitingIncidents,
+  pvNPCNameFirstParts,
+  pvNPCNameSecondParts,
+  pvNPCSurnameFirstParts,
+  pvNPCSurnameSecondParts,
+  pvSpaceOperaFirstParts,
+  pvSpaceOperaSecondParts,
+  pvSettlementQualities,
+  pvSettlementAdjectives,
+  pvSettlementForms,
+  pvSettlementTemplates,
+  pvFactionStructures,
+  pvFactionAdjectives,
+  pvFactionNouns,
+  pvFactionTemplates
+} from './perilousVoidOracles';
 import { sfIncitingIncidents } from './starforgedOracles';
 
 // ==========================================
@@ -1157,7 +1174,20 @@ export function generateVillain() {
 }
 
 // Generate NPC
-export function generateNPC() {
+export function generateNPC(includePV = false) {
+  // Generate name first - additive approach
+  let name;
+  if (includePV && rollDice(2) === 2) {
+    // Use PV name generator for variety
+    const pvName = generatePVNPCFullName();
+    name = pvName.fullName;
+  } else {
+    // Use baseline first name + family name
+    const firstName = nameOracles.baselineFirst[rollDice(10) - 1];
+    const familyName = nameOracles.familyNames[rollDice(10) - 1];
+    name = `${firstName} ${familyName}`;
+  }
+  
   // Multi-roll - each field rolls independently for more permutations
   const roleRoll = rollDice(npcOracles.npcRoles.length);
   const speciesRoll = rollDice(npcOracles.npcSpecies.length);
@@ -1167,6 +1197,7 @@ export function generateNPC() {
   const demeanorRoll = rollDice(npcOracles.npcDemeanor.length);
   
   return {
+    name,
     roleRoll,
     speciesRoll,
     motivationRoll,
@@ -1208,7 +1239,7 @@ export function generatePlanet() {
 }
 
 // Generate settlement - multi-roll for more permutations
-export function generateSettlement() {
+export function generateSettlement(includePV = false) {
   const appearanceRoll = rollDice(worldOracles.settlementAppearance.length);
   const knownForRoll = rollDice(worldOracles.settlementKnownFor.length);
   const currentStateRoll = rollDice(worldOracles.settlementCurrentState.length);
@@ -1222,7 +1253,19 @@ export function generateSettlement() {
   
   const prefix = nameOracles.settlementNamePrefixes[namePrefixRoll - 1];
   const suffix = nameOracles.settlementNameSuffixes[nameSuffixRoll - 1];
-  const name = `${prefix}${suffix}`;
+  
+  let name;
+  // When PV oracles are enabled, randomly pick from old names OR PV template names (additive)
+  if (includePV && rollDice(2) === 2) {
+    // Use PV template-based name for variety
+    const pvName = generatePVSettlementName();
+    name = pvName.fullName;
+  } else {
+    // Fix spacing: add space before standalone words like City, Station, Outpost
+    // If suffix starts with "-", concatenate directly (e.g., "-atoom")
+    // Otherwise, add a space (e.g., " City")
+    name = suffix.startsWith('-') ? `${prefix}${suffix}` : `${prefix} ${suffix}`;
+  }
   
   return {
     appearanceRoll,
@@ -1457,6 +1500,230 @@ export function rollSettlementNameSuffix() {
     roll,
     result: nameOracles.settlementNameSuffixes[roll - 1]
   };
+}
+
+// ==========================================
+// PERILOUS VOID NAME GENERATORS
+// ==========================================
+
+// Generate PV NPC Name (d100 + d100)
+export function generatePVNPCName() {
+  const firstRoll = rollDice(100);
+  const secondRoll = rollDice(100);
+  const firstName = pvNPCNameFirstParts[firstRoll - 1];
+  const secondPart = pvNPCNameSecondParts[secondRoll - 1];
+  
+  return {
+    firstRoll,
+    secondRoll,
+    firstName,
+    secondPart,
+    fullName: `${firstName}${secondPart}`,
+    source: 'perilousVoid'
+  };
+}
+
+// Generate PV NPC Surname (d100 + d100)
+export function generatePVNPCSurname() {
+  const firstRoll = rollDice(100);
+  const secondRoll = rollDice(100);
+  const firstPart = pvNPCSurnameFirstParts[firstRoll - 1];
+  const secondPart = pvNPCSurnameSecondParts[secondRoll - 1];
+  
+  return {
+    firstRoll,
+    secondRoll,
+    firstPart,
+    secondPart,
+    fullSurname: `${firstPart}${secondPart}`,
+    source: 'perilousVoid'
+  };
+}
+
+// Generate PV NPC Full Name (Name + Surname)
+export function generatePVNPCFullName() {
+  const name = generatePVNPCName();
+  const surname = generatePVNPCSurname();
+  
+  return {
+    nameFirstRoll: name.firstRoll,
+    nameSecondRoll: name.secondRoll,
+    surnameFirstRoll: surname.firstRoll,
+    surnameSecondRoll: surname.secondRoll,
+    firstName: name.fullName,
+    surname: surname.fullSurname,
+    fullName: `${name.fullName} ${surname.fullSurname}`,
+    source: 'perilousVoid'
+  };
+}
+
+// Generate Space Opera Name (d100 + d100)
+export function generateSpaceOperaName() {
+  const firstRoll = rollDice(100);
+  const secondRoll = rollDice(100);
+  const firstPart = pvSpaceOperaFirstParts[firstRoll - 1];
+  const secondPart = pvSpaceOperaSecondParts[secondRoll - 1];
+  
+  return {
+    firstRoll,
+    secondRoll,
+    firstPart,
+    secondPart,
+    fullName: `${firstPart}${secondPart}`,
+    source: 'perilousVoid'
+  };
+}
+
+// Generate PV Settlement Name (Template-based with cross-references)
+export function generatePVSettlementName() {
+  const templateRoll = rollDice(100);
+  const template = pvSettlementTemplates[templateRoll - 1];
+  
+  let result = {
+    templateRoll,
+    template,
+    source: 'perilousVoid'
+  };
+  
+  // Parse template and fill in components
+  let name = template;
+  
+  // Handle [Quality]
+  if (name.includes('[Quality]')) {
+    const qualityRoll = rollDice(100);
+    const quality = pvSettlementQualities[qualityRoll - 1];
+    result.qualityRoll = qualityRoll;
+    result.quality = quality;
+    name = name.replace('[Quality]', quality);
+  }
+  
+  // Handle [Adjective] - can reference NPC names/surnames
+  if (name.includes('[Adjective]')) {
+    const adjectiveRoll = rollDice(100);
+    const adjectiveEntry = pvSettlementAdjectives[adjectiveRoll - 1];
+    result.adjectiveRoll = adjectiveRoll;
+    
+    if (adjectiveEntry === '[NPC Name]') {
+      const npcName = generatePVNPCName();
+      result.adjective = npcName.fullName;
+      result.adjectiveIsNPCName = true;
+      result.npcNameRolls = [npcName.firstRoll, npcName.secondRoll];
+    } else if (adjectiveEntry === '[NPC Surname]') {
+      const npcSurname = generatePVNPCSurname();
+      result.adjective = npcSurname.fullSurname;
+      result.adjectiveIsNPCSurname = true;
+      result.npcSurnameRolls = [npcSurname.firstRoll, npcSurname.secondRoll];
+    } else {
+      result.adjective = adjectiveEntry;
+    }
+    
+    name = name.replace('[Adjective]', result.adjective);
+  }
+  
+  // Handle [Form]
+  if (name.includes('[Form]')) {
+    const formRoll = rollDice(100);
+    const form = pvSettlementForms[formRoll - 1];
+    result.formRoll = formRoll;
+    result.form = form;
+    name = name.replace('[Form]', form);
+  }
+  
+  // Handle [Number] (3d10)
+  if (name.includes('[Number]')) {
+    const dice = rollMultipleDice(3, 10);
+    const number = dice.reduce((a, b) => a + b, 0);
+    result.numberRolls = dice;
+    result.number = number;
+    name = name.replace('[Number]', number.toString());
+  }
+  
+  // Handle [Structure] and [Noun] for complex templates (cross-reference to Faction tables)
+  if (name.includes('[Structure]')) {
+    const structureRoll = rollDice(100);
+    const structure = pvFactionStructures[structureRoll - 1];
+    result.structureRoll = structureRoll;
+    result.structure = structure;
+    name = name.replace('[Structure]', structure);
+  }
+  
+  if (name.includes('[Noun]')) {
+    const nounRoll = rollDice(100);
+    const noun = pvFactionNouns[nounRoll - 1];
+    result.nounRoll = nounRoll;
+    result.noun = noun;
+    name = name.replace('[Noun]', noun);
+  }
+  
+  // Clean up formatting (remove double spaces, handle "The" properly)
+  name = name.replace(/\s+/g, ' ').trim();
+  name = name.replace(/\(\s+/g, '(').replace(/\s+\)/g, ')');
+  
+  result.fullName = name;
+  return result;
+}
+
+// Generate PV Faction Name (Template-based with cross-references)
+export function generatePVFactionName() {
+  const templateRoll = rollDice(100);
+  const template = pvFactionTemplates[templateRoll - 1];
+  
+  let result = {
+    templateRoll,
+    template,
+    source: 'perilousVoid'
+  };
+  
+  // Parse template and fill in components
+  let name = template;
+  
+  // Handle [Structure]
+  if (name.includes('[Structure]')) {
+    const structureRoll = rollDice(100);
+    const structure = pvFactionStructures[structureRoll - 1];
+    result.structureRoll = structureRoll;
+    result.structure = structure;
+    name = name.replace('[Structure]', structure);
+  }
+  
+  // Handle [Adjective] - can reference NPC surnames or place names
+  if (name.includes('[Adjective]')) {
+    const adjectiveRoll = rollDice(100);
+    const adjectiveEntry = pvFactionAdjectives[adjectiveRoll - 1];
+    result.adjectiveRoll = adjectiveRoll;
+    
+    if (adjectiveEntry === '[NPC Surname]') {
+      const npcSurname = generatePVNPCSurname();
+      result.adjective = npcSurname.fullSurname;
+      result.adjectiveIsNPCSurname = true;
+      result.npcSurnameRolls = [npcSurname.firstRoll, npcSurname.secondRoll];
+    } else if (adjectiveEntry === '[Place Name]') {
+      // Generate a settlement name for place reference
+      const placeName = generatePVSettlementName();
+      result.adjective = placeName.fullName;
+      result.adjectiveIsPlaceName = true;
+      result.placeNameTemplate = placeName.template;
+    } else {
+      result.adjective = adjectiveEntry;
+    }
+    
+    name = name.replace('[Adjective]', result.adjective);
+  }
+  
+  // Handle [Noun]
+  if (name.includes('[Noun]')) {
+    const nounRoll = rollDice(100);
+    const noun = pvFactionNouns[nounRoll - 1];
+    result.nounRoll = nounRoll;
+    result.noun = noun;
+    name = name.replace('[Noun]', noun);
+  }
+  
+  // Clean up formatting
+  name = name.replace(/\s+/g, ' ').trim();
+  
+  result.fullName = name;
+  return result;
 }
 
 // ==========================================

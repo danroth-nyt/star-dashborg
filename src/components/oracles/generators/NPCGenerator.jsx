@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Button from '../../ui/Button';
 import OracleResultDisplay from '../OracleResultDisplay';
 import { generateNPC, generateTravelEncounter, rollOnTable } from '../../../data/oracles';
-import { npcOracles, nameOracles } from '../../../data/oracles';
+import { npcOracles } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
 
 export default function NPCGenerator() {
@@ -10,9 +10,9 @@ export default function NPCGenerator() {
   const [result, setResult] = useState(null);
 
   const handleGenerateNPC = () => {
-    const npc = generateNPC();
+    const npc = generateNPC(gameState.includePVOracles);
     setResult(npc);
-    addLog(`NPC: ${npc.species} ${npc.role} - ${npc.demeanor}`, 'mission');
+    addLog(`NPC: ${npc.name} - ${npc.species} ${npc.role} - ${npc.demeanor}`, 'mission');
   };
 
   const handleGenerateTravelEncounter = () => {
@@ -69,7 +69,7 @@ export default function NPCGenerator() {
         GENERATE FULL NPC
       </Button>
       <div className="text-xs text-gray-400 text-center font-orbitron -mt-2">
-        Role • Species • Motivation • Secret • Trait • Demeanor
+        Name • Role • Species • Motivation • Secret • Trait • Demeanor
       </div>
 
       {/* Quick Generators - Secondary Options */}

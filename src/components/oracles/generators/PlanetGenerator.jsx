@@ -6,7 +6,7 @@ import { worldOracles } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
 
 export default function PlanetGenerator() {
-  const { addLog } = useGame();
+  const { addLog, gameState } = useGame();
   const [result, setResult] = useState(null);
   const [generatorType, setGeneratorType] = useState('planet'); // 'planet', 'settlement', 'scene'
 
@@ -17,7 +17,7 @@ export default function PlanetGenerator() {
   };
 
   const handleGenerateSettlement = () => {
-    const settlement = generateSettlement();
+    const settlement = generateSettlement(gameState.includePVOracles);
     setResult(settlement);
     addLog(`Settlement: ${settlement.name} (Leader: ${settlement.leader}) - ${settlement.knownFor}`, 'mission');
   };

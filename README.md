@@ -80,17 +80,23 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
   - 10 inciting incidents for campaign starts
   - Smart duplicate handling with core Star Borg content
 - **Starforged Integration** - Optional Ironsworn: Starforged content (toggle in Settings)
-  - 19 inciting incidents for varied campaign starts
-  - Intelligent deduplication with Perilous Void when both enabled
+  - 19 inciting incidents for varied campaign starts (aid starships, broker peace, track beasts)
+  - `starforgedOracles.js` data file with `generateSFIncitingIncident()` function
+  - Intelligent deduplication: excludes "Prison Break" when Perilous Void enabled
+  - Multi-source mixing: d10 (PV), d19 (SF), d28 (both), d29 (SB+PV)
   - Combines with Star Borg and PV for maximum variety
 
 ### 🎭 Generators
 - **Monster Generator** - Beast adaptations, monstrosities, and weak spots with d6 rolls
 - **Crime Lord Generator** - Names, visage, weapons, and bases
-- **NPC Generator** - Role, species, motivation, secrets, traits, and travel encounters
+- **NPC Generator** - Name, role, species, motivation, secrets, traits, and demeanor
+  - Full NPC generation includes character name
+  - Travel encounters with two-stage threat check (d20 + Threat Die vs 12+)
 - **Planet Generator** - Terrain, weather, population, control, and scenes
 - **Settlement Generator** - Extended with leader, landmark, rumors, and NPC hook-ups
 - **Mission Generator** - Detailed missions, quick missions, villains, and scenario titles
+  - Integrates Star Borg (20), Perilous Void (10), and Starforged (19) incidents
+  - Dynamic content based on enabled oracle sources
 - **Ship Name Generator** - d100 table combining prefixes and suffixes (100 each) for 10,000 possible names
 
 ### 🎯 Session Management
@@ -110,8 +116,10 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 
 ### 🚀 Space Combat System
 - **Battle Stations** - 6 ship stations with role-specific actions (Pilot, Co-Pilot, Gunner 1/2, Engineer 1/2)
-  - Modular station components for clean code organization
-  - Station Grid layout with Command Deck, Weapons Deck, and Engineering Bay
+  - Modular station components (`PilotStation`, `CopilotStation`, `GunnerStation`, `EngineerStation`)
+  - Each station is self-contained with assignment logic and action rendering
+  - Station Grid layout with organized decks: Command, Weapons, Engineering
+  - Color-coded deck headers for visual organization
 - **Station Assignments** - Assign party members to stations with real-time sync
 - **Combat Actions** - Character stats automatically applied to space combat tests
 - **Unified Ship Panel** - Consolidated ship information display
@@ -123,9 +131,14 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
   - Shopping cart icon for instant upgrade shop access
 - **Ship Status** - Track armor tier, torpedo count, and hyperdrive charge
 - **Combat Log** - Detailed action log with d20 rolls, modifiers, and success/fail results
-- **Sound Effects** - Immersive combat audio (laser fire, torpedoes, shield hits, hyperdrive)
-  - Toggle mute/unmute with persistent preference
-  - 15+ unique sound effects for different actions
+- **Sound Effects** - 14 immersive combat audio files with full playback system
+  - Combat sounds: laser fire (long/short), torpedo launch, torpedo loading
+  - Defense sounds: shield hit, shield power-up, shield repair
+  - Maneuver sounds: evade, steady, target lock
+  - System sounds: deflectors, jamming, hyperdrive charge, critical alarm
+  - `useSoundEffects` custom hook with preloading and volume control
+  - Toggle mute/unmute with localStorage persistence
+  - Graceful fallback if autoplay blocked
 - **Ship Name Generator** - d100 table generates procedural ship names (e.g., "The Androma", "The Stelloterra")
   - Click ship name to edit manually
   - Click dice icon to generate new names
@@ -428,7 +441,7 @@ star-dashborg/
 ├── src/
 │   ├── components/
 │   │   ├── auth/             # Auth, PendingApproval
-│   │   ├── character/        # CharacterGenerator, CharacterSheetDrawer, CharacterJournal, PartyPanel, PartyMemberCard
+│   │   ├── character/        # CharacterGenerator, CharacterSheetDrawer, CharacterJournal, PartyPanel, PartyMemberCard, ProgressionModal
 │   │   ├── journal/          # DiceLog, SessionJournal
 │   │   ├── layout/           # Dashboard, Header, Panel, GameFlowDrawer
 │   │   ├── oracles/          # Oracle systems and generators
@@ -441,17 +454,21 @@ star-dashborg/
 │   │   │   └── DiceRoller.jsx
 │   │   ├── ship/             # ShipManager, UpgradeShop, HeroicRewardsModal
 │   │   ├── spacecombat/      # Space combat system components
-│   │   │   ├── stations/     # PilotStation, CopilotStation, GunnerStation, EngineerStation
-│   │   │   ├── SpaceCombatView.jsx  # Main combat interface
-│   │   │   ├── StationGrid.jsx      # Station layout management
-│   │   │   ├── StationCard.jsx      # Individual station UI
-│   │   │   ├── CombatActions.jsx    # Action execution and dice rolling
-│   │   │   ├── CombatLog.jsx        # Combat event logging
-│   │   │   ├── ShipStatus.jsx       # Ship stats display
-│   │   │   ├── TorpedoSelector.jsx  # Torpedo type selection
+│   │   │   ├── stations/     # Modular station components
+│   │   │   │   ├── PilotStation.jsx      # Command Deck - Movement & Evasion
+│   │   │   │   ├── CopilotStation.jsx    # Command Deck - Targeting & Torpedoes
+│   │   │   │   ├── GunnerStation.jsx     # Weapons Deck - Turret Operations
+│   │   │   │   └── EngineerStation.jsx   # Engineering Bay - Systems & Repairs
+│   │   │   ├── SpaceCombatView.jsx       # Main combat interface
+│   │   │   ├── StationGrid.jsx           # Organized station layout by deck
+│   │   │   ├── StationCard.jsx           # Individual station UI wrapper
+│   │   │   ├── CombatActions.jsx         # Action execution and dice rolling
+│   │   │   ├── CombatLog.jsx             # Combat event logging
+│   │   │   ├── ShipStatus.jsx            # Unified ship stats display
+│   │   │   ├── TorpedoSelector.jsx       # Torpedo type selection
 │   │   │   └── SpaceCombatShipPanel.jsx  # Ship upgrades in combat
-│   │   ├── trackers/         # ThreatDie, MissionTrack, DangerClock, SiteExplorer
-│   │   └── ui/               # Button, Accordion, HelpModal, QuickReference, LoadingScreen
+│   │   ├── trackers/         # ThreatDie, MissionTrack, DangerClock, SiteExplorer, GalaxySaveTracker
+│   │   └── ui/               # Button, Accordion, HelpModal, QuickReference, QuickReferenceDrawer, LoadingScreen
 │   ├── context/
 │   │   ├── AuthContext.jsx          # Authentication state management
 │   │   ├── CharacterContext.jsx     # Character data management
@@ -459,11 +476,14 @@ star-dashborg/
 │   │   ├── GameContext.jsx          # Global game state management
 │   │   └── SpaceCombatContext.jsx   # Space combat state management
 │   ├── data/
-│   │   ├── characterData.js     # Character classes and species data
-│   │   ├── oracles.js           # All oracle tables and generator functions (includes ship name generator)
-│   │   ├── spaceCombatData.js   # Space combat stations and actions
-│   │   ├── shipShopData.js      # Ship upgrades and torpedo types
-│   │   └── trackerHelpContent.js  # Help content for tracker components
+│   │   ├── characterData.js         # Character classes and species data
+│   │   ├── oracles.js               # Core Star Borg oracle tables and generators
+│   │   ├── perilousVoidOracles.js   # Perilous Void expansion oracles
+│   │   ├── starforgedOracles.js     # Starforged inciting incidents
+│   │   ├── progressionData.js       # Character advancement and promotion system
+│   │   ├── spaceCombatData.js       # Space combat stations and actions
+│   │   ├── shipShopData.js          # Ship upgrades and torpedo types
+│   │   └── trackerHelpContent.js    # Help content for tracker components
 │   ├── hooks/
 │   │   ├── useDebounce.js       # Debounce hook for auto-save
 │   │   └── useSoundEffects.js   # Sound effects management
@@ -479,12 +499,23 @@ star-dashborg/
 │   ├── main.jsx              # React entry point
 │   └── index.css             # Global styles and custom animations
 ├── public/
-│   └── sounds/               # Audio files for space combat
-│       ├── laser-fire.mp3
-│       ├── torpedo-fire.mp3
-│       ├── shield-hit.mp3
-│       ├── hyperdrive-charge.mp3
-│       └── alarm-critical.mp3
+│   └── sounds/               # 14 audio files for space combat
+│       ├── laser-fire.mp3            # Gunner turret fire
+│       ├── laser-fire-short.mp3     # Quick weapon sound
+│       ├── torpedo-fire.mp3          # Torpedo launch
+│       ├── load-torpedo.mp3          # Loading torpedoes
+│       ├── shield-hit.mp3            # Incoming damage
+│       ├── shield-power-up.mp3      # Shield activation
+│       ├── repair-shield.mp3         # Engineer repairs
+│       ├── evade.mp3                 # Pilot evasion
+│       ├── steady.mp3                # Pilot stabilization
+│       ├── target-lock.mp3           # Copilot targeting
+│       ├── deflectors.mp3            # Engineering deflectors
+│       ├── jamming.mp3               # Copilot jamming
+│       ├── hyperdrive-charge.mp3    # FTL preparation
+│       └── alarm-critical.mp3        # Critical damage alert
+├── migrations/
+│   └── add_respec_columns.sql  # Database migration for respec feature
 ├── .env                      # Environment variables (create this)
 ├── package.json
 ├── tailwind.config.js        # Tailwind configuration
@@ -500,6 +531,7 @@ star-dashborg/
 - **Supabase** - Backend, auth, and real-time sync
 - **Lucide React** - Icon library
 - **Orbitron Font** - Star Borg-style typography
+- **TipTap** - Rich text editor (future feature prep)
 
 ### Key Technologies
 - **React Context** - Global state management for game data, auth, characters, and party

@@ -29,7 +29,11 @@ import {
   rollDice,
   generateMonsterName,
   generateEpicTitle,
-  generateEpisodeTitle
+  generateEpisodeTitle,
+  generatePVNPCSurname,
+  generateSpaceOperaName,
+  generatePVSettlementName,
+  generatePVFactionName
 } from '../../data/oracles';
 import { useGame } from '../../context/GameContext';
 import Accordion from '../ui/Accordion';
@@ -346,12 +350,49 @@ function WorldTab() {
 }
 
 function CharactersTab() {
-  const { addLog } = useGame();
+  const { addLog, gameState } = useGame();
 
   const handleNameRoll = (category, table) => {
     const name = rollOnTable(table);
     addLog(`${category}: ${name}`, 'roll');
     return { result: category, detail: name };
+  };
+
+  const handlePVNPCSurname = () => {
+    const surname = generatePVNPCSurname();
+    addLog(`PV NPC Surname [${surname.firstRoll}, ${surname.secondRoll}]: ${surname.fullSurname}`, 'roll');
+    return surname;
+  };
+
+  const handleSpaceOperaName = () => {
+    const name = generateSpaceOperaName();
+    addLog(`Space Opera Name [${name.firstRoll}, ${name.secondRoll}]: ${name.fullName}`, 'roll');
+    return name;
+  };
+
+  const handlePVSettlementName = () => {
+    const settlement = generatePVSettlementName();
+    addLog(`PV Settlement Name: ${settlement.fullName}`, 'roll');
+    return settlement;
+  };
+
+  const handlePVFactionName = () => {
+    const faction = generatePVFactionName();
+    addLog(`PV Faction Name: ${faction.fullName}`, 'roll');
+    return faction;
+  };
+
+  const handleSettlementName = () => {
+    // When PV oracles enabled, randomly pick from old d10 table OR PV template generator
+    if (gameState.includePVOracles && rollDice(2) === 2) {
+      const pvName = generatePVSettlementName();
+      addLog(`PV Settlement Name: ${pvName.fullName}`, 'roll');
+      return pvName;
+    } else {
+      const name = rollOnTable(nameOracles.settlementNames);
+      addLog(`Settlement Name: ${name}`, 'roll');
+      return { result: 'Settlement Name', detail: name };
+    }
   };
 
   return (
@@ -398,9 +439,10 @@ function CharactersTab() {
           />
           <OracleTable
             title="Settlement Name"
-            table={nameOracles.settlementNames}
+            table={[]}
             variant="cyan"
-            diceType="d10"
+            diceType={gameState.includePVOracles ? "d10+" : "d10"}
+            rollFunction={handleSettlementName}
           />
           <OracleTable
             title="Legionary Name"
@@ -426,6 +468,33 @@ function CharactersTab() {
             variant="red"
             diceType="d10"
           />
+          
+          {/* Perilous Void Name Generators */}
+          {gameState.includePVOracles && (
+            <>
+              <OracleTable
+                title="PV NPC Surname"
+                table={[]}
+                variant="yellow"
+                diceType="2d100"
+                rollFunction={handlePVNPCSurname}
+              />
+              <OracleTable
+                title="Space Opera"
+                table={[]}
+                variant="cyan"
+                diceType="2d100"
+                rollFunction={handleSpaceOperaName}
+              />
+              <OracleTable
+                title="PV Faction"
+                table={[]}
+                variant="cyan"
+                diceType="Template"
+                rollFunction={handlePVFactionName}
+              />
+            </>
+          )}
         </div>
       </Accordion>
     </div>

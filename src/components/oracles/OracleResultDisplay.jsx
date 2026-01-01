@@ -347,7 +347,18 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
 
         {/* NPC special formatting - multi-roll */}
         {result.role && result.roleRoll && (
-          <div className="space-y-2">
+          <div className="space-y-3">
+            {/* NPC Name - Displayed First and Prominently */}
+            {result.name && (
+              <div className="space-y-1">
+                <span className="text-xs font-orbitron uppercase text-gray-400">NPC NAME:</span>
+                <div className={cn('text-base sm:text-xl font-bold break-words', textColors[variant], textGlowColors[variant])}>
+                  {result.name}
+                </div>
+              </div>
+            )}
+            
+            {/* NPC Attributes Grid */}
             <div className="grid grid-cols-1 gap-2">
               <div>
                 <span className="text-xs font-orbitron uppercase text-gray-400">ROLE [{result.roleRoll}]:</span>
@@ -379,7 +390,20 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
 
         {/* Planet special formatting */}
         {result.terrain && (
-          <div className="space-y-2">
+          <div className="space-y-3">
+            {/* Planet Name - Displayed First */}
+            {result.name && (
+              <div className="space-y-1">
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  PLANET NAME{result.nameRoll ? ` [${result.nameRoll}]` : ''}:
+                </span>
+                <div className={cn('text-base sm:text-xl font-bold break-words', textColors[variant], textGlowColors[variant])}>
+                  {result.name}
+                </div>
+              </div>
+            )}
+            
+            {/* Planet Attributes Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
                 <span className="text-xs font-orbitron uppercase text-gray-400">
@@ -411,16 +435,6 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
                 </span>
                 <div className="text-base text-text-primary break-words">{result.control}</div>
               </div>
-              {result.name && (
-                <div className="sm:col-span-2">
-                  <span className="text-xs font-orbitron uppercase text-gray-400">
-                    NAME{result.nameRoll ? ` [${result.nameRoll}]` : ''}:
-                  </span>
-                  <div className={cn('text-base sm:text-lg font-bold break-words', textColors[variant], textGlowColors[variant])}>
-                    {result.name}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -428,6 +442,19 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
         {/* Settlement special formatting */}
         {result.appearance && (
           <div className="space-y-3">
+            {/* Settlement Name - Displayed First */}
+            {result.name && (
+              <div className="space-y-1">
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  SETTLEMENT NAME{result.nameRoll ? ` [${result.nameRoll}]` : ''}:
+                </span>
+                <div className={cn('text-base sm:text-xl font-bold break-words', textColors[variant], textGlowColors[variant])}>
+                  {result.name}
+                </div>
+              </div>
+            )}
+            
+            {/* Settlement Attributes Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <div>
                 <span className="text-xs font-orbitron uppercase text-gray-400">
@@ -486,16 +513,6 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
                 </div>
               )}
             </div>
-            {result.name && (
-              <div className="pt-2 border-t border-accent-cyan/30">
-                <span className="text-xs font-orbitron uppercase text-gray-400">
-                  NAME{result.nameRoll ? ` [${result.nameRoll}]` : ''}:
-                </span>
-                <div className={cn('text-base sm:text-lg font-bold break-words', textColors[variant], textGlowColors[variant])}>
-                  {result.name}
-                </div>
-              </div>
-            )}
           </div>
         )}
 
@@ -654,6 +671,166 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
               <span className="text-xs font-orbitron uppercase text-gray-400">FULL TITLE:</span>
               <div className={cn('text-base sm:text-xl font-bold break-words', textColors[variant], textGlowColors[variant])}>
                 {result.col1} {result.col2} {result.col3} {result.col4}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PV Two-Part Name Results (NPC Name, Surname, Space Opera) */}
+        {(result.fullName || result.fullSurname) && result.firstRoll && result.secondRoll && !result.nameFirstRoll && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  1ST PART [d100: {result.firstRoll}]:
+                </span>
+                <div className="text-base text-text-primary break-words">
+                  {result.firstName || result.firstPart}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  2ND PART [d100: {result.secondRoll}]:
+                </span>
+                <div className="text-base text-text-primary break-words">
+                  {result.secondPart}
+                </div>
+              </div>
+            </div>
+            
+            {/* Full Name Display */}
+            <div className="pt-2 border-t border-accent-cyan/30">
+              <span className="text-xs font-orbitron uppercase text-gray-400">FULL NAME:</span>
+              <div className={cn('text-base sm:text-xl font-bold break-words', textColors[variant], textGlowColors[variant])}>
+                {result.fullName || result.fullSurname}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PV Full NPC Name (4 rolls: first name + surname) */}
+        {result.nameFirstRoll && result.nameSecondRoll && result.surnameFirstRoll && result.surnameSecondRoll && (
+          <div className="space-y-2">
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  NAME 1ST [d100: {result.nameFirstRoll}]:
+                </span>
+                <div className="text-base text-text-primary break-words">
+                  {result.firstName.split(' ')[0]}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  NAME 2ND [d100: {result.nameSecondRoll}]:
+                </span>
+                <div className="text-base text-text-primary break-words">
+                  (combined in first name)
+                </div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  SURNAME 1ST [d100: {result.surnameFirstRoll}]:
+                </span>
+                <div className="text-base text-text-primary break-words">
+                  {result.surname.split('')[0]}
+                </div>
+              </div>
+              <div>
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  SURNAME 2ND [d100: {result.surnameSecondRoll}]:
+                </span>
+                <div className="text-base text-text-primary break-words">
+                  (combined in surname)
+                </div>
+              </div>
+            </div>
+            
+            {/* Full Name Display */}
+            <div className="pt-2 border-t border-accent-cyan/30">
+              <span className="text-xs font-orbitron uppercase text-gray-400">FULL NAME:</span>
+              <div className={cn('text-base sm:text-xl font-bold break-words', textColors[variant], textGlowColors[variant])}>
+                {result.fullName}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PV Template-Based Names (Settlement, Faction) */}
+        {result.template && result.templateRoll && result.fullName && (
+          <div className="space-y-3">
+            {/* Template */}
+            <div>
+              <span className="text-xs font-orbitron uppercase text-gray-400">
+                TEMPLATE [d100: {result.templateRoll}]:
+              </span>
+              <div className="text-sm text-gray-400 break-words font-mono">
+                {result.template}
+              </div>
+            </div>
+
+            {/* Component Rolls */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              {result.quality && (
+                <div>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    QUALITY [{result.qualityRoll}]:
+                  </span>
+                  <div className="text-base text-text-primary break-words">{result.quality}</div>
+                </div>
+              )}
+              {result.adjective && (
+                <div>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    ADJECTIVE [{result.adjectiveRoll}]:
+                  </span>
+                  <div className="text-base text-text-primary break-words">
+                    {result.adjective}
+                    {result.adjectiveIsNPCName && <span className="text-xs text-gray-500"> (NPC Name)</span>}
+                    {result.adjectiveIsNPCSurname && <span className="text-xs text-gray-500"> (NPC Surname)</span>}
+                    {result.adjectiveIsPlaceName && <span className="text-xs text-gray-500"> (Place)</span>}
+                  </div>
+                </div>
+              )}
+              {result.form && (
+                <div>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    FORM [{result.formRoll}]:
+                  </span>
+                  <div className="text-base text-text-primary break-words">{result.form}</div>
+                </div>
+              )}
+              {result.number !== undefined && (
+                <div>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    NUMBER [3d10: {result.numberRolls?.join(', ')}]:
+                  </span>
+                  <div className="text-base text-text-primary break-words">{result.number}</div>
+                </div>
+              )}
+              {result.structure && (
+                <div>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    STRUCTURE [{result.structureRoll}]:
+                  </span>
+                  <div className="text-base text-text-primary break-words">{result.structure}</div>
+                </div>
+              )}
+              {result.noun && (
+                <div>
+                  <span className="text-xs font-orbitron uppercase text-gray-400">
+                    NOUN [{result.nounRoll}]:
+                  </span>
+                  <div className="text-base text-text-primary break-words">{result.noun}</div>
+                </div>
+              )}
+            </div>
+
+            {/* Full Name Display */}
+            <div className="pt-2 border-t border-accent-cyan/30">
+              <span className="text-xs font-orbitron uppercase text-gray-400">GENERATED NAME:</span>
+              <div className={cn('text-base sm:text-xl font-bold break-words', textColors[variant], textGlowColors[variant])}>
+                {result.fullName}
               </div>
             </div>
           </div>

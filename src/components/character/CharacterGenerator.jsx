@@ -16,8 +16,9 @@ import {
   technicianData,
   youngsterData
 } from '../../data/characterData';
-import { nameOracles } from '../../data/oracles';
+import { nameOracles, generatePVNPCFullName } from '../../data/oracles';
 import { useCharacter } from '../../context/CharacterContext';
+import { useGame } from '../../context/GameContext';
 import Button from '../ui/Button';
 import { RefreshCw, Plus, Trash2, Save, Dices } from 'lucide-react';
 
@@ -32,6 +33,7 @@ const classData = {
 
 export default function CharacterGenerator({ onSave, onCancel }) {
   const { saveCharacter } = useCharacter();
+  const { gameState } = useGame();
   const [step, setStep] = useState(1); // 1: class selection, 2: generating, 3: results
   const [selectedClass, setSelectedClass] = useState(null);
   const [character, setCharacter] = useState(null);
@@ -291,10 +293,18 @@ export default function CharacterGenerator({ onSave, onCancel }) {
       const suffix = nameOracles.botNameSuffixes[rollD(10) - 1];
       generatedName = `${prefix}-${suffix}`;
     } else {
-      // Use baseline first name + family name for most species
-      const firstName = nameOracles.baselineFirst[rollD(10) - 1];
-      const familyName = nameOracles.familyNames[rollD(10) - 1];
-      generatedName = `${firstName} ${familyName}`;
+      // When PV oracles are enabled, randomly pick from old baseline OR PV names (additive)
+      // When disabled, use only baseline names
+      if (gameState.includePVOracles && rollD(2) === 2) {
+        // Use Perilous Void name generator (4d100) - huge variety
+        const pvName = generatePVNPCFullName();
+        generatedName = pvName.fullName;
+      } else {
+        // Use baseline first name + family name (2d10)
+        const firstName = nameOracles.baselineFirst[rollD(10) - 1];
+        const familyName = nameOracles.familyNames[rollD(10) - 1];
+        generatedName = `${firstName} ${familyName}`;
+      }
     }
     
     updateCharacter('name', generatedName);

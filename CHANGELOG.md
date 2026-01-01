@@ -2,6 +2,232 @@
 
 All notable changes to Star Dashborg are documented in this file.
 
+## [Current Branch] - Latest Changes
+
+### 🚀 Space Combat System Enhancements
+
+#### ✨ Major Features
+- **Modular Battle Stations**: Refactored space combat into reusable station components
+  - `PilotStation.jsx` - Ship movement and evasion controls
+  - `CopilotStation.jsx` - Targeting and torpedo coordination
+  - `GunnerStation.jsx` - Dual gunner turret operations (Gunner 1/2)
+  - `EngineerStation.jsx` - Dual engineer system management (Engineer 1/2)
+  - Each station is self-contained with assignment and action logic
+  
+- **Station Grid Layout**: Organized station display by ship deck
+  - Command Deck section (Pilot, Co-Pilot)
+  - Weapons Deck section (Gunner 1, Gunner 2)
+  - Engineering Bay section (Engineer 1, Engineer 2)
+  - Visual deck headers with color-coded themes
+  - Responsive grid layout for all screen sizes
+
+- **Immersive Sound Effects System**: 14 new audio files for space combat
+  - `laser-fire.mp3`, `laser-fire-short.mp3` - Weapon fire sounds
+  - `torpedo-fire.mp3`, `load-torpedo.mp3` - Torpedo mechanics
+  - `shield-hit.mp3`, `shield-power-up.mp3`, `repair-shield.mp3` - Shield systems
+  - `evade.mp3`, `steady.mp3`, `target-lock.mp3` - Piloting maneuvers
+  - `deflectors.mp3`, `jamming.mp3` - Engineering systems
+  - `hyperdrive-charge.mp3` - FTL preparation
+  - `alarm-critical.mp3` - Critical damage warnings
+  - `useSoundEffects.js` hook manages audio playback and muting
+
+### 🔮 Oracle System Expansions
+
+#### ✨ Perilous Void Integration (Complete)
+- **Opening Scenes Enhancement**: Smart duplicate handling
+  - When PV disabled: d20 rolls on Star Borg core content
+  - When PV enabled: d29 rolls (19 Star Borg + 10 PV)
+  - Automatically skips Star Borg #5 "Bounty Hunter" to avoid PV duplicate
+  
+- **Inciting Incidents**: Toggle-based content mixing
+  - PV adds 10 mission hooks with rich detail
+  - Combines with existing Star Borg incidents
+  - Dynamic die size adjustment based on enabled sources
+
+#### ✨ Starforged Integration (NEW)
+- **19 Inciting Incidents**: Ironsworn: Starforged campaign starts
+  - Aid stranded starships, broker peace, chart new passages
+  - Defend settlements, investigate mysteries, escort cargo
+  - Prison break duplicate intelligently filtered when PV enabled
+  - `starforgedOracles.js` data file with generator functions
+  
+- **Multi-Source Oracle Mixing**: All three systems work together
+  - Star Borg (20 base) + Perilous Void (10) + Starforged (19)
+  - Intelligent deduplication prevents redundant content
+  - Settings toggles enable granular content control
+  - Dynamic die sizes: d10, d19, d28, d29 depending on sources
+
+#### ✨ Enhanced Oracle Mechanics
+- **NPC Generator**: Now includes character names
+  - Full NPC generation includes name, role, species, etc.
+  - Log output shows complete NPC details
+  - Travel encounter improvements
+
+- **Event Oracle**: Better logging output
+  - Now includes specific detail field in logs
+  - Format: `Event (roll): [verb] [subject] - [specific]`
+
+### 🎨 UI/UX Improvements
+
+#### ✨ Loading Experience
+- **LoadingScreen Component**: Unified app initialization
+  - Prevents jarring flashes during startup
+  - Smooth typewriter animation for title
+  - Animated dots for loading indicator
+  - Optional status details for debugging
+  - Minimum display time prevents layout shift
+
+#### ✨ Party Panel Enhancements
+- **Dedicated Party Panel Component**: Improved member display
+  - User's character always sorted first
+  - Galaxy Save Tracker integration at top
+  - Loading states with animated indicators
+  - Member count display with Users icon
+  - Expand button for full character sheet access
+  - Better error handling and empty states
+
+#### ✨ Settings Drawer Improvements
+- **Content Sources Management**: Visual toggles for oracle content
+  - Perilous Void checkbox with ACTIVE badge
+  - Starforged checkbox with ACTIVE badge
+  - Clear descriptions of content added by each source
+  - Green visual indicators for enabled sources
+  - Real-time updates to oracle generators
+
+### 🔐 Authentication System Enhancements
+
+#### ✨ Features
+- **AuthContext Integration**: Centralized auth state in main.jsx
+  - AuthProvider wraps entire app
+  - Session management across all components
+  - Persistent login state
+
+- **Approval Workflow Improvements**: Better user experience
+  - `PendingApproval` component with clear messaging
+  - Timeout protection on approval checks (5 second limit)
+  - Graceful error handling for RLS failures
+  - Visual loading states during approval verification
+
+### 🎭 Character System Improvements
+
+#### ✨ Character Respec System (NEW)
+- **Database Migration**: `migrations/add_respec_columns.sql`
+  - `base_stats` JSONB column stores original rolled stats
+  - `base_hp_max` integer column stores starting HP
+  - Automatic migration for legacy characters
+  - SQL comments for documentation
+  
+- **Respec Functionality**: Reset character to base values
+  - Orange-themed "Respec Character" button in Danger Zone
+  - Comprehensive confirmation modal showing impact
+  - Resets stats to original rolled values
+  - Resets HP to starting HP maximum
+  - Clears all advancement abilities
+  - Allows re-promotion if galaxy saves available
+  - Handles legacy characters gracefully
+
+### 🐛 Bug Fixes
+
+#### Oracle System
+- **Scene Shakeup**: Two-stage threat check improvements
+  - Better logging with checkRoll, threatDie, and total
+  - Clear success/fail messaging in logs
+  - Stage 1 and Stage 2 results properly separated
+  
+- **Travel Encounter**: Two-stage threat-based encounter system
+  - Check roll + Threat Die vs DC 12
+  - Generate theme + actor only on success
+  - Clear "No encounter" messaging on failure
+  - Detailed log output with roll breakdowns
+
+#### UI Components
+- **Button Component**: Mobile-responsive sizing
+  - `text-xs sm:text-sm` for better mobile readability
+  - `px-3 sm:px-4` for touch-friendly targets
+  - `leading-tight` prevents text overflow
+  
+- **Roll Result Display**: Terminology improvement
+  - Changed "FAILURE" to "FUMBLE" for natural 1s
+  - More thematic for critical failures
+
+### 🔧 Technical Improvements
+
+#### Context Management
+- **GameContext Migration**: Automatic state upgrades
+  - Migrates old game states without ship property
+  - Migrates old game states without panelStates
+  - Ensures backward compatibility with legacy saves
+  - Default values for missing properties
+  
+- **Oracle Toggle Functions**: New GameContext methods
+  - `togglePVOracles(enabled)` - Enable/disable Perilous Void
+  - `toggleStarforgedOracles(enabled)` - Enable/disable Starforged
+  - Persisted in game state across sessions
+
+#### Vite Configuration
+- **Environment-Based Base Path**: Better dev/prod separation
+  - Development: `/` for local routing
+  - Production: `/star-dashborg/` for GitHub Pages
+  - Fixes sound file loading issues
+  - Prevents 404s on assets
+
+### 📦 Dependencies Added
+- **TipTap Editor**: Rich text editing support (future feature prep)
+  - `@tiptap/react@^3.14.0`
+  - `@tiptap/starter-kit@^3.14.0`
+  - `@tiptap/extension-underline@^3.14.0`
+
+### 📝 New Files Created
+
+**Components:**
+- `src/components/spacecombat/stations/PilotStation.jsx`
+- `src/components/spacecombat/stations/CopilotStation.jsx`
+- `src/components/spacecombat/stations/GunnerStation.jsx`
+- `src/components/spacecombat/stations/EngineerStation.jsx`
+- `src/components/spacecombat/StationGrid.jsx`
+- `src/components/character/PartyPanel.jsx`
+- `src/components/ui/LoadingScreen.jsx`
+
+**Data & Utilities:**
+- `src/data/starforgedOracles.js`
+- `src/hooks/useSoundEffects.js`
+
+**Database Migrations:**
+- `migrations/add_respec_columns.sql`
+
+**Documentation:**
+- `.cursor/plans/starforged_+_duplicate_handling_1b05ebfe.plan.md`
+
+**Audio Assets:**
+- `public/sounds/evade.mp3`
+- `public/sounds/steady.mp3`
+- `public/sounds/jamming.mp3`
+- `public/sounds/deflectors.mp3`
+- `public/sounds/laser-fire.mp3`
+- `public/sounds/shield-hit.mp3`
+- `public/sounds/target-lock.mp3`
+- `public/sounds/load-torpedo.mp3`
+- `public/sounds/torpedo-fire.mp3`
+- `public/sounds/repair-shield.mp3`
+- `public/sounds/alarm-critical.mp3`
+- `public/sounds/shield-power-up.mp3`
+- `public/sounds/laser-fire-short.mp3`
+- `public/sounds/hyperdrive-charge.mp3`
+
+### 🔄 Files Significantly Modified
+- `src/main.jsx` - AuthProvider wrapper added
+- `src/context/GameContext.jsx` - Oracle toggles, state migration
+- `src/context/AuthContext.jsx` - Timeout protection, better error handling
+- `src/components/oracles/OracleQuickBar.jsx` - Two-stage mechanics
+- `src/components/trackers/ThreatDie.jsx` - Maximum threat alert
+- `src/components/ui/Button.jsx` - Responsive sizing
+- `src/components/oracles/RollResult.jsx` - Fumble terminology
+- `src/components/oracles/generators/NPCGenerator.jsx` - Name generation
+- `src/data/oracles.js` - Multi-source oracle integration
+- `vite.config.js` - Environment-based base path
+
+---
+
 ## [Unreleased] - feat/campaign-gen-enhancements branch
 
 ### 🎯 Character Progression System

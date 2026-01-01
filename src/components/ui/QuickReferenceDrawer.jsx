@@ -197,6 +197,29 @@ export default function QuickReferenceDrawer({ isOpen, onClose }) {
             </div>
           </div>
 
+          {/* Destiny Points */}
+          <div className="border-t border-accent-yellow/30 pt-3">
+            <h3 className="font-orbitron font-bold text-accent-cyan uppercase mb-2 text-xs">
+              Destiny Points
+            </h3>
+            <div className="space-y-2 text-xs">
+              <p className="text-gray-300">
+                Start with <span className="text-accent-yellow font-bold">D2 Destiny Points</span>. 
+                Regain by rolling D2 after spending all and resting.
+              </p>
+              <div className="text-gray-300">
+                <span className="font-bold text-accent-cyan">Use Destiny to:</span>
+                <div className="ml-4 mt-1 space-y-0.5">
+                  • Deal maximum damage with one attack<br />
+                  • Reroll a dice roll (yours or someone else's)<br />
+                  • Lower damage dealt to you by D6<br />
+                  • Neutralize a Crit or Blunder<br />
+                  • -4DR to one test (before rolling)
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Critical & Blunder */}
           <div className="border-t border-accent-yellow/30 pt-3">
             <h3 className="font-orbitron font-bold text-accent-cyan uppercase mb-2 text-xs">
@@ -266,6 +289,29 @@ export default function QuickReferenceDrawer({ isOpen, onClose }) {
             <p className="text-gray-400 text-xs mt-2">
               When TD = 6: Advance ALL Clocks +1, OR fill ONE Clock
             </p>
+          </div>
+
+          {/* Bits Currency */}
+          <div className="border-t border-accent-yellow/30 pt-3">
+            <h3 className="font-orbitron font-bold text-accent-cyan uppercase mb-2 text-xs">
+              Bits ∆ (Currency)
+            </h3>
+            <div className="space-y-2 text-xs">
+              <p className="text-gray-300">
+                The standard currency of the galaxy. Rebels either have Bits or they don't.
+              </p>
+              <div className="text-gray-300">
+                <span className="font-bold text-accent-yellow">Starting Bits (Roll D6):</span>
+                <div className="ml-4 mt-1">
+                  <span className="text-accent-red">1-3:</span> No Bits<br />
+                  <span className="text-accent-cyan">4-6:</span> You got Bits ∆
+                </div>
+              </div>
+              <div className="text-gray-400 text-xs border-t border-gray-700 pt-2 mt-2">
+                <span className="font-bold text-accent-yellow">∆</span> = Costs all the bits you have<br />
+                <span className="font-bold text-accent-yellow">∆∆</span> = Costs all the bits the party has
+              </div>
+            </div>
           </div>
         </div>
       </div>
