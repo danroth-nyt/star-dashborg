@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Button from '../../ui/Button';
 import OracleResultDisplay from '../OracleResultDisplay';
-import { generateNPC, generateTravelEncounter, rollOnTable } from '../../../data/oracles';
+import { generateNPC, generateTravelEncounter, rollOnTable, generatePVNPCFullName } from '../../../data/oracles';
 import { npcOracles, nameOracles } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
 
@@ -62,6 +62,12 @@ export default function NPCGenerator() {
     addLog(`Reaction: ${reaction}`, 'roll');
   };
 
+  const handleGeneratePVName = () => {
+    const pvName = generatePVNPCFullName();
+    setResult(pvName);
+    addLog(`PV NPC Name: ${pvName.fullName}`, 'mission');
+  };
+
   return (
     <div className="space-y-4">
       {/* Main NPC Generator */}
@@ -88,6 +94,11 @@ export default function NPCGenerator() {
           <Button onClick={handleGenerateWeirdoAlien} variant="secondary" className="text-xs py-2">
             Weirdo Alien
           </Button>
+          {gameState.includePVOracles && (
+            <Button onClick={handleGeneratePVName} variant="secondary" className="text-xs py-2 col-span-2">
+              PV NPC Name
+            </Button>
+          )}
         </div>
       </div>
 

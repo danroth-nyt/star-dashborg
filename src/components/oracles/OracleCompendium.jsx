@@ -29,7 +29,13 @@ import {
   rollDice,
   generateMonsterName,
   generateEpicTitle,
-  generateEpisodeTitle
+  generateEpisodeTitle,
+  generatePVNPCName,
+  generatePVNPCSurname,
+  generatePVNPCFullName,
+  generateSpaceOperaName,
+  generatePVSettlementName,
+  generatePVFactionName
 } from '../../data/oracles';
 import { useGame } from '../../context/GameContext';
 import Accordion from '../ui/Accordion';
@@ -346,12 +352,48 @@ function WorldTab() {
 }
 
 function CharactersTab() {
-  const { addLog } = useGame();
+  const { addLog, gameState } = useGame();
 
   const handleNameRoll = (category, table) => {
     const name = rollOnTable(table);
     addLog(`${category}: ${name}`, 'roll');
     return { result: category, detail: name };
+  };
+
+  const handlePVNPCName = () => {
+    const name = generatePVNPCName();
+    addLog(`PV NPC Name [${name.firstRoll}, ${name.secondRoll}]: ${name.fullName}`, 'roll');
+    return name;
+  };
+
+  const handlePVNPCSurname = () => {
+    const surname = generatePVNPCSurname();
+    addLog(`PV NPC Surname [${surname.firstRoll}, ${surname.secondRoll}]: ${surname.fullSurname}`, 'roll');
+    return surname;
+  };
+
+  const handlePVNPCFullName = () => {
+    const fullName = generatePVNPCFullName();
+    addLog(`PV NPC Full Name: ${fullName.fullName}`, 'roll');
+    return fullName;
+  };
+
+  const handleSpaceOperaName = () => {
+    const name = generateSpaceOperaName();
+    addLog(`Space Opera Name [${name.firstRoll}, ${name.secondRoll}]: ${name.fullName}`, 'roll');
+    return name;
+  };
+
+  const handlePVSettlementName = () => {
+    const settlement = generatePVSettlementName();
+    addLog(`PV Settlement Name: ${settlement.fullName}`, 'roll');
+    return settlement;
+  };
+
+  const handlePVFactionName = () => {
+    const faction = generatePVFactionName();
+    addLog(`PV Faction Name: ${faction.fullName}`, 'roll');
+    return faction;
   };
 
   return (
@@ -426,6 +468,54 @@ function CharactersTab() {
             variant="red"
             diceType="d10"
           />
+          
+          {/* Perilous Void Name Generators */}
+          {gameState.includePVOracles && (
+            <>
+              <OracleTable
+                title="PV NPC Name"
+                table={[]}
+                variant="yellow"
+                diceType="2d100"
+                rollFunction={handlePVNPCName}
+              />
+              <OracleTable
+                title="PV NPC Surname"
+                table={[]}
+                variant="yellow"
+                diceType="2d100"
+                rollFunction={handlePVNPCSurname}
+              />
+              <OracleTable
+                title="PV Full Name"
+                table={[]}
+                variant="yellow"
+                diceType="4d100"
+                rollFunction={handlePVNPCFullName}
+              />
+              <OracleTable
+                title="Space Opera"
+                table={[]}
+                variant="cyan"
+                diceType="2d100"
+                rollFunction={handleSpaceOperaName}
+              />
+              <OracleTable
+                title="PV Settlement"
+                table={[]}
+                variant="cyan"
+                diceType="Template"
+                rollFunction={handlePVSettlementName}
+              />
+              <OracleTable
+                title="PV Faction"
+                table={[]}
+                variant="cyan"
+                diceType="Template"
+                rollFunction={handlePVFactionName}
+              />
+            </>
+          )}
         </div>
       </Accordion>
     </div>

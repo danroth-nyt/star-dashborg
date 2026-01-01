@@ -16,7 +16,7 @@ import {
   technicianData,
   youngsterData
 } from '../../data/characterData';
-import { nameOracles } from '../../data/oracles';
+import { nameOracles, generatePVNPCFullName } from '../../data/oracles';
 import { useCharacter } from '../../context/CharacterContext';
 import Button from '../ui/Button';
 import { RefreshCw, Plus, Trash2, Save, Dices } from 'lucide-react';
@@ -291,10 +291,14 @@ export default function CharacterGenerator({ onSave, onCancel }) {
       const suffix = nameOracles.botNameSuffixes[rollD(10) - 1];
       generatedName = `${prefix}-${suffix}`;
     } else {
-      // Use baseline first name + family name for most species
-      const firstName = nameOracles.baselineFirst[rollD(10) - 1];
-      const familyName = nameOracles.familyNames[rollD(10) - 1];
-      generatedName = `${firstName} ${familyName}`;
+      // Use Perilous Void name generator (4d100) for more variety
+      // Easy to switch back to baseline names by uncommenting below:
+      // const firstName = nameOracles.baselineFirst[rollD(10) - 1];
+      // const familyName = nameOracles.familyNames[rollD(10) - 1];
+      // generatedName = `${firstName} ${familyName}`;
+      
+      const pvName = generatePVNPCFullName();
+      generatedName = pvName.fullName;
     }
     
     updateCharacter('name', generatedName);
