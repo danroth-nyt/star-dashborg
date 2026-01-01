@@ -379,7 +379,20 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
 
         {/* Planet special formatting */}
         {result.terrain && (
-          <div className="space-y-2">
+          <div className="space-y-3">
+            {/* Planet Name - Displayed First */}
+            {result.name && (
+              <div className="space-y-1">
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  PLANET NAME{result.nameRoll ? ` [${result.nameRoll}]` : ''}:
+                </span>
+                <div className={cn('text-base sm:text-xl font-bold break-words', textColors[variant], textGlowColors[variant])}>
+                  {result.name}
+                </div>
+              </div>
+            )}
+            
+            {/* Planet Attributes Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
               <div>
                 <span className="text-xs font-orbitron uppercase text-gray-400">
@@ -411,16 +424,6 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
                 </span>
                 <div className="text-base text-text-primary break-words">{result.control}</div>
               </div>
-              {result.name && (
-                <div className="sm:col-span-2">
-                  <span className="text-xs font-orbitron uppercase text-gray-400">
-                    NAME{result.nameRoll ? ` [${result.nameRoll}]` : ''}:
-                  </span>
-                  <div className={cn('text-base sm:text-lg font-bold break-words', textColors[variant], textGlowColors[variant])}>
-                    {result.name}
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         )}
@@ -428,6 +431,19 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
         {/* Settlement special formatting */}
         {result.appearance && (
           <div className="space-y-3">
+            {/* Settlement Name - Displayed First */}
+            {result.name && (
+              <div className="space-y-1">
+                <span className="text-xs font-orbitron uppercase text-gray-400">
+                  SETTLEMENT NAME{result.nameRoll ? ` [${result.nameRoll}]` : ''}:
+                </span>
+                <div className={cn('text-base sm:text-xl font-bold break-words', textColors[variant], textGlowColors[variant])}>
+                  {result.name}
+                </div>
+              </div>
+            )}
+            
+            {/* Settlement Attributes Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               <div>
                 <span className="text-xs font-orbitron uppercase text-gray-400">
@@ -486,16 +502,6 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
                 </div>
               )}
             </div>
-            {result.name && (
-              <div className="pt-2 border-t border-accent-cyan/30">
-                <span className="text-xs font-orbitron uppercase text-gray-400">
-                  NAME{result.nameRoll ? ` [${result.nameRoll}]` : ''}:
-                </span>
-                <div className={cn('text-base sm:text-lg font-bold break-words', textColors[variant], textGlowColors[variant])}>
-                  {result.name}
-                </div>
-              </div>
-            )}
           </div>
         )}
 

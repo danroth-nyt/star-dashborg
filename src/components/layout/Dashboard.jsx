@@ -36,7 +36,7 @@ const defaultPanels = [
 export default function Dashboard({ roomCode }) {
   const { refreshPartyMembers } = useParty();
   const { spaceCombat } = useSpaceCombat();
-  const { gameState, loading: gameLoading } = useGame();
+  const { gameState, updateGameState, loading: gameLoading } = useGame();
 
   // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const [panels, setPanels] = useState(() => {
@@ -46,7 +46,7 @@ export default function Dashboard({ roomCode }) {
       // Clear old config and set new version
       localStorage.removeItem(PANEL_ORDER_KEY);
       localStorage.setItem(PANEL_VERSION_KEY, CURRENT_PANEL_VERSION);
-      return defaultPanels;
+      return defaultPanels.map(p => ({ ...p, isCollapsed: false }));
     }
 
     const saved = localStorage.getItem(PANEL_ORDER_KEY);
@@ -59,7 +59,7 @@ export default function Dashboard({ roomCode }) {
       const migratedPanels = savedPanels.map(savedPanel => {
         if (savedPanel.id === 'character-panel') {
           // Replace old character-panel with party-panel
-          return { ...defaultPanelMap.get('party-panel'), column: savedPanel.column };
+          return { ...defaultPanelMap.get('party-panel'), column: savedPanel.column, isCollapsed: savedPanel.isCollapsed || false };
         }
         return savedPanel;
       });
@@ -69,8 +69,8 @@ export default function Dashboard({ roomCode }) {
         .map(savedPanel => {
           const defaultPanel = defaultPanelMap.get(savedPanel.id);
           if (defaultPanel) {
-            // Merge default properties, but keep user's column preference
-            return { ...defaultPanel, column: savedPanel.column };
+            // Merge default properties, but keep user's column and collapsed preferences
+            return { ...defaultPanel, column: savedPanel.column, isCollapsed: savedPanel.isCollapsed || false };
           }
           return null; // Remove panels that don't exist in defaults
         })
@@ -78,11 +78,11 @@ export default function Dashboard({ roomCode }) {
       
       // Add any new panels that don't exist in saved config
       const savedIds = new Set(migratedPanels.map(p => p.id));
-      const newPanels = defaultPanels.filter(p => !savedIds.has(p.id));
+      const newPanels = defaultPanels.filter(p => !savedIds.has(p.id)).map(p => ({ ...p, isCollapsed: false }));
       
       return [...newPanels, ...updatedPanels];
     }
-    return defaultPanels;
+    return defaultPanels.map(p => ({ ...p, isCollapsed: false }));
   });
   const [draggedPanel, setDraggedPanel] = useState(null);
   const [dragOverPanel, setDragOverPanel] = useState(null);
@@ -93,7 +93,20 @@ export default function Dashboard({ roomCode }) {
 
   useEffect(() => {
     localStorage.setItem(PANEL_ORDER_KEY, JSON.stringify(panels));
-  }, [panels]);
+    
+    // Also sync to gameState for cross-device persistence
+    const panelStates = {};
+    panels.forEach(panel => {
+      panelStates[panel.id] = panel.isCollapsed || false;
+    });
+    
+    // Only update if panel states actually changed
+    const currentStates = JSON.stringify(gameState.panelStates || {});
+    const newStates = JSON.stringify(panelStates);
+    if (currentStates !== newStates) {
+      updateGameState({ panelStates });
+    }
+  }, [panels, gameState.panelStates, updateGameState]);
 
   // Keyboard shortcuts for help modal
   useEffect(() => {
@@ -195,6 +208,14 @@ export default function Dashboard({ roomCode }) {
     setHelpModalOpen(true);
   };
 
+  const handlePanelCollapse = (panelId, isCollapsed) => {
+    setPanels(prevPanels =>
+      prevPanels.map(panel =>
+        panel.id === panelId ? { ...panel, isCollapsed } : panel
+      )
+    );
+  };
+
   const renderPanel = (panel) => {
     const components = {
       PartyPanel: <PartyPanel onExpand={() => setCharacterSheetOpen(true)} />,
@@ -253,6 +274,8 @@ export default function Dashboard({ roomCode }) {
               </div>
             }
             variant={panel.variant}
+            collapsed={panel.isCollapsed}
+            onCollapsedChange={(isCollapsed) => handlePanelCollapse(panel.id, isCollapsed)}
             maxHeightExpanded={maxHeightExpanded}
             minHeightExpanded={minHeightExpanded}
             onHelpClick={

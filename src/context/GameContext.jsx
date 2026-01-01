@@ -19,6 +19,7 @@ const initialGameState = {
   log: [],
   includePVOracles: true, // Include Perilous Void oracles by default
   includeStarforgedOracles: true, // Include Starforged oracles by default
+  panelStates: {}, // Track collapsed state of panels: { panelId: isCollapsed }
   spaceCombat: {
     isActive: false,
     shipArmor: 2,
@@ -80,10 +81,11 @@ export function GameProvider({ children, roomCode }) {
             throw error;
           }
         } else if (data?.game_state) {
-          // Migrate old game states that don't have ship property
+          // Migrate old game states that don't have ship or panelStates properties
           const migratedState = {
             ...data.game_state,
             ship: data.game_state.ship || initialGameState.ship,
+            panelStates: data.game_state.panelStates || initialGameState.panelStates,
           };
           setGameState(migratedState);
         }

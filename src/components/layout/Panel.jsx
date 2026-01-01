@@ -2,8 +2,18 @@ import { useState } from 'react';
 import { Minimize2, Maximize2, HelpCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-export default function Panel({ title, children, className, variant = 'cyan', defaultCollapsed = false, maxHeightExpanded, minHeightExpanded, onHelpClick }) {
-  const [isCollapsed, setIsCollapsed] = useState(defaultCollapsed);
+export default function Panel({ title, children, className, variant = 'cyan', defaultCollapsed = false, collapsed, onCollapsedChange, maxHeightExpanded, minHeightExpanded, onHelpClick }) {
+  const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed);
+  
+  // Use controlled state if provided, otherwise use internal state
+  const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
+  const setIsCollapsed = (value) => {
+    if (collapsed !== undefined && onCollapsedChange) {
+      onCollapsedChange(value);
+    } else {
+      setInternalCollapsed(value);
+    }
+  };
 
   const borderColors = {
     cyan: 'border-accent-cyan',
