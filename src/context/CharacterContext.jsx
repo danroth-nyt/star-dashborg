@@ -210,6 +210,8 @@ export function CharacterProvider({ children, userId, roomCode }) {
     }
 
     try {
+      setLoading(true); // Show loading during transition
+      
       const { error } = await supabase
         .from('characters')
         .delete()
@@ -222,6 +224,8 @@ export function CharacterProvider({ children, userId, roomCode }) {
       console.error('Error deleting character:', err);
       setError(err.message);
       throw err;
+    } finally {
+      setLoading(false); // Clear loading after transition
     }
   }, [character?.id]);
 

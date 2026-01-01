@@ -156,24 +156,23 @@ function AppContent({ roomCode }) {
     return <LoadingScreen message="LOADING CHARACTER" />;
   }
 
-  // Only show CharacterGenerator if loading is complete AND character is confirmed null
-  // This prevents the flash when character is still being loaded
-  if (!characterLoading && character === null) {
-    return (
-      <div className="min-h-screen bg-bg-primary p-4 md:p-8 scanlines">
-        <div className="max-w-6xl mx-auto">
-          <CharacterGenerator />
-        </div>
-      </div>
-    );
-  }
-
-  // Has character - show dashboard
+  // Wrap everything in GameProvider so both CharacterGenerator and Dashboard have access
   return (
     <GameProvider roomCode={roomCode}>
-      <SpaceCombatProvider>
-        <Dashboard roomCode={roomCode} />
-      </SpaceCombatProvider>
+      {!characterLoading && character === null ? (
+        // Show CharacterGenerator if loading is complete AND character is confirmed null
+        // This prevents the flash when character is still being loaded
+        <div className="min-h-screen bg-bg-primary p-4 md:p-8 scanlines">
+          <div className="max-w-6xl mx-auto">
+            <CharacterGenerator />
+          </div>
+        </div>
+      ) : (
+        // Has character - show dashboard
+        <SpaceCombatProvider>
+          <Dashboard roomCode={roomCode} />
+        </SpaceCombatProvider>
+      )}
     </GameProvider>
   );
 }
