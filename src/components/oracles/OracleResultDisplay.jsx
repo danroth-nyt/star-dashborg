@@ -347,7 +347,18 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
 
         {/* NPC special formatting - multi-roll */}
         {result.role && result.roleRoll && (
-          <div className="space-y-2">
+          <div className="space-y-3">
+            {/* NPC Name - Displayed First and Prominently */}
+            {result.name && (
+              <div className="space-y-1">
+                <span className="text-xs font-orbitron uppercase text-gray-400">NPC NAME:</span>
+                <div className={cn('text-base sm:text-xl font-bold break-words', textColors[variant], textGlowColors[variant])}>
+                  {result.name}
+                </div>
+              </div>
+            )}
+            
+            {/* NPC Attributes Grid */}
             <div className="grid grid-cols-1 gap-2">
               <div>
                 <span className="text-xs font-orbitron uppercase text-gray-400">ROLE [{result.roleRoll}]:</span>

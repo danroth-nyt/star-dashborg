@@ -164,6 +164,12 @@ export default function CompactOracleResult({ result, variant = 'cyan', onDismis
         {/* NPC */}
         {result.role && result.species && (
           <div className="space-y-1 text-xs">
+            {result.name && (
+              <div className="mb-2">
+                <span className="text-gray-400">Name:</span>{' '}
+                <span className={cn('text-sm font-bold font-orbitron', textColors[variant], textGlowColors[variant])}>{result.name}</span>
+              </div>
+            )}
             <div>
               <span className="text-gray-400">Role:</span>{' '}
               <span className={cn('font-bold', textColors[variant])}>{result.role}</span>

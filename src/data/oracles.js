@@ -1174,7 +1174,20 @@ export function generateVillain() {
 }
 
 // Generate NPC
-export function generateNPC() {
+export function generateNPC(includePV = false) {
+  // Generate name first - additive approach
+  let name;
+  if (includePV && rollDice(2) === 2) {
+    // Use PV name generator for variety
+    const pvName = generatePVNPCFullName();
+    name = pvName.fullName;
+  } else {
+    // Use baseline first name + family name
+    const firstName = nameOracles.baselineFirst[rollDice(10) - 1];
+    const familyName = nameOracles.familyNames[rollDice(10) - 1];
+    name = `${firstName} ${familyName}`;
+  }
+  
   // Multi-roll - each field rolls independently for more permutations
   const roleRoll = rollDice(npcOracles.npcRoles.length);
   const speciesRoll = rollDice(npcOracles.npcSpecies.length);
@@ -1184,6 +1197,7 @@ export function generateNPC() {
   const demeanorRoll = rollDice(npcOracles.npcDemeanor.length);
   
   return {
+    name,
     roleRoll,
     speciesRoll,
     motivationRoll,

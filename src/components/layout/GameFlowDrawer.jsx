@@ -250,8 +250,8 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
         break;
 
       case 'npc':
-        result = generateNPC();
-        logMessage = `NPC: ${result.role} - ${result.species}`;
+        result = generateNPC(gameState.includePVOracles);
+        logMessage = `NPC: ${result.name} - ${result.role} - ${result.species}`;
         break;
 
       case 'planet':

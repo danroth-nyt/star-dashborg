@@ -30,9 +30,7 @@ import {
   generateMonsterName,
   generateEpicTitle,
   generateEpisodeTitle,
-  generatePVNPCName,
   generatePVNPCSurname,
-  generatePVNPCFullName,
   generateSpaceOperaName,
   generatePVSettlementName,
   generatePVFactionName
@@ -360,22 +358,10 @@ function CharactersTab() {
     return { result: category, detail: name };
   };
 
-  const handlePVNPCName = () => {
-    const name = generatePVNPCName();
-    addLog(`PV NPC Name [${name.firstRoll}, ${name.secondRoll}]: ${name.fullName}`, 'roll');
-    return name;
-  };
-
   const handlePVNPCSurname = () => {
     const surname = generatePVNPCSurname();
     addLog(`PV NPC Surname [${surname.firstRoll}, ${surname.secondRoll}]: ${surname.fullSurname}`, 'roll');
     return surname;
-  };
-
-  const handlePVNPCFullName = () => {
-    const fullName = generatePVNPCFullName();
-    addLog(`PV NPC Full Name: ${fullName.fullName}`, 'roll');
-    return fullName;
   };
 
   const handleSpaceOperaName = () => {
@@ -487,25 +473,11 @@ function CharactersTab() {
           {gameState.includePVOracles && (
             <>
               <OracleTable
-                title="PV NPC Name"
-                table={[]}
-                variant="yellow"
-                diceType="2d100"
-                rollFunction={handlePVNPCName}
-              />
-              <OracleTable
                 title="PV NPC Surname"
                 table={[]}
                 variant="yellow"
                 diceType="2d100"
                 rollFunction={handlePVNPCSurname}
-              />
-              <OracleTable
-                title="PV Full Name"
-                table={[]}
-                variant="yellow"
-                diceType="4d100"
-                rollFunction={handlePVNPCFullName}
               />
               <OracleTable
                 title="Space Opera"

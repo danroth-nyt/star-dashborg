@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import Button from '../../ui/Button';
 import OracleResultDisplay from '../OracleResultDisplay';
-import { generateNPC, generateTravelEncounter, rollOnTable, generatePVNPCFullName } from '../../../data/oracles';
-import { npcOracles, nameOracles } from '../../../data/oracles';
+import { generateNPC, generateTravelEncounter, rollOnTable } from '../../../data/oracles';
+import { npcOracles } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
 
 export default function NPCGenerator() {
@@ -10,9 +10,9 @@ export default function NPCGenerator() {
   const [result, setResult] = useState(null);
 
   const handleGenerateNPC = () => {
-    const npc = generateNPC();
+    const npc = generateNPC(gameState.includePVOracles);
     setResult(npc);
-    addLog(`NPC: ${npc.species} ${npc.role} - ${npc.demeanor}`, 'mission');
+    addLog(`NPC: ${npc.name} - ${npc.species} ${npc.role} - ${npc.demeanor}`, 'mission');
   };
 
   const handleGenerateTravelEncounter = () => {
@@ -62,12 +62,6 @@ export default function NPCGenerator() {
     addLog(`Reaction: ${reaction}`, 'roll');
   };
 
-  const handleGeneratePVName = () => {
-    const pvName = generatePVNPCFullName();
-    setResult(pvName);
-    addLog(`PV NPC Name: ${pvName.fullName}`, 'mission');
-  };
-
   return (
     <div className="space-y-4">
       {/* Main NPC Generator */}
@@ -75,7 +69,7 @@ export default function NPCGenerator() {
         GENERATE FULL NPC
       </Button>
       <div className="text-xs text-gray-400 text-center font-orbitron -mt-2">
-        Role • Species • Motivation • Secret • Trait • Demeanor
+        Name • Role • Species • Motivation • Secret • Trait • Demeanor
       </div>
 
       {/* Quick Generators - Secondary Options */}
@@ -94,11 +88,6 @@ export default function NPCGenerator() {
           <Button onClick={handleGenerateWeirdoAlien} variant="secondary" className="text-xs py-2">
             Weirdo Alien
           </Button>
-          {gameState.includePVOracles && (
-            <Button onClick={handleGeneratePVName} variant="secondary" className="text-xs py-2 col-span-2">
-              PV NPC Name
-            </Button>
-          )}
         </div>
       </div>
 
