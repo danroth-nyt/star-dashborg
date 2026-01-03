@@ -158,11 +158,11 @@ export default function Dice({
   };
 
   // Calculate animation delay and initial rotation based on index
-  // Stagger delays: 0s, 0.3s, 0.6s, 0.9s, 1.2s, 1.5s, 1.8s, 2.1s (cycles within 3s animation)
-  const animationDelay = `${(index * 0.3) % 3}s`;
+  // Stagger delays: 0s, 0.4s, 0.8s, etc. (cycles within 3s animation)
+  const animationDelay = `${(index * 0.4) % 3}s`;
   
-  // Vary initial rotation: -15deg to +15deg based on index
-  const initialRotation = ((index * 47) % 31) - 15; // Using prime numbers to spread evenly
+  // Vary initial rotation: -4deg to +4deg based on index (subtle variation)
+  const initialRotation = ((index * 3) % 9) - 4;
 
   return (
     <button

@@ -12,6 +12,11 @@ export default function HelpModal({ isOpen, onClose, initialTab = 'threatDie' })
 
   const [activeTab, setActiveTab] = useState(initialTab);
 
+  // Update active tab when initialTab prop changes
+  useEffect(() => {
+    setActiveTab(initialTab);
+  }, [initialTab]);
+
   // Handle escape key
   useEffect(() => {
     if (!isOpen) return;
