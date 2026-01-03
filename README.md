@@ -540,6 +540,7 @@ star-dashborg/
 │   │   ├── useSwipeGesture.js     # Touch/mouse swipe detection
 │   │   └── useSoundEffects.js     # Sound effects management
 │   ├── lib/
+│   │   ├── assetPath.js        # Asset path utility for deployment
 │   │   ├── keyboardUtils.js    # Keyboard state detection
 │   │   ├── supabaseClient.js   # Supabase configuration
 │   │   └── utils.js            # Utility functions
@@ -623,6 +624,7 @@ star-dashborg/
 - **LocalStorage** - Panel layout and preferences persistence
 - **CSS Custom Properties** - Theme colors and effects
 - **Row Level Security** - Supabase RLS for data access control
+- **Asset Path Utility** - `getAssetPath()` handles base URL for GitHub Pages deployment
 
 ### Code Style
 - Components use functional React with hooks

@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { visualOracles, rollDice } from '../../data/oracles';
 import { useGame } from '../../context/GameContext';
 import { useOracleHistoryContext } from '../../context/OracleHistoryContext';
+import { getAssetPath } from '../../lib/assetPath';
 import Button from '../ui/Button';
 
 export default function VisualBoostOracle() {
@@ -90,7 +91,7 @@ export default function VisualBoostOracle() {
               {/* Icon Image */}
               <div className="flex items-center justify-center">
                 <img
-                  src={`/images/boost/icon_${String(index + 1).padStart(2, '0')}.png`}
+                  src={getAssetPath(`images/boost/icon_${String(index + 1).padStart(2, '0')}.png`)}
                   alt={`Boost Oracle ${index + 1}`}
                   className="w-full h-auto"
                   style={{ imageRendering: 'crisp-edges' }}

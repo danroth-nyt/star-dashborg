@@ -7,6 +7,7 @@ import { ARMOR_TIERS } from '../../data/spaceCombatData';
 import { getMaxArmorTier, hasUpgrade, getAvailableHeroicSlots } from '../../utils/shipUpgrades';
 import { useSoundEffects } from '../../hooks/useSoundEffects';
 import { generateShipName } from '../../data/oracles';
+import { getAssetPath } from '../../lib/assetPath';
 import UpgradeShop from '../ship/UpgradeShop';
 import Button from '../ui/Button';
 
@@ -36,7 +37,7 @@ export default function ShipStatus() {
   useEffect(() => {
     if (shipArmor === 0 && prevArmorRef.current > 0) {
       if (!alarmAudioRef.current) {
-        alarmAudioRef.current = new Audio('/sounds/alarm-critical.mp3');
+        alarmAudioRef.current = new Audio(getAssetPath('sounds/alarm-critical.mp3'));
         alarmAudioRef.current.loop = true;
         alarmAudioRef.current.volume = 0.4;
       }

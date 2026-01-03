@@ -4,6 +4,40 @@ All notable changes to Star Dashborg are documented in this file.
 
 ## [Current Branch] - Latest Changes
 
+### 🔧 Asset Path Hotfix (NEW)
+
+#### ✨ Features
+- **Asset Path Utility**: `getAssetPath()` in `src/lib/assetPath.js`
+  - Generic, modular function for handling public asset paths
+  - Automatically uses `import.meta.env.BASE_URL` for deployment compatibility
+  - Works seamlessly between localhost (`/`) and GitHub Pages (`/star-dashborg/`)
+  - Strips leading slashes to prevent double-slash issues
+  
+- **Fixed Image Loading on GitHub Pages**: Visual Boost Oracle images now load correctly
+  - `VisualBoostOracle.jsx` updated to use `getAssetPath()`
+  - Icons load at `/star-dashborg/images/boost/icon_XX.png` in production
+  
+- **Fixed Sound Loading on GitHub Pages**: Critical alarm sound now loads correctly
+  - `ShipStatus.jsx` updated to use `getAssetPath()` for alarm audio
+  - Consistent with existing `useSoundEffects.js` pattern
+
+#### 🧪 New Tests
+- **Asset Path Tests**: `src/lib/assetPath.test.js` (13 tests)
+  - Path handling with/without leading slashes
+  - Various asset types (images, audio, SVG)
+  - Edge cases (empty paths, special characters, nested paths)
+  - Production base URL behavior documentation
+
+#### 📁 Files Added
+- `src/lib/assetPath.js` - Asset path utility
+- `src/lib/assetPath.test.js` - Comprehensive test coverage
+
+#### 🔄 Files Modified
+- `src/components/oracles/VisualBoostOracle.jsx` - Uses `getAssetPath()` for icons
+- `src/components/spacecombat/ShipStatus.jsx` - Uses `getAssetPath()` for alarm sound
+
+---
+
 ### 🎨 Visual Boost Oracle (NEW)
 
 #### ✨ Major Features
