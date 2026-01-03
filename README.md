@@ -67,6 +67,8 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
   - Isolated history per tab (doesn't mix results)
   - Seamless integration with all oracle generators
 - **Affirmation Oracle** - Yes/No/And/But oracle with advantage/disadvantage rolls and detail fields
+  - Mobile-responsive modifier buttons (N/A/D on mobile, Norm/Adv/Dis on desktop)
+  - Touch-friendly interface with optimized button sizing
 - **Scene Shakeup** - Two-stage threat check (d20 + Threat Die, 15+ triggers)
   - Stage 1: Check if shakeup occurs (DC 15)
   - Stage 2: Roll on shakeup table if triggered
@@ -76,10 +78,21 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
   - Stage 1: Check if encounter occurs (DC 12)
   - Stage 2: Generate theme + actor if triggered
   - Detailed log output showing success/failure
+- **Visual Boost Oracle** - Interactive visual oracle with 20 iconic symbols (d20)
+  - Responsive grid layout (2 columns mobile, 4 tablet, 5 desktop)
+  - Slot machine-style roll animation with rapid cycling
+  - Selected icon highlights with cyan glow effect
+  - Non-selected icons dim for focus
+  - Number badges (1-20) on each icon
+  - Typewriter animation for result text
+  - Integrated with oracle history system
+  - Icon assets: Star, Skull, Blaster, Planet, Atom, Cloaked Figure, Monster, Arrow, Remote, Bot, etc.
 - **Dangerous Locations** - Ship/Base location generator with obstacle mechanics
 - **Site Explorer** - Procedural dungeon-crawl system for ships and bases
 - **Morale Check** - 2D6 vs MRL with Flee/Surrender outcomes
 - **Oracle Compendium** - Comprehensive tabbed interface with 40+ oracle tables
+  - Mobile-responsive layout with optimized text sizing
+  - Stacked title/dice type on mobile, inline on desktop
 - **Perilous Void Integration** - Optional expanded content (toggle in Settings)
   - 10 explosive opening scenes with 3 follow-up questions each
   - 10 inciting incidents for campaign starts
@@ -487,6 +500,7 @@ star-dashborg/
 │   │   │   ├── OracleQuickBar.jsx
 │   │   │   ├── OracleResultDisplay.jsx
 │   │   │   ├── AffirmationOracle.jsx
+│   │   │   ├── VisualBoostOracle.jsx
 │   │   │   └── DiceRoller.jsx
 │   │   ├── ship/             # ShipManager, UpgradeShop, HeroicRewardsModal
 │   │   ├── spacecombat/      # Space combat system components
@@ -541,21 +555,28 @@ star-dashborg/
 │   ├── main.jsx              # React entry point
 │   └── index.css             # Global styles and custom animations
 ├── public/
-│   └── sounds/               # 14 audio files for space combat
-│       ├── laser-fire.mp3            # Gunner turret fire
-│       ├── laser-fire-short.mp3     # Quick weapon sound
-│       ├── torpedo-fire.mp3          # Torpedo launch
-│       ├── load-torpedo.mp3          # Loading torpedoes
-│       ├── shield-hit.mp3            # Incoming damage
-│       ├── shield-power-up.mp3      # Shield activation
-│       ├── repair-shield.mp3         # Engineer repairs
-│       ├── evade.mp3                 # Pilot evasion
-│       ├── steady.mp3                # Pilot stabilization
-│       ├── target-lock.mp3           # Copilot targeting
-│       ├── deflectors.mp3            # Engineering deflectors
-│       ├── jamming.mp3               # Copilot jamming
-│       ├── hyperdrive-charge.mp3    # FTL preparation
-│       └── alarm-critical.mp3        # Critical damage alert
+│   ├── sounds/               # 14 audio files for space combat
+│   │   ├── laser-fire.mp3            # Gunner turret fire
+│   │   ├── laser-fire-short.mp3     # Quick weapon sound
+│   │   ├── torpedo-fire.mp3          # Torpedo launch
+│   │   ├── load-torpedo.mp3          # Loading torpedoes
+│   │   ├── shield-hit.mp3            # Incoming damage
+│   │   ├── shield-power-up.mp3      # Shield activation
+│   │   ├── repair-shield.mp3         # Engineer repairs
+│   │   ├── evade.mp3                 # Pilot evasion
+│   │   ├── steady.mp3                # Pilot stabilization
+│   │   ├── target-lock.mp3           # Copilot targeting
+│   │   ├── deflectors.mp3            # Engineering deflectors
+│   │   ├── jamming.mp3               # Copilot jamming
+│   │   ├── hyperdrive-charge.mp3    # FTL preparation
+│   │   └── alarm-critical.mp3        # Critical damage alert
+│   └── images/
+│       └── boost/            # Visual Boost Oracle icons
+│           ├── icon_01.png - icon_20.png   # 20 oracle icons
+│           └── _source/      # Source assets and extraction scripts
+│               ├── extract-icons.md        # Documentation
+│               ├── extract_icons.py        # Python extraction script
+│               └── boost_oracle_star_borg-1.png  # Original source image
 ├── migrations/
 │   ├── add_respec_columns.sql               # Character respec support
 │   └── enable_realtime_and_timestamps.sql   # Realtime and timestamp support
@@ -586,6 +607,12 @@ star-dashborg/
   - Coverage report: `npm run test:coverage`
   - UI mode: `npm run test:ui`
 - **Test Files**: Located alongside source files with `.test.js` or `.test.jsx` extension
+- **Test Coverage**: 191 tests across 15 test files
+  - Context tests: `OracleHistoryContext.test.jsx`
+  - Component tests: `OracleQuickBar.test.jsx`, `VisualBoostOracle.test.jsx`, `ThreatDie.test.jsx`, `LoadingScreen.test.jsx`
+  - Hook tests: `useOracleHistory.test.js`, `useSwipeGesture.test.js`
+  - Utility tests: `dice.test.js`, `keyboardUtils.test.js`
+  - Integration tests: `SpaceCombatView.test.jsx`, `ShipStatus.test.jsx`
 - **Coverage Reports**: Generated in `coverage/` directory with HTML viewer
 - **Testing Utilities**: Custom render helpers in `src/test/testUtils.jsx`
 
