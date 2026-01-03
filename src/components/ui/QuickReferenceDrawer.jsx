@@ -2,12 +2,16 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, BookOpen } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { isUserTyping } from '../../lib/keyboardUtils';
 
 export default function QuickReferenceDrawer({ isOpen, onClose }) {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!isOpen) return;
+      
+      // Skip if user is typing
+      if (isUserTyping()) return;
       
       if (e.key === 'Escape') {
         onClose();

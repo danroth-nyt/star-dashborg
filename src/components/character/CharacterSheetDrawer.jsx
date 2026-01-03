@@ -5,6 +5,7 @@ import { useCharacter } from '../../context/CharacterContext';
 import { useGame } from '../../context/GameContext';
 import { useAuth } from '../../context/AuthContext';
 import { usePresence } from '../../hooks/usePresence';
+import { isUserTyping } from '../../lib/keyboardUtils';
 import { SPECIES, CHARACTER_CLASSES } from '../../types/starborg';
 import { getUnclaimedPromotions } from '../../data/progressionData';
 import Button from '../ui/Button';
@@ -37,6 +38,9 @@ export default function CharacterSheetDrawer({ isOpen, onClose, roomCode }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!isOpen) return;
+      
+      // Skip if user is typing
+      if (isUserTyping()) return;
       
       if (e.key === 'Escape') {
         onClose();

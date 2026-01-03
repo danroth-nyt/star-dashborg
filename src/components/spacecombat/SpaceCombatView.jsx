@@ -3,6 +3,7 @@ import { X, Volume2, VolumeX } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
 import { useParty } from '../../context/PartyContext';
 import { useSoundEffects } from '../../hooks/useSoundEffects';
+import { isUserTyping } from '../../lib/keyboardUtils';
 import Button from '../ui/Button';
 import ShipStatus from './ShipStatus';
 import StationGrid from './StationGrid';
@@ -18,6 +19,9 @@ export default function SpaceCombatView() {
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e) => {
+      // Skip if user is typing
+      if (isUserTyping()) return;
+      
       // ESC to exit combat (with confirmation)
       if (e.key === 'Escape' && !isExiting) {
         handleExitCombat();

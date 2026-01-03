@@ -17,6 +17,7 @@ import LoadingScreen from '../ui/LoadingScreen';
 import { useParty } from '../../context/PartyContext';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
 import { useGame } from '../../context/GameContext';
+import { isUserTyping } from '../../lib/keyboardUtils';
 
 const PANEL_ORDER_KEY = 'star-dashborg-panel-order';
 const PANEL_VERSION_KEY = 'star-dashborg-panel-version';
@@ -141,9 +142,8 @@ export default function Dashboard({ roomCode }) {
   // Keyboard shortcuts for help modal
   useEffect(() => {
     const handleKeyDown = (e) => {
-      // H or ? key opens help modal (ignore if typing in input/textarea)
-      if ((e.key === 'h' || e.key === 'H' || e.key === '?') && 
-          !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
+      // H or ? key opens help modal (ignore if typing in any text field)
+      if ((e.key === 'h' || e.key === 'H' || e.key === '?') && !isUserTyping()) {
         e.preventDefault();
         setHelpModalOpen(true);
       }
@@ -255,7 +255,7 @@ export default function Dashboard({ roomCode }) {
       DiceRoller: <DiceRoller />,
       DiceLog: <DiceLog />,
       OraclePanel: <OraclePanel />,
-      SessionJournal: <SessionJournal />,
+      SessionJournal: <SessionJournal roomCode={roomCode} />,
     };
 
     // Skip rendering if component doesn't exist (e.g., old CharacterPanel)

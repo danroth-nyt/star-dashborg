@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { X, AlertTriangle, CheckCircle, Info } from 'lucide-react';
 import { trackerHelpContent } from '../../data/trackerHelpContent';
+import { isUserTyping } from '../../lib/keyboardUtils';
 
 export default function HelpModal({ isOpen, onClose, initialTab = 'threatDie' }) {
   const tabs = [
@@ -16,6 +17,9 @@ export default function HelpModal({ isOpen, onClose, initialTab = 'threatDie' })
     if (!isOpen) return;
 
     const handleEscape = (e) => {
+      // Skip if user is typing
+      if (isUserTyping()) return;
+      
       if (e.key === 'Escape') {
         onClose();
       }

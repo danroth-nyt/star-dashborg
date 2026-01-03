@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ChevronRight, Play, Dice6, Target, Clock, Scroll, Map, Zap, CheckCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { isUserTyping } from '../../lib/keyboardUtils';
 import { useGame } from '../../context/GameContext';
 import CompactOracleResult from '../oracles/CompactOracleResult';
 import {
@@ -33,6 +34,9 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!isOpen) return;
+      
+      // Skip if user is typing
+      if (isUserTyping()) return;
       
       if (e.key === 'Escape') {
         onClose();
