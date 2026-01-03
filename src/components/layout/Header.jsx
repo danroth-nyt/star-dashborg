@@ -44,7 +44,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
 
   return (
     <>
-      <header className="border-b-3 border-accent-yellow bg-bg-secondary p-3 md:p-4 border-flicker">
+      <header className="sticky top-0 z-50 border-b-3 border-accent-yellow bg-bg-secondary p-3 md:p-4 border-flicker shadow-lg lg:relative lg:shadow-none">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2 md:gap-4">
             <div>

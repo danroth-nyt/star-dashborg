@@ -20,17 +20,18 @@ import { isUserTyping } from '../../lib/keyboardUtils';
 
 const PANEL_ORDER_KEY = 'star-dashborg-panel-order';
 const PANEL_VERSION_KEY = 'star-dashborg-panel-version';
+const MOBILE_COLLAPSED_KEY = 'star-dashborg-mobile-collapsed';
 const CURRENT_PANEL_VERSION = '4'; // Increment when making breaking changes
 
 const defaultPanels = [
-  { id: 'threat-die', component: 'ThreatDie', title: 'Threat Die', variant: 'red' },
-  { id: 'dice-roller', component: 'DiceRoller', title: 'Dice Roller', variant: 'yellow' },
-  { id: 'oracle-compendium', component: 'OraclePanel', title: 'Oracle Compendium', variant: 'cyan' },
-  { id: 'ship-log', component: 'DiceLog', title: 'Ship Log', variant: 'cyan' },
-  { id: 'party-panel', component: 'PartyPanel', title: 'Party', variant: 'red' },
-  { id: 'danger-clocks', component: 'DangerClock', title: 'Danger Clocks', variant: 'red' },
-  { id: 'mission-tracks', component: 'MissionTrack', title: 'Mission Tracks', variant: 'cyan' },
-  { id: 'session-journal', component: 'SessionJournal', title: 'Session Journal', variant: 'yellow' },
+  { id: 'threat-die', component: 'ThreatDie', title: 'Threat Die', variant: 'red', mobileCollapsedDefault: false },
+  { id: 'dice-roller', component: 'DiceRoller', title: 'Dice Roller', variant: 'yellow', mobileCollapsedDefault: false },
+  { id: 'oracle-compendium', component: 'OraclePanel', title: 'Oracle Compendium', variant: 'cyan', mobileCollapsedDefault: false },
+  { id: 'ship-log', component: 'DiceLog', title: 'Ship Log', variant: 'cyan', mobileCollapsedDefault: true },
+  { id: 'party-panel', component: 'PartyPanel', title: 'Party', variant: 'red', mobileCollapsedDefault: false },
+  { id: 'danger-clocks', component: 'DangerClock', title: 'Danger Clocks', variant: 'red', mobileCollapsedDefault: true },
+  { id: 'mission-tracks', component: 'MissionTrack', title: 'Mission Tracks', variant: 'cyan', mobileCollapsedDefault: true },
+  { id: 'session-journal', component: 'SessionJournal', title: 'Session Journal', variant: 'yellow', mobileCollapsedDefault: false },
 ];
 
 export default function Dashboard({ roomCode }) {
@@ -89,11 +90,30 @@ export default function Dashboard({ roomCode }) {
   const [helpModalOpen, setHelpModalOpen] = useState(false);
   const [helpModalTab, setHelpModalTab] = useState('threatDie');
   const [characterSheetOpen, setCharacterSheetOpen] = useState(false);
+  
+  // Mobile collapsed state - load from localStorage or use defaults
+  const [mobileCollapsed, setMobileCollapsed] = useState(() => {
+    const saved = localStorage.getItem(MOBILE_COLLAPSED_KEY);
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    // Initialize with default collapsed states
+    const initial = {};
+    defaultPanels.forEach(panel => {
+      initial[panel.id] = panel.mobileCollapsedDefault;
+    });
+    return initial;
+  });
 
   // Effect: Save panel state to localStorage (per-player)
   useEffect(() => {
     localStorage.setItem(PANEL_ORDER_KEY, JSON.stringify(panels));
   }, [panels]);
+
+  // Effect: Save mobile collapsed state to localStorage
+  useEffect(() => {
+    localStorage.setItem(MOBILE_COLLAPSED_KEY, JSON.stringify(mobileCollapsed));
+  }, [mobileCollapsed]);
 
   // Keyboard shortcuts for help modal
   useEffect(() => {
@@ -160,6 +180,13 @@ export default function Dashboard({ roomCode }) {
     setHelpModalOpen(true);
   };
 
+  const handleMobileCollapse = (panelId, isCollapsed) => {
+    setMobileCollapsed(prev => ({
+      ...prev,
+      [panelId]: isCollapsed
+    }));
+  };
+
 
   // Define grid slots - panels adapt to whatever slot they're placed in
   const gridSlots = [
@@ -212,6 +239,9 @@ export default function Dashboard({ roomCode }) {
             panel.id === 'danger-clocks' ? () => openHelp('dangerClocks') :
             undefined
           }
+          collapsible={true}
+          collapsed={mobileCollapsed[panel.id] || false}
+          onCollapsedChange={(isCollapsed) => handleMobileCollapse(panel.id, isCollapsed)}
         >
           {components[panel.component]}
         </Panel>

@@ -1,7 +1,7 @@
-import { HelpCircle, GripVertical } from 'lucide-react';
+import { HelpCircle, GripVertical, ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-export default function Panel({ title, children, className, variant = 'cyan', onHelpClick, draggable, onDragStart, onDragEnd }) {
+export default function Panel({ title, children, className, variant = 'cyan', onHelpClick, draggable, onDragStart, onDragEnd, collapsible, collapsed, onCollapsedChange }) {
 
   const borderColors = {
     cyan: 'border-accent-cyan',
@@ -17,7 +17,8 @@ export default function Panel({ title, children, className, variant = 'cyan', on
 
   return (
     <div className={cn(
-      'border-3 flex flex-col relative transition-all duration-300 bg-bg-secondary h-full overflow-hidden',
+      'border-3 flex flex-col relative transition-all duration-300 bg-bg-secondary overflow-hidden',
+      collapsed ? 'h-auto' : 'h-full',
       borderColors[variant],
       className
     )}>
@@ -31,7 +32,7 @@ export default function Panel({ title, children, className, variant = 'cyan', on
             textColors[variant],
             'bg-bg-primary',
             'overflow-hidden',
-            `border-b-3 ${borderColors[variant]}`,
+            !collapsed && `border-b-3 ${borderColors[variant]}`,
             draggable && 'cursor-grab active:cursor-grabbing'
           )}
         >
@@ -39,28 +40,52 @@ export default function Panel({ title, children, className, variant = 'cyan', on
             {draggable && <GripVertical className="w-4 h-4 opacity-50 shrink-0" />}
             <span className="break-words truncate">{title}</span>
           </div>
-          {onHelpClick && (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                onHelpClick();
-              }}
-              className={cn(
-                'p-1 hover:bg-current/10 transition-all duration-200 rounded',
-                textColors[variant]
-              )}
-              aria-label="Show help"
-            >
-              <HelpCircle className="w-4 h-4" />
-            </button>
-          )}
+          <div className="flex items-center gap-1">
+            {onHelpClick && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onHelpClick();
+                }}
+                className={cn(
+                  'p-1 hover:bg-current/10 transition-all duration-200 rounded',
+                  textColors[variant]
+                )}
+                aria-label="Show help"
+              >
+                <HelpCircle className="w-4 h-4" />
+              </button>
+            )}
+            {collapsible && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (onCollapsedChange) {
+                    onCollapsedChange(!collapsed);
+                  }
+                }}
+                className={cn(
+                  'p-1 hover:bg-current/10 transition-all duration-200 rounded',
+                  textColors[variant]
+                )}
+                aria-label={collapsed ? 'Expand panel' : 'Collapse panel'}
+              >
+                <ChevronDown className={cn(
+                  'w-4 h-4 transition-transform duration-200',
+                  collapsed && 'rotate-180'
+                )} />
+              </button>
+            )}
+          </div>
         </div>
       )}
-      <div 
-        className="p-4 flex-1 overflow-auto accordion-reveal relative"
-      >
-        {children}
-      </div>
+      {!collapsed && (
+        <div 
+          className="p-4 flex-1 overflow-auto accordion-reveal relative"
+        >
+          {children}
+        </div>
+      )}
     </div>
   );
 }

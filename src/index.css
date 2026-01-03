@@ -1110,7 +1110,7 @@ h1, h2, h3, h4, h5, h6 {
   /* Dashboard Grid Layout */
   .dashboard-grid {
     grid-template-columns: repeat(12, 1fr);
-    grid-template-rows: 480px 480px 380px;
+    grid-template-rows: 480px 480px 460px;
   }
 
   /* Smooth transitions for grid items */
