@@ -4,8 +4,7 @@ import {
   rollStatWithModifier, 
   rollHP, 
   rollDestinyPoints, 
-  rollD, 
-  rollTable 
+  rollD 
 } from '../../utils/dice';
 import { characterOracles } from '../../data/oracles';
 import {
@@ -35,10 +34,8 @@ export default function CharacterGenerator({ onSave, onCancel }) {
   const { saveCharacter } = useCharacter();
   const { gameState } = useGame();
   const [step, setStep] = useState(1); // 1: class selection, 2: generating, 3: results
-  const [selectedClass, setSelectedClass] = useState(null);
   const [character, setCharacter] = useState(null);
   const [editMode, setEditMode] = useState(false);
-  const [generating, setGenerating] = useState(false);
   const [saving, setSaving] = useState(false);
 
   // Format modifier with +/- prefix (show + for positive, nothing for zero, - already included)
@@ -49,7 +46,6 @@ export default function CharacterGenerator({ onSave, onCancel }) {
 
   // Generate complete character
   const generateCharacter = (classId) => {
-    setGenerating(true);
     setStep(2);
 
     // Simulate generation delay for animation
@@ -139,7 +135,6 @@ export default function CharacterGenerator({ onSave, onCancel }) {
       };
 
       setCharacter(newCharacter);
-      setGenerating(false);
       setStep(3);
     }, 1500);
   };
@@ -235,14 +230,12 @@ export default function CharacterGenerator({ onSave, onCancel }) {
 
   // Handle class selection
   const handleClassSelect = (classId) => {
-    setSelectedClass(classId);
     generateCharacter(classId);
   };
 
   // Reroll entire character
   const handleReroll = () => {
     setStep(1);
-    setSelectedClass(null);
     setCharacter(null);
     setEditMode(false);
   };

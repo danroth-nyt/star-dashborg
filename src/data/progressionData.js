@@ -8,7 +8,7 @@
  * - Choose one class-specific advancement option
  */
 
-import { botData, bountyHunterData, magiKnightData, smugglerData, technicianData, youngsterData } from './characterData';
+import { botData, bountyHunterData, magiKnightData, technicianData } from './characterData';
 
 // ==========================================
 // CLASS ADVANCEMENT OPTIONS
@@ -259,8 +259,8 @@ export function canIncreaseStat(currentValue) {
  */
 export function getStatIncreaseOptions(stats) {
   return Object.entries(stats)
-    .filter(([_, value]) => value < 6)
-    .map(([stat, _]) => stat);
+    .filter(([, value]) => value < 6)
+    .map(([stat]) => stat);
 }
 
 // ==========================================

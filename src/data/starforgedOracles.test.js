@@ -96,7 +96,7 @@ describe('starforgedOracles', () => {
     });
 
     it('should have all incidents as strings', () => {
-      sfIncitingIncidents.forEach((entry, index) => {
+      sfIncitingIncidents.forEach((entry) => {
         expect(entry).toHaveProperty('incident');
         expect(typeof entry.incident).toBe('string');
         expect(entry.incident.length).toBeGreaterThan(0);

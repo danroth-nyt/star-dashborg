@@ -243,24 +243,6 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
     }
   }, [result]);
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (!onNavigate || totalResults <= 1) return;
-      
-      if (e.key === 'ArrowLeft') {
-        e.preventDefault();
-        handlePrevious();
-      } else if (e.key === 'ArrowRight') {
-        e.preventDefault();
-        handleNext();
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentIndex, totalResults, onNavigate]);
-
   // Navigation handlers
   const handlePrevious = useCallback(() => {
     if (currentIndex < totalResults - 1 && onNavigate) {
@@ -281,6 +263,24 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
       }, 150);
     }
   }, [currentIndex, totalResults, onNavigate]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!onNavigate || totalResults <= 1) return;
+      
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handlePrevious();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        handleNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, totalResults, onNavigate, handlePrevious, handleNext]);
 
   // Swipe gesture support
   const swipeHandlers = useSwipeGesture({

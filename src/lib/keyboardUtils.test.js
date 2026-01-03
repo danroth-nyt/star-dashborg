@@ -1,14 +1,7 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, afterEach } from 'vitest';
 import { isUserTyping } from './keyboardUtils';
 
 describe('keyboardUtils', () => {
-  let originalActiveElement;
-
-  beforeEach(() => {
-    // Store original active element
-    originalActiveElement = document.activeElement;
-  });
-
   afterEach(() => {
     // Clean up any created elements
     const testElements = document.querySelectorAll('[data-test]');

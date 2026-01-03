@@ -10,6 +10,25 @@ import { usePresence } from '../../hooks/usePresence';
 import { useDebounce } from '../../hooks/useDebounce';
 import { cn } from '../../lib/utils';
 
+// Extracted toolbar button component to prevent recreation on each render
+const ToolbarButton = ({ onClick, active, children, title, disabled }) => (
+  <button
+    onClick={onClick}
+    title={title}
+    disabled={disabled}
+    className={cn(
+      'p-1.5 transition-all duration-200 border border-accent-yellow',
+      disabled && 'opacity-40 cursor-not-allowed',
+      active 
+        ? 'bg-accent-yellow text-bg-primary' 
+        : 'bg-bg-secondary text-accent-yellow hover:bg-accent-yellow hover:bg-opacity-20',
+      disabled && 'hover:bg-bg-secondary hover:bg-opacity-100'
+    )}
+  >
+    {children}
+  </button>
+);
+
 export default function SessionJournal({ roomCode }) {
   const { gameState, updateGameState } = useGame();
   const { session } = useAuth();
@@ -76,24 +95,6 @@ export default function SessionJournal({ roomCode }) {
   if (!editor) {
     return null;
   }
-
-  const ToolbarButton = ({ onClick, active, children, title, disabled }) => (
-    <button
-      onClick={onClick}
-      title={title}
-      disabled={disabled}
-      className={cn(
-        'p-1.5 transition-all duration-200 border border-accent-yellow',
-        disabled && 'opacity-40 cursor-not-allowed',
-        active 
-          ? 'bg-accent-yellow text-bg-primary' 
-          : 'bg-bg-secondary text-accent-yellow hover:bg-accent-yellow hover:bg-opacity-20',
-        disabled && 'hover:bg-bg-secondary hover:bg-opacity-100'
-      )}
-    >
-      {children}
-    </button>
-  );
 
   return (
     <div className="relative min-h-[400px] lg:absolute lg:inset-0 lg:min-h-0 flex flex-col gap-2">

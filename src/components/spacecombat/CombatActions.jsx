@@ -6,7 +6,7 @@ import { useGame } from '../../context/GameContext';
 import { ACTIONS } from '../../data/spaceCombatData';
 import { TORPEDO_TYPES } from '../../data/shipShopData';
 import { rollDice, rollD, rollTest } from '../../utils/dice';
-import { getMaxArmorTier, getGunnerDamage, canAnyStationLoadTorpedoes, hasUpgrade, getSteadyTargetCount } from '../../utils/shipUpgrades';
+import { getMaxArmorTier, getGunnerDamage, canAnyStationLoadTorpedoes, hasUpgrade } from '../../utils/shipUpgrades';
 import TorpedoSelector from './TorpedoSelector';
 import { useSoundEffects } from '../../hooks/useSoundEffects';
 

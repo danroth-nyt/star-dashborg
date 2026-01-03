@@ -7,6 +7,24 @@ import { useCharacter } from '../../context/CharacterContext';
 import { useDebounce } from '../../hooks/useDebounce';
 import { cn } from '../../lib/utils';
 
+// Extracted toolbar button component to prevent recreation on each render
+const ToolbarButton = ({ onClick, active, children, title, disabled }) => (
+  <button
+    onClick={onClick}
+    title={title}
+    disabled={disabled}
+    className={cn(
+      'p-1.5 transition-all duration-200 border border-accent-yellow',
+      disabled && 'opacity-50 cursor-not-allowed',
+      active 
+        ? 'bg-accent-yellow text-bg-primary' 
+        : 'bg-bg-secondary text-accent-yellow hover:bg-accent-yellow hover:bg-opacity-20'
+    )}
+  >
+    {children}
+  </button>
+);
+
 export default function CharacterJournal({ onFocus, onBlur, isLocked }) {
   const { character, updateField } = useCharacter();
   const [localJournal, setLocalJournal] = useState(character?.journal || '');
@@ -57,35 +75,18 @@ export default function CharacterJournal({ onFocus, onBlur, isLocked }) {
     }
   }, [debouncedJournal]);
 
-  if (!character || !editor) {
-    return null;
-  }
-
-  const isSaving = localJournal !== character.journal;
-
-  const ToolbarButton = ({ onClick, active, children, title, disabled }) => (
-    <button
-      onClick={onClick}
-      title={title}
-      disabled={disabled}
-      className={cn(
-        'p-1.5 transition-all duration-200 border border-accent-yellow',
-        disabled && 'opacity-50 cursor-not-allowed',
-        active 
-          ? 'bg-accent-yellow text-bg-primary' 
-          : 'bg-bg-secondary text-accent-yellow hover:bg-accent-yellow hover:bg-opacity-20'
-      )}
-    >
-      {children}
-    </button>
-  );
-
   // Update editor editable state when isLocked changes
   useEffect(() => {
     if (editor) {
       editor.setEditable(!isLocked);
     }
   }, [editor, isLocked]);
+
+  if (!character || !editor) {
+    return null;
+  }
+
+  const isSaving = localJournal !== character.journal;
 
   return (
     <div className="flex flex-col gap-2 min-h-[200px]">

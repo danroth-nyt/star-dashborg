@@ -97,13 +97,7 @@ export default function ShipStatus() {
   };
 
   // Get shield icon based on armor tier
-  const getShieldIcon = () => {
-    if (shipArmor === 0) return ShieldOff;
-    if (shipArmor === 1) return ShieldAlert;
-    return Shield;
-  };
-
-  const ShieldIcon = getShieldIcon();
+  const ShieldIcon = shipArmor === 0 ? ShieldOff : shipArmor === 1 ? ShieldAlert : Shield;
 
   // Get shield color based on armor tier
   const getShieldColor = () => {

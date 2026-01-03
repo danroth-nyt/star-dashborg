@@ -1,5 +1,5 @@
 import Button from '../ui/Button';
-import { rollOnTable, rollDice } from '../../data/oracles';
+import { rollOnTable } from '../../data/oracles';
 import { useGame } from '../../context/GameContext';
 import { useOracleHistoryContext } from '../../context/OracleHistoryContext';
 

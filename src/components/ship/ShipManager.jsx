@@ -27,10 +27,6 @@ export default function ShipManager() {
   const torpedoCount = getTotalTorpedoCount(ship);
   const availableRewards = getAvailableHeroicSlots(ship);
 
-  const getUpgradeName = (upgradeId) => {
-    return SHIP_UPGRADES[upgradeId]?.name || upgradeId;
-  };
-
   // Ship name handlers
   const handleRerollName = () => {
     const newName = generateShipName();

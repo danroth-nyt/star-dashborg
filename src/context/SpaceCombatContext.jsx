@@ -28,7 +28,7 @@ const initialSpaceCombatState = {
   combatLog: [],
 };
 
-export function SpaceCombatProvider({ children, roomCode }) {
+export function SpaceCombatProvider({ children }) {
   const { gameState, updateGameState, addLog } = useGame();
   const [localState, setLocalState] = useState(initialSpaceCombatState);
   const [viewingCombat, setViewingCombat] = useState(false); // Local-only state for this user's view

@@ -14,14 +14,12 @@ import {
   generateEpisodeTitle,
   generateVillain,
   generateMission,
-  generateQuickMission,
   generateScene,
   generateNPC,
   generatePlanet,
   generateOpeningScene,
   generateIncitingIncident,
   characterOracles,
-  soloOracles,
   visualOracles
 } from '../../data/oracles';
 
@@ -263,7 +261,7 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
         logMessage = `Planet: ${result.terrain}${result.name ? ' - ' + result.name : ''}`;
         break;
 
-      case 'shakeup':
+      case 'shakeup': {
         const threatDie = gameState.threatDie || 1;
         const shakeupCheck = rollSceneShakeup(threatDie);
         if (shakeupCheck.success) {
@@ -282,6 +280,7 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
           logMessage = `No Scene Shakeup (rolled ${shakeupCheck.total})`;
         }
         break;
+      }
 
       case 'event':
         result = rollEventOracle();
@@ -311,11 +310,6 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
       delete updated[stepId];
       return updated;
     });
-  };
-
-  const getStepIcon = (step) => {
-    const Icon = step.icon;
-    return <Icon className="w-5 h-5" />;
   };
 
   return createPortal(

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import Header from './Header';
 import Panel from './Panel';
 import ThreatDie from '../trackers/ThreatDie';
@@ -37,7 +37,7 @@ const defaultPanels = [
 export default function Dashboard({ roomCode }) {
   const { refreshPartyMembers } = useParty();
   const { viewingCombat } = useSpaceCombat();
-  const { gameState, updateGameState, loading: gameLoading } = useGame();
+  const { loading: gameLoading } = useGame();
 
   // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const [panels, setPanels] = useState(() => {

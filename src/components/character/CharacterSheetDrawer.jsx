@@ -16,7 +16,7 @@ export default function CharacterSheetDrawer({ isOpen, onClose, roomCode }) {
   const { character, updateField, deleteCharacter, respecCharacter } = useCharacter();
   const { gameState } = useGame();
   const { session } = useAuth();
-  const { presenceState, trackEditing, stopEditing, getFieldEditor } = usePresence(
+  const { trackEditing, stopEditing, getFieldEditor } = usePresence(
     roomCode,
     session?.user?.id,
     character?.name || 'Anonymous'

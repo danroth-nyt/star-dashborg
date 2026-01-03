@@ -32,7 +32,7 @@ function App() {
 
         if (code) {
           // Try to join existing room
-          const { data, error } = await supabase
+          const { error } = await supabase
             .from('sessions')
             .select('room_code')
             .eq('room_code', code)

@@ -144,7 +144,6 @@ const diceShapes = {
 
 export default function Dice({ 
   sides, 
-  label, 
   variant = 'cyan', 
   isRolling = false, 
   onClick,

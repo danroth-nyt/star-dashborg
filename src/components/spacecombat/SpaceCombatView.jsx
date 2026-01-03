@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Volume2, VolumeX } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
-import { useParty } from '../../context/PartyContext';
 import { useSoundEffects } from '../../hooks/useSoundEffects';
 import { isUserTyping } from '../../lib/keyboardUtils';
 import Button from '../ui/Button';
@@ -9,12 +8,19 @@ import ShipStatus from './ShipStatus';
 import StationGrid from './StationGrid';
 import CombatLog from './CombatLog';
 
-export default function SpaceCombatView({ roomCode }) {
-  const { spaceCombat, exitCombatView } = useSpaceCombat();
-  const { partyMembers } = useParty();
+export default function SpaceCombatView() {
+  const { exitCombatView } = useSpaceCombat();
   const { toggleMute, getMutedState } = useSoundEffects();
   const [isExiting, setIsExiting] = useState(false);
   const [isMuted, setIsMuted] = useState(getMutedState());
+
+  const handleExitCombatView = () => {
+    setIsExiting(true);
+    setTimeout(() => {
+      exitCombatView(); // Exit view for this user only
+      setIsExiting(false);
+    }, 300);
+  };
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -30,15 +36,7 @@ export default function SpaceCombatView({ roomCode }) {
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [isExiting]);
-
-  const handleExitCombatView = () => {
-    setIsExiting(true);
-    setTimeout(() => {
-      exitCombatView(); // Exit view for this user only
-      setIsExiting(false);
-    }, 300);
-  };
+  }, [isExiting, handleExitCombatView]);
 
   const handleToggleSound = () => {
     const newMutedState = toggleMute();

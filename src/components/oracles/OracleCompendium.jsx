@@ -14,21 +14,15 @@ import {
   soloOracles,
   missionGenerators,
   worldOracles,
-  dangerousLocations,
-  npcOracles,
   nameOracles,
   characterOracles,
   gmExtras,
-  monsterOracles,
   equipmentOracles,
   enemyStats,
-  titleGenerators,
   visualOracles,
-  criminalOracles,
   rollOnTable,
   rollDangerousLocation,
   rollDice,
-  generateMonsterName,
   generateEpicTitle,
   generateEpisodeTitle,
   generatePVNPCSurname,
@@ -41,7 +35,6 @@ import Accordion from '../ui/Accordion';
 
 export default function OracleCompendium() {
   const [activeTab, setActiveTab] = useState('core');
-  const { gameState } = useGame();
 
   const tabs = [
     { id: 'core', label: 'Core', color: 'cyan' },
@@ -395,12 +388,6 @@ function WorldTab() {
 function CharactersTab() {
   const { addLog, gameState } = useGame();
 
-  const handleNameRoll = (category, table) => {
-    const name = rollOnTable(table);
-    addLog(`${category}: ${name}`, 'roll');
-    return { result: category, detail: name };
-  };
-
   const handlePVNPCSurname = () => {
     const surname = generatePVNPCSurname();
     addLog(`PV NPC Surname [${surname.firstRoll}, ${surname.secondRoll}]: ${surname.fullSurname}`, 'roll');
@@ -411,12 +398,6 @@ function CharactersTab() {
     const name = generateSpaceOperaName();
     addLog(`Space Opera Name [${name.firstRoll}, ${name.secondRoll}]: ${name.fullName}`, 'roll');
     return name;
-  };
-
-  const handlePVSettlementName = () => {
-    const settlement = generatePVSettlementName();
-    addLog(`PV Settlement Name: ${settlement.fullName}`, 'roll');
-    return settlement;
   };
 
   const handlePVFactionName = () => {

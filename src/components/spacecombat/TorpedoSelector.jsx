@@ -55,7 +55,6 @@ export default function TorpedoSelector({ onSelect, selectedType = 'standard' })
           {allOptions.map(({ type, count }) => {
             const torpedo = TORPEDO_TYPES[type];
             const isSelected = type === selectedType;
-            const isStandard = type === 'standard';
 
             return (
               <button
