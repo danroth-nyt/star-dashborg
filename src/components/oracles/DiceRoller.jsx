@@ -130,7 +130,7 @@ export default function DiceRoller() {
 
       {/* Dice Grid */}
       <div className="grid grid-cols-4 gap-2 max-w-lg mx-auto">
-        {diceTypes.map(({ sides, label }) => (
+        {diceTypes.map(({ sides, label }, index) => (
           <Dice
             key={sides}
             sides={sides}
@@ -138,6 +138,7 @@ export default function DiceRoller() {
             variant="cyan"
             isRolling={rolling === label}
             onClick={() => handleRoll(sides, label)}
+            index={index}
           />
         ))}
         
@@ -148,6 +149,7 @@ export default function DiceRoller() {
           variant="cyan"
           isRolling={rolling === '2D6'}
           onClick={handle2D6Roll}
+          index={7}
         />
       </div>
 

@@ -14,6 +14,7 @@ export function usePresence(roomCode, userId, userName = 'Anonymous') {
   const [onlineUsers, setOnlineUsers] = useState([]);
   const channelRef = useRef(null);
   const currentEditingRef = useRef(new Set());
+  const currentViewRef = useRef('dashboard'); // Track current view: 'dashboard', 'combat', 'shop'
 
   useEffect(() => {
     if (!roomCode || !userId) return;
@@ -68,6 +69,7 @@ export function usePresence(roomCode, userId, userName = 'Anonymous') {
             user_name: userName,
             online_at: new Date().toISOString(),
             editing: [],
+            current_view: 'dashboard',
           });
         }
       });
@@ -79,6 +81,26 @@ export function usePresence(roomCode, userId, userName = 'Anonymous') {
       channelRef.current = null;
     };
   }, [roomCode, userId, userName]);
+
+  /**
+   * Update the current view for this user
+   */
+  const updateCurrentView = useCallback(
+    async (viewName) => {
+      if (!channelRef.current || !viewName) return;
+
+      currentViewRef.current = viewName;
+      
+      await channelRef.current.track({
+        user_id: userId,
+        user_name: userName,
+        online_at: new Date().toISOString(),
+        editing: Array.from(currentEditingRef.current),
+        current_view: viewName,
+      });
+    },
+    [userId, userName]
+  );
 
   /**
    * Mark a field as being edited by this user
@@ -94,6 +116,7 @@ export function usePresence(roomCode, userId, userName = 'Anonymous') {
         user_name: userName,
         online_at: new Date().toISOString(),
         editing: Array.from(currentEditingRef.current),
+        current_view: currentViewRef.current,
       });
     },
     [userId, userName]
@@ -113,6 +136,7 @@ export function usePresence(roomCode, userId, userName = 'Anonymous') {
         user_name: userName,
         online_at: new Date().toISOString(),
         editing: Array.from(currentEditingRef.current),
+        current_view: currentViewRef.current,
       });
     },
     [userId, userName]
@@ -140,6 +164,24 @@ export function usePresence(roomCode, userId, userName = 'Anonymous') {
     [presenceState, userId]
   );
 
+  /**
+   * Get list of users in a specific view (excluding current user)
+   */
+  const getUsersInView = useCallback(
+    (viewName) => {
+      if (!Array.isArray(onlineUsers)) {
+        return [];
+      }
+      return onlineUsers
+        .filter((user) => user.current_view === viewName && user.user_id !== userId)
+        .map((user) => ({
+          userId: user.user_id,
+          userName: user.user_name,
+        }));
+    },
+    [onlineUsers, userId]
+  );
+
   return {
     presenceState,
     onlineUsers,
@@ -147,5 +189,7 @@ export function usePresence(roomCode, userId, userName = 'Anonymous') {
     stopEditing,
     isFieldLocked,
     getFieldEditor,
+    updateCurrentView,
+    getUsersInView,
   };
 }

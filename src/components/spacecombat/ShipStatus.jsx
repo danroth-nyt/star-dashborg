@@ -439,7 +439,10 @@ export default function ShipStatus() {
       </div>
 
       {/* Shop Modal */}
-      <UpgradeShop isOpen={shopOpen} onClose={() => setShopOpen(false)} />
+      <UpgradeShop 
+        isOpen={shopOpen} 
+        onClose={() => setShopOpen(false)}
+      />
     </div>
   );
 }

@@ -314,7 +314,10 @@ export default function ShipManager() {
       )}
 
       {/* Modals */}
-      <UpgradeShop isOpen={shopOpen} onClose={() => setShopOpen(false)} />
+      <UpgradeShop 
+        isOpen={shopOpen} 
+        onClose={() => setShopOpen(false)}
+      />
     </div>
   );
 }

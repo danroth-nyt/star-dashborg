@@ -10,7 +10,7 @@ import { useSpaceCombat } from '../../context/SpaceCombatContext';
 
 export default function Header({ roomCode, onOpenCharacterSheet }) {
   const { character } = useCharacter();
-  const { spaceCombat, enterCombat, exitCombat } = useSpaceCombat();
+  const { spaceCombat, viewingCombat, enterCombat, exitCombatView, joinCombatView } = useSpaceCombat();
   const [copied, setCopied] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isRefOpen, setIsRefOpen] = useState(false);
@@ -30,9 +30,14 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
   };
 
   const toggleSpaceCombat = () => {
-    if (spaceCombat.isActive) {
-      exitCombat();
+    if (viewingCombat) {
+      // If currently viewing combat, exit the view
+      exitCombatView();
+    } else if (spaceCombat.isActive) {
+      // If combat is active but not viewing, join it
+      joinCombatView();
     } else {
+      // If no combat active, start new combat
       enterCombat();
     }
   };
@@ -65,9 +70,9 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
                 </Button>
               )}
               <Button
-                variant={spaceCombat.isActive ? 'primary' : 'secondary'}
+                variant="secondary"
                 onClick={toggleSpaceCombat}
-                className={`flex items-center gap-2 ${spaceCombat.isActive ? 'glow-pulse-red border-accent-red text-accent-red' : ''}`}
+                className="flex items-center gap-2"
               >
                 <Rocket className="w-4 h-4" />
                 Battle
@@ -151,9 +156,9 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
               </Button>
             )}
             <Button
-              variant={spaceCombat.isActive ? 'primary' : 'secondary'}
+              variant="secondary"
               onClick={toggleSpaceCombat}
-              className={`flex items-center justify-center gap-1 ${spaceCombat.isActive ? 'glow-pulse-red border-accent-red text-accent-red' : ''}`}
+              className="flex items-center justify-center gap-1"
             >
               <Rocket className="w-4 h-4" />
               <span className="whitespace-nowrap">Battle</span>

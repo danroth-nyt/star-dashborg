@@ -36,7 +36,7 @@ const defaultPanels = [
 
 export default function Dashboard({ roomCode }) {
   const { refreshPartyMembers } = useParty();
-  const { spaceCombat } = useSpaceCombat();
+  const { viewingCombat } = useSpaceCombat();
   const { gameState, updateGameState, loading: gameLoading } = useGame();
 
   // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
@@ -356,12 +356,11 @@ export default function Dashboard({ roomCode }) {
     );
   }
 
-  // If space combat is active, show space combat view
-  // Check gameState directly to avoid flash from SpaceCombatContext sync delay
-  if (gameState.spaceCombat?.isActive) {
+  // If this user is viewing space combat, show space combat view
+  if (viewingCombat) {
     return (
       <>
-        <SpaceCombatView />
+        <SpaceCombatView roomCode={roomCode} />
         {/* Character Sheet Drawer is available in combat too */}
         <CharacterSheetDrawer 
           isOpen={characterSheetOpen}

@@ -169,7 +169,7 @@ function AppContent({ roomCode }) {
         </div>
       ) : (
         // Has character - show dashboard
-        <SpaceCombatProvider>
+        <SpaceCombatProvider roomCode={roomCode}>
           <Dashboard roomCode={roomCode} />
         </SpaceCombatProvider>
       )}

@@ -9,8 +9,8 @@ import ShipStatus from './ShipStatus';
 import StationGrid from './StationGrid';
 import CombatLog from './CombatLog';
 
-export default function SpaceCombatView() {
-  const { spaceCombat, exitCombat } = useSpaceCombat();
+export default function SpaceCombatView({ roomCode }) {
+  const { spaceCombat, exitCombatView } = useSpaceCombat();
   const { partyMembers } = useParty();
   const { toggleMute, getMutedState } = useSoundEffects();
   const [isExiting, setIsExiting] = useState(false);
@@ -22,9 +22,9 @@ export default function SpaceCombatView() {
       // Skip if user is typing
       if (isUserTyping()) return;
       
-      // ESC to exit combat (with confirmation)
+      // ESC to exit combat view (no confirmation needed for local exit)
       if (e.key === 'Escape' && !isExiting) {
-        handleExitCombat();
+        handleExitCombatView();
       }
     };
 
@@ -32,14 +32,12 @@ export default function SpaceCombatView() {
     return () => document.removeEventListener('keydown', handleKeyPress);
   }, [isExiting]);
 
-  const handleExitCombat = () => {
-    if (confirm('Exit space combat? Progress will be saved.')) {
-      setIsExiting(true);
-      setTimeout(() => {
-        exitCombat();
-        setIsExiting(false);
-      }, 300);
-    }
+  const handleExitCombatView = () => {
+    setIsExiting(true);
+    setTimeout(() => {
+      exitCombatView(); // Exit view for this user only
+      setIsExiting(false);
+    }, 300);
   };
 
   const handleToggleSound = () => {
@@ -89,11 +87,11 @@ export default function SpaceCombatView() {
               
               <Button
                 variant="ghost"
-                onClick={handleExitCombat}
+                onClick={handleExitCombatView}
                 className="flex items-center gap-2"
               >
                 <X className="w-4 h-4" />
-                <span className="hidden sm:inline">Exit Combat</span>
+                <span className="hidden sm:inline">Exit View</span>
               </Button>
             </div>
           </div>
