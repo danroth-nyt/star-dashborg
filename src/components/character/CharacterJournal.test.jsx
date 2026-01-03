@@ -1,26 +1,28 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '../../test/testUtils';
 import CharacterJournal from './CharacterJournal';
 
 // Mock TipTap editor
-vi.mock('@tiptap/react', () => ({
-  useEditor: vi.fn(() => ({
-    commands: {
-      setContent: vi.fn(),
-      focus: vi.fn(),
-      toggleBold: vi.fn(() => ({ run: vi.fn() })),
-      toggleItalic: vi.fn(() => ({ run: vi.fn() })),
-      toggleUnderline: vi.fn(() => ({ run: vi.fn() })),
-      toggleStrike: vi.fn(() => ({ run: vi.fn() })),
-      toggleBulletList: vi.fn(() => ({ run: vi.fn() })),
-    },
-    chain: vi.fn(() => ({
-      focus: vi.fn(() => ({ run: vi.fn() })),
-    })),
-    isActive: vi.fn(() => false),
-    setEditable: vi.fn(),
-    getHTML: vi.fn(() => '<p>Test</p>'),
+const mockEditor = {
+  commands: {
+    setContent: vi.fn(),
+    focus: vi.fn(),
+    toggleBold: vi.fn(() => ({ run: vi.fn() })),
+    toggleItalic: vi.fn(() => ({ run: vi.fn() })),
+    toggleUnderline: vi.fn(() => ({ run: vi.fn() })),
+    toggleStrike: vi.fn(() => ({ run: vi.fn() })),
+    toggleBulletList: vi.fn(() => ({ run: vi.fn() })),
+  },
+  chain: vi.fn(() => ({
+    focus: vi.fn(() => ({ run: vi.fn() })),
   })),
+  isActive: vi.fn(() => false),
+  setEditable: vi.fn(),
+  getHTML: vi.fn(() => '<p>Test</p>'),
+};
+
+vi.mock('@tiptap/react', () => ({
+  useEditor: vi.fn(() => mockEditor),
   EditorContent: ({ editor }) => <div data-testid="editor-content">Editor</div>,
 }));
 
@@ -36,21 +38,26 @@ vi.mock('@tiptap/extension-underline', () => ({
 
 // Mock CharacterContext
 const mockUpdateField = vi.fn();
+const mockUseCharacter = vi.fn();
+
 vi.mock('../../context/CharacterContext', () => ({
-  useCharacter: vi.fn(() => ({
-    character: {
-      id: 'test-id',
-      name: 'Test Character',
-      journal: '<p>Test journal</p>',
-    },
-    updateField: mockUpdateField,
-  })),
+  useCharacter: () => mockUseCharacter(),
 }));
 
 describe('CharacterJournal', () => {
+  beforeEach(() => {
+    mockUseCharacter.mockReturnValue({
+      character: {
+        id: 'test-id',
+        name: 'Test Character',
+        journal: '<p>Test journal</p>',
+      },
+      updateField: mockUpdateField,
+    });
+  });
+
   it('renders null when no character', () => {
-    const { useCharacter } = require('../../context/CharacterContext');
-    useCharacter.mockReturnValue({
+    mockUseCharacter.mockReturnValue({
       character: null,
       updateField: vi.fn(),
     });
@@ -61,16 +68,6 @@ describe('CharacterJournal', () => {
   });
 
   it('renders toolbar when character exists', () => {
-    const { useCharacter } = require('../../context/CharacterContext');
-    useCharacter.mockReturnValue({
-      character: {
-        id: 'test-id',
-        name: 'Test Character',
-        journal: '<p>Test journal</p>',
-      },
-      updateField: vi.fn(),
-    });
-
     render(<CharacterJournal />);
     
     // Should render editor content
@@ -78,16 +75,6 @@ describe('CharacterJournal', () => {
   });
 
   it('shows lock warning when isLocked is true', () => {
-    const { useCharacter } = require('../../context/CharacterContext');
-    useCharacter.mockReturnValue({
-      character: {
-        id: 'test-id',
-        name: 'Test Character',
-        journal: '<p>Test</p>',
-      },
-      updateField: vi.fn(),
-    });
-
     const lockInfo = { userName: 'Other User', userId: 'other-id' };
     
     render(<CharacterJournal isLocked={lockInfo} />);

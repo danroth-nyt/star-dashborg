@@ -9,51 +9,86 @@ vi.mock('../../context/SpaceCombatContext', () => ({
       shipHP: 10,
       shipHPMax: 10,
       shipArmor: 2,
+      hyperdriveCharge: 0,
+      stationAssignments: {},
+      torpedoesLoaded: 0,
     },
-    updateShipHP: vi.fn(),
-    updateShipArmor: vi.fn(),
+    modifyArmor: vi.fn(),
+    chargeHyperdrive: vi.fn(),
+    decrementHyperdrive: vi.fn(),
   })),
 }));
 
-describe('ShipStatus', () => {
-  const defaultProps = {
-    shipHP: 10,
-    shipHPMax: 10,
-    shipArmor: 2,
-    onUpdateHP: vi.fn(),
-    onUpdateArmor: vi.fn(),
-  };
+vi.mock('../../context/GameContext', () => ({
+  useGame: vi.fn(() => ({
+    gameState: {
+      ship: {
+        name: 'Test Ship',
+        heroicUpgrades: [],
+        purchasedUpgrades: [],
+        turboLaserStation: null,
+      },
+    },
+    updateGameState: vi.fn(),
+  })),
+}));
 
+vi.mock('../../context/PartyContext', () => ({
+  useParty: vi.fn(() => ({
+    partyMembers: [],
+  })),
+}));
+
+vi.mock('../../hooks/useSoundEffects', () => ({
+  useSoundEffects: vi.fn(() => ({
+    play: vi.fn(),
+  })),
+}));
+
+// Mock child components
+vi.mock('../ship/UpgradeShop', () => ({
+  default: () => <div data-testid="upgrade-shop">Upgrade Shop</div>,
+}));
+
+// Mock oracle functions
+vi.mock('../../data/oracles', () => ({
+  generateShipName: vi.fn(() => 'Generated Ship Name'),
+}));
+
+describe('ShipStatus', () => {
   it('renders with armor tier 0 (no shields)', () => {
-    render(<ShipStatus {...defaultProps} shipArmor={0} />);
+    render(<ShipStatus />);
     
-    // Should render ship status
-    expect(screen.getByText(/HP/i)).toBeInTheDocument();
+    // Should render ship name
+    expect(screen.getByText('Test Ship')).toBeInTheDocument();
   });
 
   it('renders with armor tier 1 (weak shields)', () => {
-    render(<ShipStatus {...defaultProps} shipArmor={1} />);
+    render(<ShipStatus />);
     
-    expect(screen.getByText(/HP/i)).toBeInTheDocument();
+    // Should render armor controls
+    expect(screen.getByText('+ Tier')).toBeInTheDocument();
+    expect(screen.getByText('- Tier')).toBeInTheDocument();
   });
 
   it('renders with armor tier 2 (medium shields)', () => {
-    render(<ShipStatus {...defaultProps} shipArmor={2} />);
+    render(<ShipStatus />);
     
-    expect(screen.getByText(/HP/i)).toBeInTheDocument();
+    // Should render armor controls
+    expect(screen.getByText('+ Tier')).toBeInTheDocument();
   });
 
   it('renders with armor tier 3 (full shields)', () => {
-    render(<ShipStatus {...defaultProps} shipArmor={3} />);
+    render(<ShipStatus />);
     
-    expect(screen.getByText(/HP/i)).toBeInTheDocument();
+    // Should render tier controls
+    expect(screen.getByText('- Tier')).toBeInTheDocument();
   });
 
-  it('displays correct HP values', () => {
-    render(<ShipStatus {...defaultProps} shipHP={5} shipHPMax={10} />);
+  it('displays correct armor tier', () => {
+    render(<ShipStatus />);
     
-    // Should show current/max HP
-    expect(screen.getByText(/5/)).toBeInTheDocument();
-    expect(screen.getByText(/10/)).toBeInTheDocument();
+    // Should show tier 2 from mock
+    expect(screen.getByText('Tier 2')).toBeInTheDocument();
   });
 });

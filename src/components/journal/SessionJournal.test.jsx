@@ -3,23 +3,26 @@ import { render, screen } from '../../test/testUtils';
 import SessionJournal from './SessionJournal';
 
 // Mock TipTap editor
-vi.mock('@tiptap/react', () => ({
-  useEditor: vi.fn(() => ({
-    commands: {
-      setContent: vi.fn(),
-      focus: vi.fn(),
-      toggleBold: vi.fn(() => ({ run: vi.fn() })),
-      toggleItalic: vi.fn(() => ({ run: vi.fn() })),
-      toggleUnderline: vi.fn(() => ({ run: vi.fn() })),
-      toggleStrike: vi.fn(() => ({ run: vi.fn() })),
-      toggleBulletList: vi.fn(() => ({ run: vi.fn() })),
-    },
-    chain: vi.fn(() => ({
-      focus: vi.fn(() => ({ toggleBold: vi.fn(() => ({ run: vi.fn() })) })),
-    })),
-    isActive: vi.fn(() => false),
-    getHTML: vi.fn(() => '<p>Test</p>'),
+const mockEditor = {
+  commands: {
+    setContent: vi.fn(),
+    focus: vi.fn(),
+    toggleBold: vi.fn(() => ({ run: vi.fn() })),
+    toggleItalic: vi.fn(() => ({ run: vi.fn() })),
+    toggleUnderline: vi.fn(() => ({ run: vi.fn() })),
+    toggleStrike: vi.fn(() => ({ run: vi.fn() })),
+    toggleBulletList: vi.fn(() => ({ run: vi.fn() })),
+  },
+  chain: vi.fn(() => ({
+    focus: vi.fn(() => ({ toggleBold: vi.fn(() => ({ run: vi.fn() })) })),
   })),
+  isActive: vi.fn(() => false),
+  setEditable: vi.fn(),
+  getHTML: vi.fn(() => '<p>Test</p>'),
+};
+
+vi.mock('@tiptap/react', () => ({
+  useEditor: vi.fn(() => mockEditor),
   EditorContent: ({ editor }) => <div data-testid="editor-content">Editor</div>,
 }));
 
@@ -54,12 +57,10 @@ vi.mock('../../context/CharacterContext', () => ({
 }));
 
 // Mock presence hook
+const mockUsePresence = vi.fn();
+
 vi.mock('../../hooks/usePresence', () => ({
-  usePresence: vi.fn(() => ({
-    trackEditing: vi.fn(),
-    stopEditing: vi.fn(),
-    getFieldEditor: vi.fn(() => null),
-  })),
+  usePresence: () => mockUsePresence(),
 }));
 
 // Mock debounce hook
@@ -72,6 +73,14 @@ describe('SessionJournal', () => {
     roomCode: 'test-room',
   };
 
+  beforeEach(() => {
+    mockUsePresence.mockReturnValue({
+      trackEditing: vi.fn(),
+      stopEditing: vi.fn(),
+      getFieldEditor: vi.fn(() => null),
+    });
+  });
+
   it('renders editor and toolbar', () => {
     render(<SessionJournal {...defaultProps} />);
     
@@ -80,8 +89,7 @@ describe('SessionJournal', () => {
   });
 
   it('shows lock banner when someone else is editing', () => {
-    const { usePresence } = require('../../hooks/usePresence');
-    usePresence.mockReturnValue({
+    mockUsePresence.mockReturnValue({
       trackEditing: vi.fn(),
       stopEditing: vi.fn(),
       getFieldEditor: vi.fn(() => ({
@@ -92,7 +100,7 @@ describe('SessionJournal', () => {
 
     render(<SessionJournal {...defaultProps} />);
     
-    expect(screen.getByText(/is currently editing/i)).toBeInTheDocument();
+    expect(screen.getByText(/is editing the session journal/i)).toBeInTheDocument();
   });
 
   it('renders toolbar buttons', () => {
