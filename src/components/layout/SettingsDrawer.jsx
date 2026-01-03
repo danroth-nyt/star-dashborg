@@ -1,12 +1,16 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X } from 'lucide-react';
+import { X, LogOut, AlertTriangle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useGame } from '../../context/GameContext';
+import { useAuth } from '../../context/AuthContext';
 import Accordion from '../ui/Accordion';
+import Button from '../ui/Button';
 
 export default function SettingsDrawer({ isOpen, onClose }) {
   const { gameState, togglePVOracles, toggleStarforgedOracles } = useGame();
+  const { signOut, user } = useAuth();
+  const [showSignOutConfirm, setShowSignOutConfirm] = useState(false);
 
   // Keyboard navigation
   useEffect(() => {
@@ -198,6 +202,72 @@ export default function SettingsDrawer({ isOpen, onClose }) {
               Settings are saved automatically and synced across your session. Changes take effect immediately.
             </p>
           </div>
+
+          {/* Account Section */}
+          <div className="mt-6 space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <div className="text-accent-yellow font-orbitron text-sm uppercase font-bold">
+                  Account
+                </div>
+                {user?.email && (
+                  <div className="text-gray-400 text-xs mt-1 font-mono">
+                    {user.email}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Sign Out Button with Confirmation */}
+            {!showSignOutConfirm ? (
+              <button
+                onClick={() => setShowSignOutConfirm(true)}
+                className="w-full p-3 border-2 border-accent-red bg-bg-secondary hover:bg-accent-red hover:bg-opacity-10 transition-all group flex items-center justify-center gap-2"
+              >
+                <LogOut className="w-4 h-4 text-accent-red group-hover:text-accent-red transition-colors" />
+                <span className="text-accent-red font-orbitron text-sm uppercase group-hover:text-accent-red transition-colors">
+                  Sign Out
+                </span>
+              </button>
+            ) : (
+              <div className="p-4 border-2 border-accent-red bg-accent-red bg-opacity-10 space-y-3">
+                <div className="flex items-start gap-2">
+                  <AlertTriangle className="w-5 h-5 text-accent-red mt-0.5 flex-shrink-0" />
+                  <div>
+                    <div className="text-accent-red font-orbitron text-sm font-bold uppercase">
+                      Confirm Sign Out
+                    </div>
+                    <p className="text-gray-300 text-xs mt-1">
+                      You will be logged out of your session. Your character and game progress are saved.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={async () => {
+                      await signOut();
+                      onClose();
+                    }}
+                    variant="danger"
+                    className="flex-1"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Confirm
+                  </Button>
+                  <Button
+                    onClick={() => setShowSignOutConfirm(false)}
+                    variant="ghost"
+                    className="flex-1"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Extra padding at bottom */}
+          <div className="h-8" />
         </div>
       </div>
     </>,

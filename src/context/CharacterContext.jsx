@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 const CharacterContext = createContext();
@@ -15,6 +15,10 @@ export function CharacterProvider({ children, userId, roomCode }) {
   const [character, setCharacter] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const syncTimerRef = useRef(null);
+  const pendingUpdatesRef = useRef({});
+  const dirtyFieldsRef = useRef(new Set());
+  const isSyncingRef = useRef(false);
 
   // Transform database character to UI format (snake_case to camelCase)
   const transformCharacterFromDB = (dbCharacter) => {
@@ -66,7 +70,7 @@ export function CharacterProvider({ children, userId, roomCode }) {
     loadCharacter();
   }, [userId, roomCode]);
 
-  // Subscribe to realtime changes
+  // Subscribe to realtime changes with field-level merging
   useEffect(() => {
     if (!character?.id) return;
 
@@ -82,7 +86,30 @@ export function CharacterProvider({ children, userId, roomCode }) {
         },
         (payload) => {
           console.log('Character updated:', payload.new);
-          setCharacter(transformCharacterFromDB(payload.new));
+          
+          // If we're syncing our own changes, ignore this update
+          if (isSyncingRef.current) {
+            return;
+          }
+
+          const remoteCharacter = transformCharacterFromDB(payload.new);
+          
+          // Merge strategy: Only accept remote values for fields not being edited locally
+          setCharacter((currentCharacter) => {
+            if (!currentCharacter) return remoteCharacter;
+            
+            const mergedCharacter = { ...currentCharacter };
+            
+            // For each field in remote character
+            Object.keys(remoteCharacter).forEach((key) => {
+              // Only accept remote value if this field isn't marked as dirty
+              if (!dirtyFieldsRef.current.has(key)) {
+                mergedCharacter[key] = remoteCharacter[key];
+              }
+            });
+            
+            return mergedCharacter;
+          });
         }
       )
       .subscribe();
@@ -165,43 +192,86 @@ export function CharacterProvider({ children, userId, roomCode }) {
     [userId, roomCode]
   );
 
-  // Update existing character
+  // Update existing character with debouncing
   const updateCharacter = useCallback(
     async (updates) => {
       if (!character?.id) {
         throw new Error('No character to update');
       }
 
-      try {
-        const { data, error } = await supabase
-          .from('characters')
-          .update(updates)
-          .eq('id', character.id)
-          .select()
-          .single();
+      // Accumulate updates
+      pendingUpdatesRef.current = {
+        ...pendingUpdatesRef.current,
+        ...updates,
+      };
 
-        if (error) throw error;
+      // Mark fields as dirty
+      Object.keys(updates).forEach((key) => {
+        dirtyFieldsRef.current.add(key);
+      });
 
-        // Update local state immediately for optimistic updates
-        const transformedData = transformCharacterFromDB(data);
-        setCharacter(transformedData);
-        return transformedData;
-      } catch (err) {
-        console.error('Error updating character:', err);
-        setError(err.message);
-        throw err;
+      // Optimistic UI update
+      setCharacter((prev) => {
+        if (!prev) return prev;
+        return transformCharacterFromDB({ ...prev, ...updates });
+      });
+
+      // Clear existing timer
+      if (syncTimerRef.current) {
+        clearTimeout(syncTimerRef.current);
       }
+
+      // Debounced database sync
+      syncTimerRef.current = setTimeout(async () => {
+        try {
+          isSyncingRef.current = true;
+          const updatesToSync = { ...pendingUpdatesRef.current };
+          pendingUpdatesRef.current = {};
+
+          const { data, error } = await supabase
+            .from('characters')
+            .update(updatesToSync)
+            .eq('id', character.id)
+            .select()
+            .single();
+
+          if (error) throw error;
+
+          // Clear dirty fields after successful sync
+          dirtyFieldsRef.current.clear();
+
+          // Update with server response (in case server modified anything)
+          const transformedData = transformCharacterFromDB(data);
+          setCharacter(transformedData);
+          return transformedData;
+        } catch (err) {
+          console.error('Error updating character:', err);
+          setError(err.message);
+          throw err;
+        } finally {
+          isSyncingRef.current = false;
+        }
+      }, 500); // 500ms debounce
     },
     [character?.id]
   );
 
   // Update character field (helper for single field updates)
   const updateField = useCallback(
-    async (field, value) => {
+    (field, value) => {
       return updateCharacter({ [field]: value });
     },
     [updateCharacter]
   );
+
+  // Cleanup debounce timer on unmount
+  useEffect(() => {
+    return () => {
+      if (syncTimerRef.current) {
+        clearTimeout(syncTimerRef.current);
+      }
+    };
+  }, []);
 
   // Delete character (if needed)
   const deleteCharacter = useCallback(async () => {

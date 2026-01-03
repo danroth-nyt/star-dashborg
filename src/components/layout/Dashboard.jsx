@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { GripVertical } from 'lucide-react';
 import Header from './Header';
 import Panel from './Panel';
@@ -91,22 +91,52 @@ export default function Dashboard({ roomCode }) {
   const [helpModalTab, setHelpModalTab] = useState('threatDie');
   const [characterSheetOpen, setCharacterSheetOpen] = useState(false);
 
+  // Refs for sync lock pattern to prevent feedback loop
+  const isReceivingRemoteRef = useRef(false);
+  const lastSyncedPanelStatesRef = useRef(null);
+
+  // Effect 1: Receive remote panel state changes from other players
   useEffect(() => {
+    if (!gameState.panelStates) return;
+    
+    // Compare to last synced to avoid unnecessary updates
+    const remoteStates = JSON.stringify(gameState.panelStates);
+    if (remoteStates === lastSyncedPanelStatesRef.current) return;
+    
+    // Set flag to indicate we're processing a remote update
+    isReceivingRemoteRef.current = true;
+    
+    // Apply remote panel states to local panels
+    setPanels(currentPanels => 
+      currentPanels.map(panel => ({
+        ...panel,
+        isCollapsed: gameState.panelStates[panel.id] ?? panel.isCollapsed
+      }))
+    );
+    
+    // Reset flag after React batch update
+    setTimeout(() => { isReceivingRemoteRef.current = false; }, 0);
+  }, [gameState.panelStates]);
+
+  // Effect 2: Sync local changes to DB (skip if receiving remote update)
+  useEffect(() => {
+    // Skip if we're currently processing a remote update (prevents feedback loop)
+    if (isReceivingRemoteRef.current) return;
+    
     localStorage.setItem(PANEL_ORDER_KEY, JSON.stringify(panels));
     
-    // Also sync to gameState for cross-device persistence
+    // Sync to gameState for multiplayer persistence
     const panelStates = {};
     panels.forEach(panel => {
       panelStates[panel.id] = panel.isCollapsed || false;
     });
     
-    // Only update if panel states actually changed
-    const currentStates = JSON.stringify(gameState.panelStates || {});
     const newStates = JSON.stringify(panelStates);
-    if (currentStates !== newStates) {
+    if (newStates !== lastSyncedPanelStatesRef.current) {
+      lastSyncedPanelStatesRef.current = newStates;
       updateGameState({ panelStates });
     }
-  }, [panels, gameState.panelStates, updateGameState]);
+  }, [panels, updateGameState]);
 
   // Keyboard shortcuts for help modal
   useEffect(() => {
@@ -336,6 +366,7 @@ export default function Dashboard({ roomCode }) {
         <CharacterSheetDrawer 
           isOpen={characterSheetOpen}
           onClose={() => setCharacterSheetOpen(false)}
+          roomCode={roomCode}
         />
       </>
     );
@@ -376,6 +407,7 @@ export default function Dashboard({ roomCode }) {
       <CharacterSheetDrawer 
         isOpen={characterSheetOpen}
         onClose={() => setCharacterSheetOpen(false)}
+        roomCode={roomCode}
       />
     </div>
   );

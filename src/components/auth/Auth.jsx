@@ -21,6 +21,9 @@ export default function Auth() {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/`,
+          },
         });
         if (error) throw error;
         setMessage('Account created! Check your email to confirm, then wait for admin approval.');
@@ -47,6 +50,9 @@ export default function Auth() {
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+        },
       });
       if (error) throw error;
       setMessage('Check your email for the magic link!');
