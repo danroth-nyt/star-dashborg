@@ -1107,6 +1107,17 @@ h1, h2, h3, h4, h5, h6 {
     animation: chevron-rotate-up 0.2s ease-out;
   }
 
+  /* Dashboard Grid Layout */
+  .dashboard-grid {
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: 480px 480px 380px;
+  }
+
+  /* Smooth transitions for grid items */
+  .dashboard-grid > * {
+    transition: all 300ms ease-in-out;
+  }
+
   /* Tiptap Rich Text Editor Styles */
   .ProseMirror {
     min-height: 100%;

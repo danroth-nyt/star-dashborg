@@ -1,19 +1,7 @@
-import { useState } from 'react';
-import { Minus, Plus, HelpCircle } from 'lucide-react';
+import { HelpCircle, GripVertical } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-export default function Panel({ title, children, className, variant = 'cyan', defaultCollapsed = false, collapsed, onCollapsedChange, maxHeightExpanded, minHeightExpanded, onHelpClick, draggable, onDragStart, onDragEnd }) {
-  const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed);
-  
-  // Use controlled state if provided, otherwise use internal state
-  const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
-  const setIsCollapsed = (value) => {
-    if (collapsed !== undefined && onCollapsedChange) {
-      onCollapsedChange(value);
-    } else {
-      setInternalCollapsed(value);
-    }
-  };
+export default function Panel({ title, children, className, variant = 'cyan', onHelpClick, draggable, onDragStart, onDragEnd }) {
 
   const borderColors = {
     cyan: 'border-accent-cyan',
@@ -29,10 +17,8 @@ export default function Panel({ title, children, className, variant = 'cyan', de
 
   return (
     <div className={cn(
-      'border-3 flex flex-col relative transition-all duration-300',
+      'border-3 flex flex-col relative transition-all duration-300 bg-bg-secondary h-full overflow-hidden',
       borderColors[variant],
-      isCollapsed ? 'bg-transparent' : 'bg-bg-secondary',
-      isCollapsed ? 'overflow-visible' : 'overflow-hidden flex-1',
       className
     )}>
       {title && (
@@ -45,55 +31,36 @@ export default function Panel({ title, children, className, variant = 'cyan', de
             textColors[variant],
             'bg-bg-primary',
             'overflow-hidden',
-            !isCollapsed && `border-b-3 ${borderColors[variant]}`,
+            `border-b-3 ${borderColors[variant]}`,
             draggable && 'cursor-grab active:cursor-grabbing'
           )}
         >
-          <span className="break-words flex-1">{title}</span>
-          <div className="flex items-center gap-1">
-            {onHelpClick && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onHelpClick();
-                }}
-                className={cn(
-                  'p-1 hover:bg-current/10 transition-all duration-200 rounded',
-                  textColors[variant]
-                )}
-                aria-label="Show help"
-              >
-                <HelpCircle className="w-4 h-4" />
-              </button>
-            )}
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            {draggable && <GripVertical className="w-4 h-4 opacity-50 shrink-0" />}
+            <span className="break-words truncate">{title}</span>
+          </div>
+          {onHelpClick && (
             <button
-              onClick={() => setIsCollapsed(!isCollapsed)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onHelpClick();
+              }}
               className={cn(
                 'p-1 hover:bg-current/10 transition-all duration-200 rounded',
                 textColors[variant]
               )}
-              aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
+              aria-label="Show help"
             >
-              {isCollapsed ? (
-                <Plus className="w-4 h-4" />
-              ) : (
-                <Minus className="w-4 h-4" />
-              )}
+              <HelpCircle className="w-4 h-4" />
             </button>
-          </div>
-        </div>
-      )}
-      {!isCollapsed && (
-        <div 
-          className={cn(
-            "p-4 flex-1 overflow-auto accordion-reveal relative",
-            maxHeightExpanded,
-            minHeightExpanded
           )}
-        >
-          {children}
         </div>
       )}
+      <div 
+        className="p-4 flex-1 overflow-auto accordion-reveal relative"
+      >
+        {children}
+      </div>
     </div>
   );
 }

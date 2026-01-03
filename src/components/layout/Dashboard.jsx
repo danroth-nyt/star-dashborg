@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import { GripVertical } from 'lucide-react';
 import Header from './Header';
 import Panel from './Panel';
 import ThreatDie from '../trackers/ThreatDie';
@@ -21,17 +20,17 @@ import { isUserTyping } from '../../lib/keyboardUtils';
 
 const PANEL_ORDER_KEY = 'star-dashborg-panel-order';
 const PANEL_VERSION_KEY = 'star-dashborg-panel-version';
-const CURRENT_PANEL_VERSION = '3'; // Increment when making breaking changes
+const CURRENT_PANEL_VERSION = '4'; // Increment when making breaking changes
 
 const defaultPanels = [
-  { id: 'threat-die', component: 'ThreatDie', title: 'Threat Die', variant: 'red', column: 'left' },
-  { id: 'mission-tracks', component: 'MissionTrack', title: 'Mission Tracks', variant: 'cyan', column: 'left' },
-  { id: 'danger-clocks', component: 'DangerClock', title: 'Danger Clocks', variant: 'red', column: 'left' },
-  { id: 'dice-roller', component: 'DiceRoller', title: 'Dice Roller', variant: 'yellow', column: 'center' },
-  { id: 'party-panel', component: 'PartyPanel', title: 'Party', variant: 'red', column: 'center' },
-  { id: 'ship-log', component: 'DiceLog', title: 'Ship Log', variant: 'cyan', column: 'center' },
-  { id: 'oracle-compendium', component: 'OraclePanel', title: 'Oracle Compendium', variant: 'cyan', column: 'right' },
-  { id: 'session-journal', component: 'SessionJournal', title: 'Session Journal', variant: 'yellow', column: 'right' },
+  { id: 'threat-die', component: 'ThreatDie', title: 'Threat Die', variant: 'red' },
+  { id: 'dice-roller', component: 'DiceRoller', title: 'Dice Roller', variant: 'yellow' },
+  { id: 'oracle-compendium', component: 'OraclePanel', title: 'Oracle Compendium', variant: 'cyan' },
+  { id: 'ship-log', component: 'DiceLog', title: 'Ship Log', variant: 'cyan' },
+  { id: 'party-panel', component: 'PartyPanel', title: 'Party', variant: 'red' },
+  { id: 'danger-clocks', component: 'DangerClock', title: 'Danger Clocks', variant: 'red' },
+  { id: 'mission-tracks', component: 'MissionTrack', title: 'Mission Tracks', variant: 'cyan' },
+  { id: 'session-journal', component: 'SessionJournal', title: 'Session Journal', variant: 'yellow' },
 ];
 
 export default function Dashboard({ roomCode }) {
@@ -47,7 +46,7 @@ export default function Dashboard({ roomCode }) {
       // Clear old config and set new version
       localStorage.removeItem(PANEL_ORDER_KEY);
       localStorage.setItem(PANEL_VERSION_KEY, CURRENT_PANEL_VERSION);
-      return defaultPanels.map(p => ({ ...p, isCollapsed: false }));
+      return defaultPanels;
     }
 
     const saved = localStorage.getItem(PANEL_ORDER_KEY);
@@ -60,7 +59,7 @@ export default function Dashboard({ roomCode }) {
       const migratedPanels = savedPanels.map(savedPanel => {
         if (savedPanel.id === 'character-panel') {
           // Replace old character-panel with party-panel
-          return { ...defaultPanelMap.get('party-panel'), column: savedPanel.column, isCollapsed: savedPanel.isCollapsed || false };
+          return defaultPanelMap.get('party-panel');
         }
         return savedPanel;
       });
@@ -70,8 +69,8 @@ export default function Dashboard({ roomCode }) {
         .map(savedPanel => {
           const defaultPanel = defaultPanelMap.get(savedPanel.id);
           if (defaultPanel) {
-            // Merge default properties, but keep user's column and collapsed preferences
-            return { ...defaultPanel, column: savedPanel.column, isCollapsed: savedPanel.isCollapsed || false };
+            // Merge default properties
+            return { ...defaultPanel };
           }
           return null; // Remove panels that don't exist in defaults
         })
@@ -79,15 +78,14 @@ export default function Dashboard({ roomCode }) {
       
       // Add any new panels that don't exist in saved config
       const savedIds = new Set(migratedPanels.map(p => p.id));
-      const newPanels = defaultPanels.filter(p => !savedIds.has(p.id)).map(p => ({ ...p, isCollapsed: false }));
+      const newPanels = defaultPanels.filter(p => !savedIds.has(p.id));
       
       return [...newPanels, ...updatedPanels];
     }
-    return defaultPanels.map(p => ({ ...p, isCollapsed: false }));
+    return defaultPanels;
   });
   const [draggedPanel, setDraggedPanel] = useState(null);
   const [dragOverPanel, setDragOverPanel] = useState(null);
-  const [dragOverColumn, setDragOverColumn] = useState(null);
   const [helpModalOpen, setHelpModalOpen] = useState(false);
   const [helpModalTab, setHelpModalTab] = useState('threatDie');
   const [characterSheetOpen, setCharacterSheetOpen] = useState(false);
@@ -119,6 +117,7 @@ export default function Dashboard({ roomCode }) {
   const handleDragStart = (e, panelId) => {
     setDraggedPanel(panelId);
     e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', panelId);
   };
 
   const handleDragOver = (e, panelId) => {
@@ -134,61 +133,26 @@ export default function Dashboard({ roomCode }) {
     if (draggedPanel === targetPanelId) {
       setDraggedPanel(null);
       setDragOverPanel(null);
-      setDragOverColumn(null);
       return;
     }
 
     const draggedIndex = panels.findIndex(p => p.id === draggedPanel);
     const targetIndex = panels.findIndex(p => p.id === targetPanelId);
-    const targetPanel = panels[targetIndex];
 
+    // Swap panel positions in the array (which swaps their slots)
     const newPanels = [...panels];
-    const [removed] = newPanels.splice(draggedIndex, 1);
-    
-    // Update the dragged panel's column to match the target panel's column
-    removed.column = targetPanel.column;
-    
-    newPanels.splice(targetIndex, 0, removed);
+    const temp = newPanels[draggedIndex];
+    newPanels[draggedIndex] = newPanels[targetIndex];
+    newPanels[targetIndex] = temp;
 
     setPanels(newPanels);
     setDraggedPanel(null);
     setDragOverPanel(null);
-    setDragOverColumn(null);
   };
 
   const handleDragEnd = () => {
     setDraggedPanel(null);
     setDragOverPanel(null);
-    setDragOverColumn(null);
-  };
-
-  const handleColumnDragOver = (e, columnName) => {
-    e.preventDefault();
-    setDragOverColumn(columnName);
-  };
-
-  const handleColumnDrop = (e, columnName) => {
-    e.preventDefault();
-    
-    if (!draggedPanel) {
-      setDragOverColumn(null);
-      return;
-    }
-
-    const draggedIndex = panels.findIndex(p => p.id === draggedPanel);
-    const newPanels = [...panels];
-    const [removed] = newPanels.splice(draggedIndex, 1);
-    
-    // Update the dragged panel's column
-    removed.column = columnName;
-    
-    // Add to the end of the panels array (it will be filtered to the correct column on render)
-    newPanels.push(removed);
-
-    setPanels(newPanels);
-    setDraggedPanel(null);
-    setDragOverPanel(null);
-    setDragOverColumn(null);
   };
 
   const openHelp = (tab) => {
@@ -196,15 +160,67 @@ export default function Dashboard({ roomCode }) {
     setHelpModalOpen(true);
   };
 
-  const handlePanelCollapse = (panelId, isCollapsed) => {
-    setPanels(prevPanels =>
-      prevPanels.map(panel =>
-        panel.id === panelId ? { ...panel, isCollapsed } : panel
-      )
+
+  // Define grid slots - panels adapt to whatever slot they're placed in
+  const gridSlots = [
+    { id: 'slot-1', gridRow: '1', gridCol: '1 / 3' },      // Top-left small
+    { id: 'slot-2', gridRow: '1', gridCol: '3 / 7' },      // Top-center 
+    { id: 'slot-3', gridRow: '1 / 3', gridCol: '7 / 13' }, // Right large (spans 2 rows)
+    { id: 'slot-4', gridRow: '2', gridCol: '1 / 4' },      // Mid-left
+    { id: 'slot-5', gridRow: '2', gridCol: '4 / 7' },      // Mid-center
+    { id: 'slot-6', gridRow: '3', gridCol: '1 / 4' },      // Bottom-left
+    { id: 'slot-7', gridRow: '3', gridCol: '4 / 7' },      // Bottom-center
+    { id: 'slot-8', gridRow: '3', gridCol: '7 / 13' },     // Bottom-right
+  ];
+
+  // Get panels with their slot positions
+  const getPanelsWithSlots = () => {
+    return panels.map((panel, index) => ({
+      ...panel,
+      gridRow: gridSlots[index].gridRow,
+      gridCol: gridSlots[index].gridCol
+      // Keep panel's original id, don't overwrite with slot id
+    }));
+  };
+
+  // Mobile panel renderer - no grid positioning, panels stack naturally
+  const renderMobilePanel = (panel) => {
+    const components = {
+      PartyPanel: <PartyPanel onExpand={() => setCharacterSheetOpen(true)} />,
+      ThreatDie: <ThreatDie />,
+      MissionTrack: <MissionTrack />,
+      DangerClock: <DangerClock />,
+      DiceRoller: <DiceRoller />,
+      DiceLog: <DiceLog />,
+      OraclePanel: <OraclePanel />,
+      SessionJournal: <SessionJournal roomCode={roomCode} />,
+    };
+
+    // Skip rendering if component doesn't exist (e.g., old CharacterPanel)
+    if (!components[panel.component]) {
+      return null;
+    }
+
+    return (
+      <div key={panel.id} className="relative">
+        <Panel 
+          title={panel.title}
+          variant={panel.variant}
+          onHelpClick={
+            panel.id === 'threat-die' ? () => openHelp('threatDie') :
+            panel.id === 'mission-tracks' ? () => openHelp('missionTracks') :
+            panel.id === 'danger-clocks' ? () => openHelp('dangerClocks') :
+            undefined
+          }
+        >
+          {components[panel.component]}
+        </Panel>
+      </div>
     );
   };
 
-  const renderPanel = (panel) => {
+  // Desktop panel renderer - with grid positioning and drag-drop
+  const renderGridPanel = (panel) => {
     const components = {
       PartyPanel: <PartyPanel onExpand={() => setCharacterSheetOpen(true)} />,
       ThreatDie: <ThreatDie />,
@@ -224,52 +240,38 @@ export default function Dashboard({ roomCode }) {
     const isBeingDragged = draggedPanel === panel.id;
     const isDragOver = dragOverPanel === panel.id;
 
-    // Determine height constraints based on panel type
-    let maxHeightExpanded, minHeightExpanded;
-    if (panel.component === 'DiceLog') {
-      maxHeightExpanded = 'max-h-[450px]';
-    } else if (panel.component === 'SessionJournal') {
-      minHeightExpanded = 'min-h-[350px]';
-    } else if (panel.component === 'OraclePanel') {
-      maxHeightExpanded = 'max-h-[600px]';
-    }
-
     return (
       <div
         key={panel.id}
-        className="relative"
+        style={{
+          gridRow: panel.gridRow,
+          gridColumn: panel.gridCol,
+        }}
+        className="relative transition-all duration-300"
       >
-        {/* Drop indicator above panel */}
+        {/* Drop indicator overlay */}
         {isDragOver && (
-          <div className="absolute -top-3 left-0 right-0 h-1 bg-accent-cyan rounded-full shadow-lg shadow-accent-cyan/50 z-50 animate-pulse" />
+          <div className="absolute inset-0 border-2 border-accent-cyan bg-accent-cyan/10 rounded z-50 pointer-events-none animate-pulse" />
         )}
         
         <div
           onDragOver={(e) => handleDragOver(e, panel.id)}
           onDrop={(e) => handleDrop(e, panel.id)}
-          className={`transition-all duration-200 mb-4 lg:mb-6 last:mb-0 ${
+          className={`h-full transition-all duration-200 ${
             isBeingDragged ? 'opacity-40 scale-95' : ''
-          } ${isDragOver ? 'ring-2 ring-accent-cyan ring-offset-2 ring-offset-bg-primary' : ''}`}
+          }`}
+          style={{ pointerEvents: 'auto' }}
         >
           <Panel 
-            title={
-              <div className="flex items-center gap-2">
-                <GripVertical className="w-4 h-4 opacity-50" />
-                <span>{panel.title}</span>
-              </div>
-            }
+            title={panel.title}
             variant={panel.variant}
-            collapsed={panel.isCollapsed}
-            onCollapsedChange={(isCollapsed) => handlePanelCollapse(panel.id, isCollapsed)}
-            maxHeightExpanded={maxHeightExpanded}
-            minHeightExpanded={minHeightExpanded}
             onHelpClick={
               panel.id === 'threat-die' ? () => openHelp('threatDie') :
               panel.id === 'mission-tracks' ? () => openHelp('missionTracks') :
               panel.id === 'danger-clocks' ? () => openHelp('dangerClocks') :
               undefined
             }
-            draggable
+            draggable={true}
             onDragStart={(e) => handleDragStart(e, panel.id)}
             onDragEnd={handleDragEnd}
           >
@@ -280,24 +282,6 @@ export default function Dashboard({ roomCode }) {
     );
   };
 
-  const leftPanels = panels.filter(p => p.column === 'left');
-  const centerPanels = panels.filter(p => p.column === 'center');
-  const rightPanels = panels.filter(p => p.column === 'right');
-
-  const renderColumnDropZone = (columnName) => {
-    const isActive = dragOverColumn === columnName && draggedPanel;
-    return (
-      <div
-        onDragOver={(e) => handleColumnDragOver(e, columnName)}
-        onDrop={(e) => handleColumnDrop(e, columnName)}
-        className={`hidden lg:block lg:min-h-[100px] flex-1 transition-all duration-200 border-2 border-dashed rounded ${
-          isActive 
-            ? 'border-accent-cyan bg-accent-cyan/10' 
-            : 'border-transparent'
-        }`}
-      />
-    );
-  };
 
   // Show loading screen while game state is loading
   // This prevents flash when reloading while in space combat
@@ -329,28 +313,21 @@ export default function Dashboard({ roomCode }) {
     );
   }
 
+  // Get panels with their slot positions (only needed for desktop)
+  const panelsWithSlots = getPanelsWithSlots();
+
   return (
     <div className="min-h-screen bg-bg-primary scanlines flex flex-col">
       <Header roomCode={roomCode} onOpenCharacterSheet={() => setCharacterSheetOpen(true)} />
       
-      <div className="flex-1 p-4 space-y-4 lg:space-y-0 lg:grid lg:grid-cols-12 lg:gap-6 overflow-hidden">
-        {/* Left Column - Trackers (3 columns) */}
-        <div className="space-y-4 lg:contents lg:block lg:col-span-3 lg:space-y-6 lg:flex lg:flex-col">
-          {leftPanels.map(renderPanel)}
-          {renderColumnDropZone('left')}
-        </div>
+      {/* Mobile: Stack panels vertically - use original panels array for natural order */}
+      <div className="flex-1 p-4 space-y-4 lg:hidden">
+        {panels.map(renderMobilePanel)}
+      </div>
 
-        {/* Center Column - Dice Roller & Log (3 columns) */}
-        <div className="space-y-4 lg:contents lg:block lg:col-span-3 lg:space-y-6 lg:flex lg:flex-col">
-          {centerPanels.map(renderPanel)}
-          {renderColumnDropZone('center')}
-        </div>
-
-        {/* Right Column - Oracle Compendium & Journal (6 columns - wider!) */}
-        <div className="space-y-4 lg:contents lg:block lg:col-span-6 lg:space-y-6 lg:flex lg:flex-col">
-          {rightPanels.map(renderPanel)}
-          {renderColumnDropZone('right')}
-        </div>
+      {/* Desktop: Grid layout - use panelsWithSlots for grid positioning */}
+      <div className="hidden lg:grid dashboard-grid p-4 gap-4">
+        {panelsWithSlots.map(renderGridPanel)}
       </div>
 
       {/* Help Modal */}

@@ -96,7 +96,7 @@ export default function SessionJournal({ roomCode }) {
   );
 
   return (
-    <div className="absolute inset-0 flex flex-col gap-2">
+    <div className="relative min-h-[400px] lg:absolute lg:inset-0 lg:min-h-0 flex flex-col gap-2">
       {/* Lock Banner - when someone else is editing */}
       {isLocked && (
         <div className="flex items-center gap-2 px-3 py-2 bg-accent-yellow/20 border border-accent-yellow/50 rounded text-accent-yellow text-xs shrink-0">
