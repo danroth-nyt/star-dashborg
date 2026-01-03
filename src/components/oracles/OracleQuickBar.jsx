@@ -96,33 +96,36 @@ export default function OracleQuickBar() {
         <div className="grid grid-cols-3 gap-1">
           <button
             onClick={() => setRollMode('normal')}
-            className={`px-1 py-1 font-orbitron font-bold uppercase text-xs border-2 transition-all ${
+            className={`px-1 py-1 min-w-[32px] font-orbitron font-bold uppercase text-[10px] sm:text-xs border-2 transition-all ${
               rollMode === 'normal'
                 ? 'bg-accent-cyan text-bg-primary border-accent-cyan'
                 : 'bg-transparent text-accent-cyan border-accent-cyan hover:bg-accent-cyan/20'
             }`}
           >
-            Norm
+            <span className="sm:hidden">N</span>
+            <span className="hidden sm:inline">Norm</span>
           </button>
           <button
             onClick={() => setRollMode('advantage')}
-            className={`px-1 py-1 font-orbitron font-bold uppercase text-xs border-2 transition-all ${
+            className={`px-1 py-1 min-w-[32px] font-orbitron font-bold uppercase text-[10px] sm:text-xs border-2 transition-all ${
               rollMode === 'advantage'
                 ? 'bg-accent-yellow text-bg-primary border-accent-yellow'
                 : 'bg-transparent text-accent-yellow border-accent-yellow hover:bg-accent-yellow/20'
             }`}
           >
-            Adv
+            <span className="sm:hidden">A</span>
+            <span className="hidden sm:inline">Adv</span>
           </button>
           <button
             onClick={() => setRollMode('disadvantage')}
-            className={`px-1 py-1 font-orbitron font-bold uppercase text-xs border-2 transition-all ${
+            className={`px-1 py-1 min-w-[32px] font-orbitron font-bold uppercase text-[10px] sm:text-xs border-2 transition-all ${
               rollMode === 'disadvantage'
                 ? 'bg-accent-red text-bg-primary border-accent-red'
                 : 'bg-transparent text-accent-red border-accent-red hover:bg-accent-red/20'
             }`}
           >
-            Dis
+            <span className="sm:hidden">D</span>
+            <span className="hidden sm:inline">Dis</span>
           </button>
         </div>
       </div>

@@ -4,7 +4,63 @@ All notable changes to Star Dashborg are documented in this file.
 
 ## [Current Branch] - Latest Changes
 
-### 🧪 Testing Infrastructure (NEW)
+### 🎨 Visual Boost Oracle (NEW)
+
+#### ✨ Major Features
+- **Visual Boost Oracle Component**: Interactive visual oracle with 20 iconic symbols
+  - Responsive grid layout: 2 columns (mobile), 4 columns (tablet), 5 columns (desktop)
+  - 20 custom icon assets (`icon_01.png` through `icon_20.png`)
+  - Icons represent: Star, Skull, Blaster, Planet, Atom, Cloaked Figure, Monster, Arrow, Remote, Bot, etc.
+  - Located in Core Oracles tab of Oracle Compendium
+  
+- **Slot Machine Roll Animation**: Engaging visual feedback
+  - Rapid cycling through icons (10 cycles at 150ms intervals)
+  - Smooth transition to final result with 200ms delay
+  - Highlighted icon during cycling phase
+  - Final selection with cyan glow and scale effect
+  
+- **Visual States & Effects**:
+  - **Idle**: All icons visible with subtle hover effects
+  - **Rolling**: Random icon highlighted during each cycle
+  - **Selected**: Chosen icon highlighted with cyan glow, pulse animation, and scale
+  - **Dimmed**: Non-selected icons fade to 30% opacity for focus
+  - **Number Badges**: Small numbered labels (1-20) on each icon cell
+  
+- **Result Display**:
+  - Typewriter animation for interpretation text
+  - Format: "Result #[roll]: [interpretation]"
+  - Full integration with oracle history system
+  - Logged to Ship Log with roll value and interpretation
+  
+- **Source Asset Management**:
+  - Original source image stored in `public/images/boost/_source/`
+  - Extraction documentation in `extract-icons.md`
+  - Python extraction script `extract_icons.py` for posterity
+  - `.gitignore` configured to exclude large source images but keep scripts
+
+### 📱 Mobile Responsiveness Enhancements (NEW)
+
+#### ✨ Major Features
+- **Oracle QuickBar Mobile Optimization**: Better touch targets
+  - Modifier buttons show "N", "A", "D" on mobile (< sm breakpoint)
+  - Full text "Norm", "Adv", "Dis" on desktop (sm: and larger)
+  - Improved button sizing: `px-1 py-1` with `min-w-[32px]`
+  - Responsive text: `text-[10px] sm:text-xs`
+  
+- **Oracle Table Mobile Layout**: Stacked vs inline display
+  - Title and dice type stack vertically on mobile
+  - Inline display with space-between on desktop
+  - Reduced text sizes: `text-[10px] sm:text-sm` for titles
+  - Better readability on small screens
+
+- **Oracle Compendium Consolidation**: Reduced clutter
+  - Removed redundant "Planet Name" oracle (available in Generate Planet)
+  - Removed redundant "Settlement Name" oracle (available in Generate Settlement)
+  - Unified "Family Name" oracle combines original names with PV surnames
+  - When PV enabled: 50% chance to roll PV surname (2d100) vs original names (d10)
+  - Dynamic dice display: "d10" or "d10/2d100" based on PV toggle
+
+### 🧪 Testing Infrastructure (COMPLETE)
 
 #### ✨ Major Features
 - **Vitest Test Framework**: Complete testing setup with coverage reporting
@@ -16,15 +72,25 @@ All notable changes to Star Dashborg are documented in this file.
   - Test setup file at `src/test/setup.js` with automatic cleanup
   - Test utilities at `src/test/testUtils.jsx` for easy test authoring
 
-- **Initial Test Suite**: Example tests demonstrating patterns
-  - `ShipStatus.test.jsx` - Component rendering tests
-  - `SpaceCombatView.test.jsx` - Complex component integration tests
-  - `useOracleHistory.test.js` - Custom hook testing
-  - `useSwipeGesture.test.js` - Gesture detection testing
-  - `dice.test.js` - Utility function testing
-  - `keyboardUtils.test.js` - Keyboard utility testing
-  - `starforgedOracles.test.js` - Data structure testing
-  - `CharacterJournal.test.jsx`, `SessionJournal.test.jsx`, `OracleResultDisplay.test.jsx`
+- **Comprehensive Test Suite**: 191 tests across 15 test files
+  - **Context Tests**: `OracleHistoryContext.test.jsx` (7 tests) - Provider, history management, isolation
+  - **Component Tests**:
+    - `OracleQuickBar.test.jsx` (12 tests) - Modifier buttons, roll modes, responsive labels
+    - `VisualBoostOracle.test.jsx` (16 tests) - Grid render, roll animation, icon selection, context integration
+    - `ThreatDie.test.jsx` (20 tests) - Cycling behavior, max threat alert, visual feedback
+    - `LoadingScreen.test.jsx` (22 tests) - Render states, animations, layout, edge cases
+    - `ShipStatus.test.jsx` (5 tests) - Ship stats display
+    - `SpaceCombatView.test.jsx` (3 tests) - Combat view integration
+    - `CharacterJournal.test.jsx` (3 tests) - Character journal
+    - `SessionJournal.test.jsx` (3 tests) - Session journal
+    - `OracleResultDisplay.test.jsx` (5 tests) - Oracle result formatting
+  - **Hook Tests**:
+    - `useOracleHistory.test.js` (17 tests) - History management, navigation, limits
+    - `useSwipeGesture.test.js` (19 tests) - Touch/mouse gesture detection
+  - **Utility Tests**:
+    - `dice.test.js` (37 tests) - Dice rolling functions
+    - `keyboardUtils.test.js` (8 tests) - Keyboard state detection
+    - `starforgedOracles.test.js` (14 tests) - Oracle data validation
 
 - **Coverage Reports**: Generated at `coverage/` directory
   - HTML reports viewable in browser
@@ -303,6 +369,11 @@ All notable changes to Star Dashborg are documented in this file.
 - `src/components/character/CharacterJournal.test.jsx` - Journal component tests
 - `src/components/journal/SessionJournal.test.jsx` - Session journal tests
 - `src/components/oracles/OracleResultDisplay.test.jsx` - Oracle display tests
+- `src/context/OracleHistoryContext.test.jsx` - Oracle history context tests
+- `src/components/oracles/OracleQuickBar.test.jsx` - Quick bar modifier tests
+- `src/components/oracles/VisualBoostOracle.test.jsx` - Visual oracle tests
+- `src/components/trackers/ThreatDie.test.jsx` - Threat die tests
+- `src/components/ui/LoadingScreen.test.jsx` - Loading screen tests
 - `src/hooks/useOracleHistory.test.js` - Oracle history hook tests
 - `src/hooks/useSwipeGesture.test.js` - Swipe gesture hook tests
 - `src/lib/keyboardUtils.test.js` - Keyboard utility tests
@@ -312,6 +383,7 @@ All notable changes to Star Dashborg are documented in this file.
 
 **Components:**
 - `src/components/oracles/CompactOracleResult.jsx` - Compact result display
+- `src/components/oracles/VisualBoostOracle.jsx` - Visual oracle with 20 icons
 - `src/components/ui/LoadingScreen.jsx` - Unified loading component
 - `src/components/spacecombat/stations/PilotStation.jsx`
 - `src/components/spacecombat/stations/CopilotStation.jsx`
@@ -319,7 +391,6 @@ All notable changes to Star Dashborg are documented in this file.
 - `src/components/spacecombat/stations/EngineerStation.jsx`
 - `src/components/spacecombat/StationGrid.jsx`
 - `src/components/character/PartyPanel.jsx`
-- `src/components/ui/LoadingScreen.jsx`
 
 **Context & Hooks:**
 - `src/context/OracleHistoryContext.jsx` - Oracle history state management
@@ -339,6 +410,12 @@ All notable changes to Star Dashborg are documented in this file.
 
 **Documentation:**
 - `.cursor/plans/starforged_+_duplicate_handling_1b05ebfe.plan.md`
+
+**Image Assets:**
+- `public/images/boost/icon_01.png` through `icon_20.png` - Visual Boost Oracle icons
+- `public/images/boost/_source/boost_oracle_star_borg-1.png` - Original source image
+- `public/images/boost/_source/extract-icons.md` - Extraction documentation
+- `public/images/boost/_source/extract_icons.py` - Python extraction script
 
 **Audio Assets:**
 - `public/sounds/evade.mp3`
@@ -360,9 +437,9 @@ All notable changes to Star Dashborg are documented in this file.
 - `src/main.jsx` - AuthProvider wrapper added
 - `src/context/GameContext.jsx` - Oracle toggles, state migration
 - `src/context/AuthContext.jsx` - Timeout protection, better error handling
-- `src/components/oracles/OracleQuickBar.jsx` - Two-stage mechanics
-- `src/components/oracles/OracleTable.jsx` - History context integration
-- `src/components/oracles/OracleCompendium.jsx` - History providers for each tab
+- `src/components/oracles/OracleQuickBar.jsx` - Two-stage mechanics, mobile-responsive modifier buttons (N/A/D)
+- `src/components/oracles/OracleTable.jsx` - History context integration, mobile-responsive layout (stacked vs inline)
+- `src/components/oracles/OracleCompendium.jsx` - History providers for each tab, Visual Boost Oracle integration, unified Family Name oracle
 - `src/components/oracles/generators/MonsterGenerator.jsx` - History context usage
 - `src/components/oracles/generators/CrimeLordGenerator.jsx` - History context usage
 - `src/components/oracles/generators/NPCGenerator.jsx` - Name generation, history context
@@ -374,7 +451,8 @@ All notable changes to Star Dashborg are documented in this file.
 - `src/data/oracles.js` - Multi-source oracle integration
 - `vite.config.js` - Environment-based base path, Vitest configuration
 - `index.html` - Content Security Policy header
-- `package.json` - Test scripts, testing dependencies
+- `package.json` - Test scripts, testing dependencies (@testing-library/user-event added)
+- `.gitignore` - Test coverage directory, boost source images exclusion
 
 ---
 

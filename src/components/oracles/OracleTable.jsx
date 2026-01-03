@@ -123,11 +123,11 @@ export default function OracleTable({
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <span className="text-sm font-orbitron uppercase text-gray-300">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-0.5 sm:gap-0">
+        <span className="text-[10px] sm:text-sm font-orbitron uppercase text-gray-300 leading-tight">
           {title}
         </span>
-        <span className="text-xs font-orbitron text-gray-500">
+        <span className="text-[9px] sm:text-xs font-orbitron text-gray-500 leading-tight">
           {diceType}
         </span>
       </div>
