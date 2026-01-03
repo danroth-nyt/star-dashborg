@@ -1,9 +1,241 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { useSwipeGesture } from '../../hooks/useSwipeGesture';
 
-export default function OracleResultDisplay({ result, variant = 'cyan', className }) {
+/**
+ * Formats oracle result for clipboard copying
+ * Handles all result types intelligently
+ */
+function formatResultForCopy(result) {
+  if (!result) return '';
+  
+  const lines = [];
+  
+  // Header
+  lines.push('═══ ORACLE RESULT ═══');
+  lines.push('');
+  
+  // Roll information
+  if (result.roll !== undefined) {
+    if (result.rolls && result.rollMode) {
+      const mode = result.rollMode === 'advantage' ? 'ADV' : 'DIS';
+      lines.push(`ROLL (${mode}): [${result.rolls.join(', ')}] = [${result.roll}]`);
+    } else {
+      lines.push(`ROLL: [${result.roll}]`);
+    }
+  }
+  
+  // Main result
+  if (result.result) {
+    lines.push(`RESULT: ${result.result}`);
+  }
+  
+  // Handle different result types
+  
+  // Simple detail field
+  if (result.detail && !result.weather && !result.size) {
+    lines.push(`DETAIL: ${result.detail}`);
+  }
+  
+  // Affirmation oracle (detail, size, weather, npcReaction)
+  if (result.detail && result.size && result.weather && result.npcReaction) {
+    lines.push(`DETAIL: ${result.detail}`);
+    lines.push(`SIZE: ${result.size}`);
+    lines.push(`WEATHER: ${result.weather}`);
+    lines.push(`NPC REACTION: ${result.npcReaction}`);
+  }
+  
+  // Quick Mission (action, target)
+  if (result.action && result.target) {
+    lines.push(`ACTION${result.actionRoll ? ` [${result.actionRoll}]` : ''}: ${result.action}`);
+    lines.push(`TARGET${result.targetRoll ? ` [${result.targetRoll}]` : ''}: ${result.target}`);
+  }
+  
+  // Scene (location, tone, obstacle)
+  if (result.location && result.tone && result.obstacle) {
+    lines.push(`LOCATION${result.locationRoll ? ` [${result.locationRoll}]` : ''}: ${result.location}`);
+    lines.push(`TONE${result.toneRoll ? ` [${result.toneRoll}]` : ''}: ${result.tone}`);
+    lines.push(`OBSTACLE${result.obstacleRoll ? ` [${result.obstacleRoll}]` : ''}: ${result.obstacle}`);
+  }
+  
+  // Travel Encounter (theme, actor)
+  if (result.theme && result.actor && !result.role) {
+    lines.push(`THEME${result.themeRoll ? ` [${result.themeRoll}]` : ''}: ${result.theme}`);
+    lines.push(`ACTOR${result.actorRoll ? ` [${result.actorRoll}]` : ''}: ${result.actor}`);
+  }
+  
+  // Dangerous Location (ship, base, obstacle, search, threat)
+  if (result.ship && result.base && result.obstacle && result.search && result.shipRoll) {
+    lines.push(`SHIP [${result.shipRoll}]: ${result.ship}`);
+    lines.push(`BASE [${result.baseRoll}]: ${result.base}`);
+    if (result.threatRoll !== undefined) {
+      lines.push(`THREAT [${result.threatRoll}] + [${result.threatDie}] = ${result.threatTotal}: ${result.obstacleTriggered ? '⚠ OBSTACLE TRIGGERED' : 'Safe'}`);
+    }
+    lines.push(`OBSTACLE [${result.obstacleRoll}]: ${result.obstacle}`);
+    lines.push(`SEARCH [${result.searchRoll}]: ${result.search}`);
+  }
+  
+  // Detailed Mission (type, goods, spot, reward)
+  if (result.type && result.typeRoll) {
+    lines.push(`TYPE [${result.typeRoll}]: ${result.type}`);
+    lines.push(`GOODS [${result.goodsRoll}]: ${result.goods}`);
+    lines.push(`SPOT [${result.spotRoll}]: ${result.spot}`);
+    lines.push(`REWARD [${result.rewardRoll}]: ${result.reward}`);
+  }
+  
+  // Event Oracle (verb, subject, description, activity, omen, specific)
+  if (result.verb && result.verbRoll) {
+    lines.push(`VERB [${result.verbRoll}]: ${result.verb}`);
+    lines.push(`SUBJECT [${result.subjectRoll}]: ${result.subject}`);
+    lines.push(`DESC [${result.descRoll}]: ${result.description}`);
+    lines.push(`ACTIVITY [${result.activityRoll}]: ${result.activity}`);
+    lines.push(`OMEN [${result.omenRoll}]: ${result.omen}`);
+    lines.push(`SPECIFIC [${result.specificRoll}]: ${result.specific}`);
+  }
+  
+  // NPC (role, species, motivation, secret, trait, demeanor)
+  if (result.role && result.roleRoll) {
+    if (result.name) {
+      lines.push(`NPC NAME: ${result.name}`);
+    }
+    lines.push(`ROLE [${result.roleRoll}]: ${result.role}`);
+    lines.push(`SPECIES [${result.speciesRoll}]: ${result.species}`);
+    lines.push(`MOTIVATION [${result.motivationRoll}]: ${result.motivation}`);
+    lines.push(`SECRET [${result.secretRoll}]: ${result.secret}`);
+    lines.push(`TRAIT [${result.traitRoll}]: ${result.trait}`);
+    lines.push(`DEMEANOR [${result.demeanorRoll}]: ${result.demeanor}`);
+  }
+  
+  // Planet (terrain, weather, color, population, control)
+  if (result.terrain) {
+    if (result.name) {
+      lines.push(`PLANET NAME${result.nameRoll ? ` [${result.nameRoll}]` : ''}: ${result.name}`);
+    }
+    lines.push(`TERRAIN${result.terrainRoll ? ` [${result.terrainRoll}]` : ''}: ${result.terrain}`);
+    lines.push(`WEATHER${result.weatherRoll ? ` [${result.weatherRoll}]` : ''}: ${result.weather}`);
+    lines.push(`COLOR${result.colorRoll ? ` [${result.colorRoll}]` : ''}: ${result.color}`);
+    lines.push(`POPULATION${result.populationRoll ? ` [${result.populationRoll}]` : ''}: ${result.population}`);
+    lines.push(`CONTROL${result.controlRoll ? ` [${result.controlRoll}]` : ''}: ${result.control}`);
+  }
+  
+  // Settlement (appearance, knownFor, currentState, complication, leader, landmark, rumors, hookups)
+  if (result.appearance) {
+    if (result.name) {
+      lines.push(`SETTLEMENT NAME${result.nameRoll ? ` [${result.nameRoll}]` : ''}: ${result.name}`);
+    }
+    lines.push(`APPEARANCE${result.appearanceRoll ? ` [${result.appearanceRoll}]` : ''}: ${result.appearance}`);
+    lines.push(`KNOWN FOR${result.knownForRoll ? ` [${result.knownForRoll}]` : ''}: ${result.knownFor}`);
+    lines.push(`STATE${result.currentStateRoll ? ` [${result.currentStateRoll}]` : ''}: ${result.currentState}`);
+    lines.push(`COMPLICATION${result.complicationRoll ? ` [${result.complicationRoll}]` : ''}: ${result.complication}`);
+    if (result.leader) lines.push(`LEADER${result.leaderRoll ? ` [${result.leaderRoll}]` : ''}: ${result.leader}`);
+    if (result.landmark) lines.push(`LANDMARK${result.landmarkRoll ? ` [${result.landmarkRoll}]` : ''}: ${result.landmark}`);
+    if (result.rumors) lines.push(`RUMORS${result.rumorsRoll ? ` [${result.rumorsRoll}]` : ''}: ${result.rumors}`);
+    if (result.hookups) lines.push(`NPC HOOK-UPS${result.hookupsRoll ? ` [${result.hookupsRoll}]` : ''}: ${result.hookups}`);
+  }
+  
+  // Villain (villain, goal, plan, means)
+  if (result.villain && !result.visage) {
+    lines.push(`VILLAIN${result.villainRoll ? ` [${result.villainRoll}]` : ''}: ${result.villain}`);
+    lines.push(`GOAL${result.goalRoll ? ` [${result.goalRoll}]` : ''}: ${result.goal}`);
+    lines.push(`PLAN${result.planRoll ? ` [${result.planRoll}]` : ''}: ${result.plan}`);
+    lines.push(`MEANS${result.meansRoll ? ` [${result.meansRoll}]` : ''}: ${result.means}`);
+  }
+  
+  // Crime Lord (name, visage, weapon, base)
+  if (result.visage && result.visageRoll) {
+    if (result.name) {
+      lines.push(`NAME [${result.nameRoll}]: ${result.name}`);
+    }
+    lines.push(`VISAGE [${result.visageRoll}]: ${result.visage}`);
+    lines.push(`WEAPON [${result.weaponRoll}]: ${result.weapon}`);
+    lines.push(`BASE [${result.baseRoll}]: ${result.base}`);
+  }
+  
+  // Monster (beast, monstrosity, weakSpot)
+  if (result.beast && result.monstrosity && result.weakSpot && result.beastRoll) {
+    if (result.name) {
+      lines.push(`MONSTER NAME: ${result.name}`);
+    }
+    lines.push(`BEAST ADAPTATION [d6: ${result.beastRoll}]: ${result.beast}`);
+    lines.push(`MONSTROSITY [d6: ${result.monstrosityRoll}]: ${result.monstrosity}`);
+    lines.push(`WEAK SPOT [d6: ${result.weakSpotRoll}]: ${result.weakSpot}`);
+  }
+  
+  // Incident (incident, followUpQuestions)
+  if (result.incident) {
+    lines.push(`INCIDENT: ${result.incident}`);
+    if (result.followUpQuestions && result.followUpQuestions.length > 0) {
+      lines.push('FOLLOW-UP QUESTIONS:');
+      result.followUpQuestions.forEach(q => lines.push(`  - ${q}`));
+    }
+  }
+  
+  // Title Generator (col1, col2, col3, col4)
+  if (result.titleType && result.col1 && result.col2 && result.col3 && result.col4) {
+    lines.push(`TITLE TYPE: ${result.titleType === 'epic' ? 'Campaign Title' : 'Episode Title'}`);
+    lines.push(`[${result.col1Roll}] ${result.col1}`);
+    lines.push(`[${result.col2Roll}] ${result.col2}`);
+    lines.push(`[${result.col3Roll}] ${result.col3}`);
+    lines.push(`[${result.col4Roll}] ${result.col4}`);
+    lines.push('');
+    lines.push(`FULL TITLE: ${result.col1} ${result.col2} ${result.col3} ${result.col4}`);
+  }
+  
+  // PV Two-Part Names (fullName, fullSurname)
+  if ((result.fullName || result.fullSurname) && result.firstRoll && result.secondRoll && !result.nameFirstRoll) {
+    lines.push(`1ST PART [d100: ${result.firstRoll}]: ${result.firstName || result.firstPart}`);
+    lines.push(`2ND PART [d100: ${result.secondRoll}]: ${result.secondPart}`);
+    lines.push('');
+    lines.push(`FULL NAME: ${result.fullName || result.fullSurname}`);
+  }
+  
+  // PV Full NPC Name (nameFirstRoll, nameSecondRoll, surnameFirstRoll, surnameSecondRoll)
+  if (result.nameFirstRoll && result.nameSecondRoll && result.surnameFirstRoll && result.surnameSecondRoll) {
+    lines.push(`NAME 1ST [d100: ${result.nameFirstRoll}]: ${result.firstName.split(' ')[0]}`);
+    lines.push(`NAME 2ND [d100: ${result.nameSecondRoll}]: (combined in first name)`);
+    lines.push(`SURNAME 1ST [d100: ${result.surnameFirstRoll}]: ${result.surname.split('')[0]}`);
+    lines.push(`SURNAME 2ND [d100: ${result.surnameSecondRoll}]: (combined in surname)`);
+    lines.push('');
+    lines.push(`FULL NAME: ${result.fullName}`);
+  }
+  
+  // PV Template-Based Names (template, quality, adjective, form, number, structure, noun)
+  if (result.template && result.templateRoll && result.fullName) {
+    lines.push(`TEMPLATE [d100: ${result.templateRoll}]: ${result.template}`);
+    if (result.quality) lines.push(`QUALITY [${result.qualityRoll}]: ${result.quality}`);
+    if (result.adjective) {
+      let adjLine = `ADJECTIVE [${result.adjectiveRoll}]: ${result.adjective}`;
+      if (result.adjectiveIsNPCName) adjLine += ' (NPC Name)';
+      if (result.adjectiveIsNPCSurname) adjLine += ' (NPC Surname)';
+      if (result.adjectiveIsPlaceName) adjLine += ' (Place)';
+      lines.push(adjLine);
+    }
+    if (result.form) lines.push(`FORM [${result.formRoll}]: ${result.form}`);
+    if (result.number !== undefined) lines.push(`NUMBER [3d10: ${result.numberRolls?.join(', ')}]: ${result.number}`);
+    if (result.structure) lines.push(`STRUCTURE [${result.structureRoll}]: ${result.structure}`);
+    if (result.noun) lines.push(`NOUN [${result.nounRoll}]: ${result.noun}`);
+    lines.push('');
+    lines.push(`GENERATED NAME: ${result.fullName}`);
+  }
+  
+  // Simple string result
+  if (typeof result === 'string') {
+    lines.push(result);
+  }
+  
+  lines.push('');
+  lines.push('═════════════════════');
+  
+  return lines.join('\n');
+}
+
+export default function OracleResultDisplay({ result, variant = 'cyan', className, currentIndex = 0, totalResults = 0, onNavigate }) {
   const [isVisible, setIsVisible] = useState(false);
+  const [isCopied, setIsCopied] = useState(false);
+  const [slideDirection, setSlideDirection] = useState('none');
 
+  // Handle result changes with slide animation
   useEffect(() => {
     if (result) {
       setIsVisible(false);
@@ -11,9 +243,70 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
     }
   }, [result]);
 
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (!onNavigate || totalResults <= 1) return;
+      
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        handlePrevious();
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        handleNext();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, totalResults, onNavigate]);
+
+  // Navigation handlers
+  const handlePrevious = useCallback(() => {
+    if (currentIndex < totalResults - 1 && onNavigate) {
+      setSlideDirection('right');
+      setTimeout(() => {
+        onNavigate(currentIndex + 1);
+        setSlideDirection('none');
+      }, 150);
+    }
+  }, [currentIndex, totalResults, onNavigate]);
+
+  const handleNext = useCallback(() => {
+    if (currentIndex > 0 && onNavigate) {
+      setSlideDirection('left');
+      setTimeout(() => {
+        onNavigate(currentIndex - 1);
+        setSlideDirection('none');
+      }, 150);
+    }
+  }, [currentIndex, totalResults, onNavigate]);
+
+  // Swipe gesture support
+  const swipeHandlers = useSwipeGesture({
+    onSwipeLeft: handlePrevious,
+    onSwipeRight: handleNext,
+    threshold: 50
+  });
+
+  // Copy to clipboard
+  const handleCopy = useCallback(async () => {
+    try {
+      const formattedText = formatResultForCopy(result);
+      await navigator.clipboard.writeText(formattedText);
+      setIsCopied(true);
+      setTimeout(() => setIsCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy:', err);
+    }
+  }, [result]);
+
   if (!result) {
     return null;
   }
+
+  const isViewingHistory = currentIndex > 0;
+  const hasHistory = totalResults > 1;
 
   const borderColors = {
     cyan: 'border-accent-cyan',
@@ -42,18 +335,39 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
   return (
     <div
       className={cn(
-        'border-3 bg-bg-secondary p-4 scan-effect',
+        'border-3 bg-bg-secondary scan-effect relative overflow-hidden',
         borderColors[variant],
         glowColors[variant],
         isVisible ? 'fade-in' : 'opacity-0',
         className
       )}
     >
-      <div className="space-y-3">
-        {/* Header */}
-        <div className={cn('text-xs font-orbitron uppercase tracking-wider flicker', textColors[variant])}>
-          ░░░ TRANSMISSION RECEIVED ░░░
-        </div>
+      {/* Amber tint overlay when viewing history */}
+      {isViewingHistory && (
+        <div className="absolute inset-0 bg-accent-yellow/5 pointer-events-none z-0" />
+      )}
+
+      {/* Main content with swipe support */}
+      <div
+        {...swipeHandlers}
+        className={cn(
+          'p-4 relative z-10 transition-transform duration-150',
+          slideDirection === 'left' && '-translate-x-2 opacity-80',
+          slideDirection === 'right' && 'translate-x-2 opacity-80'
+        )}
+      >
+        <div className="space-y-3">
+          {/* Header */}
+          <div className="flex items-center justify-between gap-2">
+            <div className={cn('text-xs font-orbitron uppercase tracking-wider flicker', textColors[variant])}>
+              ░░░ TRANSMISSION RECEIVED ░░░
+            </div>
+            {isViewingHistory && (
+              <div className="text-xs font-orbitron uppercase tracking-wider text-accent-yellow/80 bg-accent-yellow/10 px-2 py-1 border border-accent-yellow/30">
+                HISTORY
+              </div>
+            )}
+          </div>
 
         {/* Roll Display */}
         {result.roll !== undefined && (
@@ -842,6 +1156,90 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
             {result}
           </div>
         )}
+
+        {/* Navigation and Controls Footer */}
+        <div className="flex items-center justify-between gap-4 pt-3 mt-3 border-t border-gray-700/50">
+          {/* Left: Chevron Navigation */}
+          {hasHistory ? (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handlePrevious}
+                disabled={currentIndex >= totalResults - 1}
+                className={cn(
+                  'p-1.5 sm:p-2 border-2 transition-all',
+                  currentIndex >= totalResults - 1
+                    ? 'border-gray-700 text-gray-700 cursor-not-allowed'
+                    : 'border-accent-cyan text-accent-cyan hover:bg-accent-cyan hover:text-bg-primary'
+                )}
+                aria-label="Previous result"
+              >
+                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+
+              {/* Dot Pagination */}
+              <div className="flex items-center gap-1.5 px-2">
+                {Array.from({ length: Math.min(totalResults, 10) }).map((_, idx) => {
+                  // Reverse the visual order: leftmost = oldest (highest index), rightmost = newest (index 0)
+                  const resultIndex = totalResults - 1 - idx;
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => onNavigate && onNavigate(resultIndex)}
+                      className={cn(
+                        'w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full transition-all border',
+                        resultIndex === currentIndex
+                          ? `${borderColors[variant]} bg-current scale-125`
+                          : 'border-gray-600 bg-gray-600 hover:bg-gray-400'
+                      )}
+                      aria-label={`Go to result ${resultIndex + 1}`}
+                    />
+                  );
+                })}
+              </div>
+
+              <button
+                onClick={handleNext}
+                disabled={currentIndex <= 0}
+                className={cn(
+                  'p-1.5 sm:p-2 border-2 transition-all',
+                  currentIndex <= 0
+                    ? 'border-gray-700 text-gray-700 cursor-not-allowed'
+                    : 'border-accent-cyan text-accent-cyan hover:bg-accent-cyan hover:text-bg-primary'
+                )}
+                aria-label="Next result"
+              >
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
+          ) : (
+            <div />
+          )}
+
+          {/* Right: Copy Button */}
+          <button
+            onClick={handleCopy}
+            className={cn(
+              'flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-orbitron uppercase border-2 transition-all whitespace-nowrap',
+              isCopied
+                ? 'bg-accent-yellow/20 border-accent-yellow text-accent-yellow'
+                : 'bg-transparent border-accent-cyan text-accent-cyan hover:bg-accent-cyan hover:text-bg-primary'
+            )}
+            disabled={isCopied}
+          >
+            {isCopied ? (
+              <>
+                <Check className="w-3 h-3" />
+                <span className="hidden sm:inline">COPIED</span>
+              </>
+            ) : (
+              <>
+                <Copy className="w-3 h-3" />
+                <span className="hidden sm:inline">COPY</span>
+              </>
+            )}
+          </button>
+        </div>
+      </div>
       </div>
     </div>
   );

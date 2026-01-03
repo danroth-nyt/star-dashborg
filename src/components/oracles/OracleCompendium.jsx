@@ -40,8 +40,23 @@ import Accordion from '../ui/Accordion';
 
 export default function OracleCompendium() {
   const [activeTab, setActiveTab] = useState('core');
-  const [oracleResult, setOracleResult] = useState(null);
+  const [resultHistory, setResultHistory] = useState([]);
+  const [currentIndex, setCurrentIndex] = useState(0);
   const { addLog, gameState } = useGame();
+
+  // Add new result to history (max 10 items)
+  const addOracleResult = (newResult) => {
+    setResultHistory(prev => [newResult, ...prev].slice(0, 10));
+    setCurrentIndex(0); // Jump to newest result
+  };
+
+  // Navigate to specific index in history
+  const navigateTo = (index) => {
+    setCurrentIndex(Math.max(0, Math.min(index, resultHistory.length - 1)));
+  };
+
+  // Get current result from history
+  const oracleResult = resultHistory[currentIndex] || null;
 
   // Determine variant based on result type
   const getResultVariant = () => {
@@ -78,7 +93,7 @@ export default function OracleCompendium() {
     <div className="space-y-4">
       {/* Quick Action Bar */}
       <div className="border-3 border-accent-cyan bg-bg-secondary p-3">
-        <OracleQuickBar setOracleResult={setOracleResult} />
+        <OracleQuickBar setOracleResult={addOracleResult} />
       </div>
 
       {/* Centralized Oracle Result Display */}
@@ -86,6 +101,9 @@ export default function OracleCompendium() {
         <OracleResultDisplay 
           result={oracleResult} 
           variant={getResultVariant()}
+          currentIndex={currentIndex}
+          totalResults={resultHistory.length}
+          onNavigate={navigateTo}
         />
       )}
 
