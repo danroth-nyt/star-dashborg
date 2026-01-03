@@ -388,10 +388,25 @@ function WorldTab() {
 function CharactersTab() {
   const { addLog, gameState } = useGame();
 
-  const handlePVNPCSurname = () => {
-    const surname = generatePVNPCSurname();
-    addLog(`PV NPC Surname [${surname.firstRoll}, ${surname.secondRoll}]: ${surname.fullSurname}`, 'roll');
-    return surname;
+  const handleFamilyName = () => {
+    // Unified Family Name: combines original d10 names with PV surnames when enabled
+    if (gameState.includePVOracles && rollDice(2) === 2) {
+      // 50% chance: Use PV surname generator
+      const surname = generatePVNPCSurname();
+      addLog(`Family Name (PV) [${surname.firstRoll}, ${surname.secondRoll}]: ${surname.fullSurname}`, 'roll');
+      return { 
+        result: 'Family Name', 
+        detail: surname.fullSurname,
+        source: 'perilousVoid',
+        firstRoll: surname.firstRoll,
+        secondRoll: surname.secondRoll
+      };
+    } else {
+      // 50% chance or PV disabled: Use original family names
+      const name = rollOnTable(nameOracles.familyNames);
+      addLog(`Family Name: ${name}`, 'roll');
+      return { result: 'Family Name', detail: name };
+    }
   };
 
   const handleSpaceOperaName = () => {
@@ -404,19 +419,6 @@ function CharactersTab() {
     const faction = generatePVFactionName();
     addLog(`PV Faction Name: ${faction.fullName}`, 'roll');
     return faction;
-  };
-
-  const handleSettlementName = () => {
-    // When PV oracles enabled, randomly pick from old d10 table OR PV template generator
-    if (gameState.includePVOracles && rollDice(2) === 2) {
-      const pvName = generatePVSettlementName();
-      addLog(`PV Settlement Name: ${pvName.fullName}`, 'roll');
-      return pvName;
-    } else {
-      const name = rollOnTable(nameOracles.settlementNames);
-      addLog(`Settlement Name: ${name}`, 'roll');
-      return { result: 'Settlement Name', detail: name };
-    }
   };
 
   const history = useOracleHistoryContext();
@@ -452,9 +454,10 @@ function CharactersTab() {
           />
           <OracleTable
             title="Family Name"
-            table={nameOracles.familyNames}
+            table={[]}
             variant="yellow"
-            diceType="d10"
+            diceType={gameState.includePVOracles ? "d10/2d100" : "d10"}
+            rollFunction={handleFamilyName}
           />
           <OracleTable
             title="Bot Name"
@@ -467,19 +470,6 @@ function CharactersTab() {
             table={nameOracles.shipNames}
             variant="cyan"
             diceType="d10"
-          />
-          <OracleTable
-            title="Planet Name"
-            table={nameOracles.planetNames}
-            variant="cyan"
-            diceType="d20"
-          />
-          <OracleTable
-            title="Settlement Name"
-            table={[]}
-            variant="cyan"
-            diceType={gameState.includePVOracles ? "d10+" : "d10"}
-            rollFunction={handleSettlementName}
           />
           <OracleTable
             title="Legionary Name"
@@ -509,13 +499,6 @@ function CharactersTab() {
           {/* Perilous Void Name Generators */}
           {gameState.includePVOracles && (
             <>
-              <OracleTable
-                title="PV NPC Surname"
-                table={[]}
-                variant="yellow"
-                diceType="2d100"
-                rollFunction={handlePVNPCSurname}
-              />
               <OracleTable
                 title="Space Opera"
                 table={[]}
