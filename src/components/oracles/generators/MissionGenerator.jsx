@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Button from '../../ui/Button';
-import OracleResultDisplay from '../OracleResultDisplay';
 import { generateMission, generateQuickMission, generateVillain, rollOnTable, generateIncitingIncident } from '../../../data/oracles';
 import { missionGenerators } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
@@ -143,16 +142,6 @@ export default function MissionGenerator() {
         </Button>
       )}
 
-      {/* Result Display */}
-      {history && history.currentResult && (
-        <OracleResultDisplay 
-          result={history.currentResult}
-          variant={missionType === 'villain' ? 'red' : (missionType === 'scenario' || missionType === 'inciting') ? 'yellow' : 'cyan'}
-          currentIndex={history.currentIndex}
-          totalResults={history.totalResults}
-          onNavigate={history.navigateTo}
-        />
-      )}
     </div>
   );
 }

@@ -1,5 +1,4 @@
 import Button from '../../ui/Button';
-import OracleResultDisplay from '../OracleResultDisplay';
 import { generateMonster } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
 import { useOracleHistoryContext } from '../../../context/OracleHistoryContext';
@@ -20,16 +19,6 @@ export default function MonsterGenerator() {
         GENERATE MONSTER
       </Button>
 
-      {/* Result Display */}
-      {history && history.currentResult && (
-        <OracleResultDisplay 
-          result={history.currentResult}
-          variant="red"
-          currentIndex={history.currentIndex}
-          totalResults={history.totalResults}
-          onNavigate={history.navigateTo}
-        />
-      )}
     </div>
   );
 }

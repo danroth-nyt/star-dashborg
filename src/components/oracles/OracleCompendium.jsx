@@ -239,6 +239,7 @@ function CoreOraclesTab() {
 
 function MissionsTab() {
   const { addLog } = useGame();
+  const history = useOracleHistoryContext();
 
   const handleEpicTitle = () => {
     const title = generateEpicTitle();
@@ -267,6 +268,17 @@ function MissionsTab() {
       <div className="text-accent-yellow font-orbitron text-lg font-bold uppercase mb-4">
         Mission & Plot Generators
       </div>
+
+      {/* Result Display */}
+      {history && history.currentResult && (
+        <OracleResultDisplay 
+          result={history.currentResult} 
+          variant="yellow"
+          currentIndex={history.currentIndex}
+          totalResults={history.totalResults}
+          onNavigate={history.navigateTo}
+        />
+      )}
 
       <Accordion title="Mission Generator" defaultOpen={true}>
         <MissionGenerator />
@@ -306,12 +318,24 @@ function MissionsTab() {
 
 function WorldTab() {
   const { gameState } = useGame();
+  const history = useOracleHistoryContext();
   
   return (
     <div className="space-y-4">
       <div className="text-accent-cyan font-orbitron text-lg font-bold uppercase mb-4">
         World Building & Locations
       </div>
+
+      {/* Result Display */}
+      {history && history.currentResult && (
+        <OracleResultDisplay 
+          result={history.currentResult} 
+          variant="cyan"
+          currentIndex={history.currentIndex}
+          totalResults={history.totalResults}
+          onNavigate={history.navigateTo}
+        />
+      )}
 
       <Accordion title="World Generator" defaultOpen={true}>
         <PlanetGenerator />
@@ -414,11 +438,24 @@ function CharactersTab() {
     }
   };
 
+  const history = useOracleHistoryContext();
+
   return (
     <div className="space-y-4">
       <div className="text-accent-yellow font-orbitron text-lg font-bold uppercase mb-4">
         Characters & Names
       </div>
+
+      {/* Result Display */}
+      {history && history.currentResult && (
+        <OracleResultDisplay 
+          result={history.currentResult} 
+          variant="yellow"
+          currentIndex={history.currentIndex}
+          totalResults={history.totalResults}
+          onNavigate={history.navigateTo}
+        />
+      )}
 
       <Accordion title="NPC Generator" defaultOpen={true}>
         <NPCGenerator />
@@ -522,6 +559,7 @@ function CharactersTab() {
 
 function CombatTab() {
   const { addLog } = useGame();
+  const history = useOracleHistoryContext();
 
   const checkMorale = (targetMorale) => {
     const die1 = rollDice(6);
@@ -545,6 +583,17 @@ function CombatTab() {
       <div className="text-accent-red font-orbitron text-lg font-bold uppercase mb-4">
         Combat & Enemies
       </div>
+
+      {/* Result Display */}
+      {history && history.currentResult && (
+        <OracleResultDisplay 
+          result={history.currentResult} 
+          variant="red"
+          currentIndex={history.currentIndex}
+          totalResults={history.totalResults}
+          onNavigate={history.navigateTo}
+        />
+      )}
 
       {/* Morale Check */}
       <Accordion title="Morale Check (2D6)" defaultOpen={false}>

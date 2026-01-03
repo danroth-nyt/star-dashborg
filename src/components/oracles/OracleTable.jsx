@@ -1,5 +1,4 @@
 import Button from '../ui/Button';
-import OracleResultDisplay from './OracleResultDisplay';
 import { rollOnTable, rollDice } from '../../data/oracles';
 import { useGame } from '../../context/GameContext';
 import { useOracleHistoryContext } from '../../context/OracleHistoryContext';
@@ -140,17 +139,6 @@ export default function OracleTable({
       >
         ROLL
       </Button>
-
-      {history && history.currentResult && (
-        <OracleResultDisplay 
-          result={history.currentResult} 
-          variant={variant}
-          className="mt-3"
-          currentIndex={history.currentIndex}
-          totalResults={history.totalResults}
-          onNavigate={history.navigateTo}
-        />
-      )}
     </div>
   );
 }

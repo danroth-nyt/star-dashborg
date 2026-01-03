@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import Button from '../../ui/Button';
-import OracleResultDisplay from '../OracleResultDisplay';
 import { generatePlanet, generateSettlement, generateScene, rollOnTable } from '../../../data/oracles';
 import { worldOracles } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
@@ -146,16 +145,6 @@ export default function PlanetGenerator() {
         </Button>
       </div>
 
-      {/* Result Display */}
-      {history && history.currentResult && (
-        <OracleResultDisplay 
-          result={history.currentResult}
-          variant="cyan"
-          currentIndex={history.currentIndex}
-          totalResults={history.totalResults}
-          onNavigate={history.navigateTo}
-        />
-      )}
     </div>
   );
 }

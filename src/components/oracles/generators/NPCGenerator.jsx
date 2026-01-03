@@ -1,5 +1,4 @@
 import Button from '../../ui/Button';
-import OracleResultDisplay from '../OracleResultDisplay';
 import { generateNPC, generateTravelEncounter, rollOnTable } from '../../../data/oracles';
 import { npcOracles } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
@@ -94,16 +93,6 @@ export default function NPCGenerator() {
         </div>
       </div>
 
-      {/* Result Display */}
-      {history && history.currentResult && (
-        <OracleResultDisplay 
-          result={history.currentResult}
-          variant="yellow"
-          currentIndex={history.currentIndex}
-          totalResults={history.totalResults}
-          onNavigate={history.navigateTo}
-        />
-      )}
     </div>
   );
 }
