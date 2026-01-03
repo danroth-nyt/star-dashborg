@@ -1,5 +1,5 @@
 import { Copy, Check, Plus, BookOpen, BookMarked, User, Rocket, Settings } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Button from '../ui/Button';
 import { generateRoomCode } from '../../lib/utils';
 import GameFlowDrawer from './GameFlowDrawer';
@@ -15,6 +15,17 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [isRefOpen, setIsRefOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  // Track scroll position for mobile header collapse
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const copyInviteLink = () => {
     const url = `${window.location.origin}${window.location.pathname}?room=${roomCode}`;
@@ -44,9 +55,10 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b-3 border-accent-yellow bg-bg-secondary p-3 md:p-4 border-flicker shadow-lg lg:relative lg:shadow-none">
+      <header className="sticky top-0 z-50 border-b-3 border-accent-yellow bg-bg-secondary p-3 md:p-4 border-flicker shadow-lg lg:relative lg:shadow-none transition-all duration-300">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="flex items-center gap-2 md:gap-4">
+          {/* Top row - logo and room code - hidden on mobile when scrolled */}
+          <div className={`flex items-center gap-2 md:gap-4 transition-all duration-300 ${isScrolled ? 'max-h-0 overflow-hidden opacity-0 lg:max-h-none lg:opacity-100' : 'max-h-20 opacity-100'}`}>
             <div>
               <h1 className="font-orbitron font-black text-2xl md:text-4xl text-accent-yellow text-glow-yellow tracking-wider">
                 STAR DASHBORG
@@ -104,7 +116,8 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
             </div>
           </div>
           
-          <div className="flex items-center gap-2 md:gap-4">
+          {/* Room code and action buttons - hidden on mobile when scrolled */}
+          <div className={`flex items-center gap-2 md:gap-4 transition-all duration-300 ${isScrolled ? 'max-h-0 overflow-hidden opacity-0 lg:max-h-none lg:opacity-100' : 'max-h-20 opacity-100'}`}>
             <div className="text-right">
               <p className="text-xs text-gray-400 font-orbitron uppercase">Room Code</p>
               <p className="text-lg md:text-2xl font-orbitron font-bold text-accent-cyan text-glow-cyan">
@@ -142,7 +155,7 @@ export default function Header({ roomCode, onOpenCharacterSheet }) {
             </div>
           </div>
 
-          {/* Guide Buttons for mobile - full width on new line */}
+          {/* Guide Buttons for mobile - full width on new line - always visible */}
           <div className={`md:hidden w-full grid gap-2 ${character && onOpenCharacterSheet ? 'grid-cols-5' : 'grid-cols-4'}`}>
             {character && onOpenCharacterSheet && (
               <Button
