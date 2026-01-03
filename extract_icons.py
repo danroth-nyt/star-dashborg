@@ -36,8 +36,8 @@ def center_icon(img, output_size=100):
     cropped = img.crop(bbox)
     
     # Calculate size to fit within output while maintaining aspect ratio
-    # Use 98% to fill most of the space
-    max_size = int(output_size * 0.98)
+    # Add a small margin (90% of output size for icon)
+    max_size = int(output_size * 0.90)
     
     cw, ch = cropped.size
     scale = min(max_size / cw, max_size / ch)
@@ -47,10 +47,10 @@ def center_icon(img, output_size=100):
     # Resize the cropped icon
     resized = cropped.resize((new_w, new_h), Image.Resampling.LANCZOS)
     
-    # Create new transparent image and paste centered (slight downward shift)
+    # Create new transparent image and paste centered (with slight downward shift)
     result = Image.new("RGBA", (output_size, output_size), (255, 255, 255, 0))
     paste_x = (output_size - new_w) // 2
-    paste_y = (output_size - new_h) // 2 + 6  # Shift down
+    paste_y = (output_size - new_h) // 2 + 8  # Shift down 8 pixels
     result.paste(resized, (paste_x, paste_y), resized)
     
     return result
@@ -64,7 +64,7 @@ print(f"Image size: {width}x{height}")
 
 # 2. Grid Coordinates (Adjusted based on image analysis)
 # Image is 1100x1700, grid starts after header and ends before footer
-left_pct, top_pct = 0.088, 0.155  # Reduced top_pct to capture more from top
+left_pct, top_pct = 0.088, 0.165
 right_pct, bottom_pct = 0.910, 0.895  # Reduced to avoid black footer
 
 left = width * left_pct
@@ -83,10 +83,10 @@ os.makedirs("transparent_icons", exist_ok=True)
 for row in range(5):
     for col in range(4):
         # Calculate crop - grab a generous area, we'll auto-center later
-        # The cyan cell numbers are at the very top, icons below
+        # Just need to exclude the numbers at top and bottom
         side_pad = 8
-        top_pad = 15      # Reduced to capture full icon tops
-        bottom_pad = 15   # Small bottom padding
+        top_pad = 5     # Very minimal padding to capture tippy top of icons
+        bottom_pad = 38  # Skip the next row's number
         
         x0 = left + (col * grid_w) + side_pad
         y0 = top + (row * grid_h) + top_pad
