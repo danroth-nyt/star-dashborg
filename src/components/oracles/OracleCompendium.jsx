@@ -9,6 +9,7 @@ import PlanetGenerator from './generators/PlanetGenerator';
 import MonsterGenerator from './generators/MonsterGenerator';
 import CrimeLordGenerator from './generators/CrimeLordGenerator';
 import SiteExplorer from '../trackers/SiteExplorer';
+import VisualBoostOracle from './VisualBoostOracle';
 import { OracleHistoryProvider, useOracleHistoryContext } from '../../context/OracleHistoryContext';
 import {
   soloOracles,
@@ -219,12 +220,7 @@ function CoreOraclesTab() {
       </Accordion>
 
       <Accordion title="Visual Oracle / Boost (d20)" defaultOpen={false}>
-        <OracleTable
-          title="Inspiration Prompt"
-          table={visualOracles.boost}
-          variant="yellow"
-          diceType="d20"
-        />
+        <VisualBoostOracle />
       </Accordion>
     </div>
   );
