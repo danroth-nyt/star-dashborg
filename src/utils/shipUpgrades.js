@@ -73,7 +73,7 @@ export function getAvailableTorpedoes(ship) {
   if (!ship || !ship.torpedoInventory) return [];
   
   return Object.entries(ship.torpedoInventory)
-    .filter(([type, count]) => count > 0)
+    .filter(([, count]) => count > 0)
     .map(([type, count]) => ({ type, count }));
 }
 

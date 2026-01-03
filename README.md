@@ -61,6 +61,11 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - **Ship Log** - Real-time activity feed with formatted oracle results and detailed roll breakdowns
 
 ### 🔮 Oracle Systems
+- **Oracle History** - Navigate through previous oracle results
+  - Up to 10 results stored per oracle tab
+  - Forward/backward navigation through history
+  - Isolated history per tab (doesn't mix results)
+  - Seamless integration with all oracle generators
 - **Affirmation Oracle** - Yes/No/And/But oracle with advantage/disadvantage rolls and detail fields
 - **Scene Shakeup** - Two-stage threat check (d20 + Threat Die, 15+ triggers)
   - Stage 1: Check if shakeup occurs (DC 15)
@@ -154,7 +159,11 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
   - Optimized column proportions and spacing
   - Larger text and better visual hierarchy
 
-### 🎨 Visual Design
+### 🎨 Visual Design & Animations
+- **Enhanced Dice Animations** - Polished idle animations for dice roller
+  - Staggered animation delays create organic movement
+  - Unique rotation per die for visual variety
+  - GPU-accelerated transforms for smooth performance
 - **Authentic Star Borg Aesthetic** - Yellow/cyan/red color scheme with neon glow effects
 - **CRT Scanlines & Effects** - Retro terminal styling throughout
 - **Fully Responsive** - Optimized for desktop, tablet, and mobile with adaptive button sizing
@@ -225,15 +234,34 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 - **Smooth Loading**: Unified loading screens prevent flashing during app initialization
 
 ### Context-Sensitive Help
-- **Keyboard Shortcut**: Press `H` or `?` for instant help
+- **Keyboard Shortcut**: Press `H` or `?` for instant help (won't trigger while typing)
+- **Smart Keyboard Detection**: Shortcuts disabled when editing text
 - **Panel Help Buttons**: Click `?` icon on tracker headers
 - **Quick Reference**: Full rules accessible from header
+
+### Mobile Interactions
+- **Swipe Gesture Support**: Native touch and mouse swipe detection
+  - Configurable thresholds for sensitivity
+  - Horizontal swipe detection (left/right)
+  - Prevents interference with vertical scrolling
+  - Prepared for future oracle history navigation
 
 ### Mobile Optimized
 - Responsive button sizing and text wrapping
 - Touch-friendly interface on phones and tablets
+- Swipe gesture support for intuitive navigation
 - Adaptive layout for all screen sizes
 - Capitalized class names for better readability
+
+### Security & Performance
+- **Content Security Policy**: Strict CSP headers protect against XSS attacks
+  - Whitelisted Supabase API and WebSocket connections
+  - No inline scripts (except dev mode)
+  - Safe image and font sources
+- **Database Optimizations**: Realtime enabled with optimistic locking
+  - Auto-updating timestamps for conflict resolution
+  - Efficient subscription patterns
+  - Minimal re-renders
 
 ## 🚀 Quick Start
 
@@ -329,13 +357,14 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 
 4. **Apply migrations (if upgrading existing database)**
    
-   If you're upgrading from an earlier version, run the migrations in the `migrations/` folder:
+   If you're upgrading from an earlier version, run the migrations in the `migrations/` folder in order:
    ```bash
-   # In Supabase SQL Editor, run:
-   # migrations/add_respec_columns.sql
+   # In Supabase SQL Editor, run in order:
+   # 1. migrations/add_respec_columns.sql
+   # 2. migrations/enable_realtime_and_timestamps.sql
    ```
    
-   This adds support for character respec functionality.
+   This adds support for character respec functionality and realtime optimizations.
 
 5. **Configure environment**
    
@@ -352,7 +381,14 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
    npm run dev
    ```
 
-7. **Open the app**
+7. **Run tests (optional)**
+   ```bash
+   npm test              # Run all tests
+   npm run test:ui       # Open Vitest UI
+   npm run test:coverage # Generate coverage report
+   ```
+
+8. **Open the app**
    
    Navigate to [http://localhost:5173](http://localhost:5173)
 
@@ -485,11 +521,17 @@ star-dashborg/
 │   │   ├── shipShopData.js          # Ship upgrades and torpedo types
 │   │   └── trackerHelpContent.js    # Help content for tracker components
 │   ├── hooks/
-│   │   ├── useDebounce.js       # Debounce hook for auto-save
-│   │   └── useSoundEffects.js   # Sound effects management
+│   │   ├── useDebounce.js         # Debounce hook for auto-save
+│   │   ├── useOracleHistory.js    # Oracle result history management
+│   │   ├── useSwipeGesture.js     # Touch/mouse swipe detection
+│   │   └── useSoundEffects.js     # Sound effects management
 │   ├── lib/
-│   │   ├── supabaseClient.js # Supabase configuration
-│   │   └── utils.js          # Utility functions
+│   │   ├── keyboardUtils.js    # Keyboard state detection
+│   │   ├── supabaseClient.js   # Supabase configuration
+│   │   └── utils.js            # Utility functions
+│   ├── test/
+│   │   ├── setup.js        # Vitest test setup
+│   │   └── testUtils.jsx   # Testing utilities
 │   ├── types/
 │   │   └── starborg.js       # TypeScript-style type definitions
 │   ├── utils/
@@ -515,7 +557,9 @@ star-dashborg/
 │       ├── hyperdrive-charge.mp3    # FTL preparation
 │       └── alarm-critical.mp3        # Critical damage alert
 ├── migrations/
-│   └── add_respec_columns.sql  # Database migration for respec feature
+│   ├── add_respec_columns.sql               # Character respec support
+│   └── enable_realtime_and_timestamps.sql   # Realtime and timestamp support
+├── coverage/                   # Test coverage reports (generated)
 ├── .env                      # Environment variables (create this)
 ├── package.json
 ├── tailwind.config.js        # Tailwind configuration
@@ -527,11 +571,23 @@ star-dashborg/
 ### Tech Stack
 - **React 18** - UI library with hooks
 - **Vite** - Build tool and dev server
+- **Vitest** - Fast unit testing framework with coverage
+- **React Testing Library** - Component testing utilities
 - **Tailwind CSS** - Utility-first styling
 - **Supabase** - Backend, auth, and real-time sync
 - **Lucide React** - Icon library
 - **Orbitron Font** - Star Borg-style typography
 - **TipTap** - Rich text editor (future feature prep)
+
+### Testing
+- **Unit Tests**: Fast, isolated component and utility tests
+  - Run tests: `npm test`
+  - Watch mode: `npm test -- --watch`
+  - Coverage report: `npm run test:coverage`
+  - UI mode: `npm run test:ui`
+- **Test Files**: Located alongside source files with `.test.js` or `.test.jsx` extension
+- **Coverage Reports**: Generated in `coverage/` directory with HTML viewer
+- **Testing Utilities**: Custom render helpers in `src/test/testUtils.jsx`
 
 ### Key Technologies
 - **React Context** - Global state management for game data, auth, characters, and party
@@ -546,6 +602,8 @@ star-dashborg/
 - Tailwind classes for styling (minimal custom CSS)
 - Debounced sync for performance (300ms delay)
 - Optimistic UI updates for responsive feel
+- Test coverage for critical paths
+- Custom hooks for reusable logic (oracle history, swipe gestures, keyboard detection)
 
 ### Adding New Oracle Tables
 1. Open `src/data/oracles.js`

@@ -1,67 +1,73 @@
 import { useState } from 'react';
 import Button from '../../ui/Button';
-import OracleResultDisplay from '../OracleResultDisplay';
 import { generatePlanet, generateSettlement, generateScene, rollOnTable } from '../../../data/oracles';
 import { worldOracles } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
+import { useOracleHistoryContext } from '../../../context/OracleHistoryContext';
 
 export default function PlanetGenerator() {
   const { addLog, gameState } = useGame();
-  const [result, setResult] = useState(null);
+  const history = useOracleHistoryContext();
   const [generatorType, setGeneratorType] = useState('planet'); // 'planet', 'settlement', 'scene'
 
   const handleGeneratePlanet = () => {
     const planet = generatePlanet();
-    setResult(planet);
+    if (history) history.addResult(planet);
     addLog(`Planet: ${planet.name} - ${planet.terrain}, ${planet.weather}`, 'mission');
   };
 
   const handleGenerateSettlement = () => {
     const settlement = generateSettlement(gameState.includePVOracles);
-    setResult(settlement);
+    if (history) history.addResult(settlement);
     addLog(`Settlement: ${settlement.name} (Leader: ${settlement.leader}) - ${settlement.knownFor}`, 'mission');
   };
 
   const handleGenerateScene = () => {
     const scene = generateScene();
-    setResult({
+    const result = {
       location: scene.location,
       tone: scene.tone,
       obstacle: scene.obstacle,
       locationRoll: scene.locationRoll,
       toneRoll: scene.toneRoll,
       obstacleRoll: scene.obstacleRoll
-    });
+    };
+    if (history) history.addResult(result);
     addLog(`Scene: ${scene.location} - ${scene.tone} - ${scene.obstacle}`, 'mission');
   };
 
   const handleGeneratePlanetFeature = () => {
     const feature = rollOnTable(worldOracles.planetFeatures);
-    setResult({ result: 'Planet Feature', detail: feature });
+    const result = { result: 'Planet Feature', detail: feature };
+    if (history) history.addResult(result);
     addLog(`Planet Feature: ${feature}`, 'mission');
   };
 
   const handleGenerateBackwater = () => {
     const backwater = rollOnTable(worldOracles.backwaters);
-    setResult({ result: 'Backwater Location', detail: backwater });
+    const result = { result: 'Backwater Location', detail: backwater };
+    if (history) history.addResult(result);
     addLog(`Backwater: ${backwater}`, 'mission');
   };
 
   const handleGenerateBackalley = () => {
     const backalley = rollOnTable(worldOracles.backalleys);
-    setResult({ result: 'Back Alley Detail', detail: backalley });
+    const result = { result: 'Back Alley Detail', detail: backalley };
+    if (history) history.addResult(result);
     addLog(`Back Alley: ${backalley}`, 'mission');
   };
 
   const handleGenerateHiddenFeature = () => {
     const feature = rollOnTable(worldOracles.hiddenFeatures);
-    setResult({ result: 'Hidden Feature', detail: feature });
+    const result = { result: 'Hidden Feature', detail: feature };
+    if (history) history.addResult(result);
     addLog(`Hidden Feature: ${feature}`, 'mission');
   };
 
   const handleGenerateLocationDanger = () => {
     const danger = rollOnTable(worldOracles.locationDangers);
-    setResult({ result: 'Location Danger', detail: danger });
+    const result = { result: 'Location Danger', detail: danger };
+    if (history) history.addResult(result);
     addLog(`Danger: ${danger}`, 'mission');
   };
 
@@ -139,13 +145,6 @@ export default function PlanetGenerator() {
         </Button>
       </div>
 
-      {/* Result Display */}
-      {result && (
-        <OracleResultDisplay 
-          result={result}
-          variant="cyan"
-        />
-      )}
     </div>
   );
 }

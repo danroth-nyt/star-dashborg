@@ -7,7 +7,25 @@ import { useCharacter } from '../../context/CharacterContext';
 import { useDebounce } from '../../hooks/useDebounce';
 import { cn } from '../../lib/utils';
 
-export default function CharacterJournal() {
+// Extracted toolbar button component to prevent recreation on each render
+const ToolbarButton = ({ onClick, active, children, title, disabled }) => (
+  <button
+    onClick={onClick}
+    title={title}
+    disabled={disabled}
+    className={cn(
+      'p-1.5 transition-all duration-200 border border-accent-yellow',
+      disabled && 'opacity-50 cursor-not-allowed',
+      active 
+        ? 'bg-accent-yellow text-bg-primary' 
+        : 'bg-bg-secondary text-accent-yellow hover:bg-accent-yellow hover:bg-opacity-20'
+    )}
+  >
+    {children}
+  </button>
+);
+
+export default function CharacterJournal({ onFocus, onBlur, isLocked }) {
   const { character, updateField } = useCharacter();
   const [localJournal, setLocalJournal] = useState(character?.journal || '');
   const debouncedJournal = useDebounce(localJournal, 2000);
@@ -24,6 +42,7 @@ export default function CharacterJournal() {
       Underline,
     ],
     content: character?.journal || '<p>>> PERSONAL LOG: Track your character\'s thoughts, goals, relationships, secrets, and discoveries...</p>',
+    editable: !isLocked, // Disable editing if someone else is editing
     editorProps: {
       attributes: {
         class: 'prose prose-invert max-w-none focus:outline-none min-h-0 h-full px-3 py-2 text-sm font-mono',
@@ -32,6 +51,12 @@ export default function CharacterJournal() {
     onUpdate: ({ editor }) => {
       const html = editor.getHTML();
       setLocalJournal(html);
+    },
+    onFocus: () => {
+      if (onFocus) onFocus();
+    },
+    onBlur: () => {
+      if (onBlur) onBlur();
     },
   });
 
@@ -50,35 +75,36 @@ export default function CharacterJournal() {
     }
   }, [debouncedJournal]);
 
+  // Update editor editable state when isLocked changes
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!isLocked);
+    }
+  }, [editor, isLocked]);
+
   if (!character || !editor) {
     return null;
   }
 
   const isSaving = localJournal !== character.journal;
 
-  const ToolbarButton = ({ onClick, active, children, title }) => (
-    <button
-      onClick={onClick}
-      title={title}
-      className={cn(
-        'p-1.5 transition-all duration-200 border border-accent-yellow',
-        active 
-          ? 'bg-accent-yellow text-bg-primary' 
-          : 'bg-bg-secondary text-accent-yellow hover:bg-accent-yellow hover:bg-opacity-20'
-      )}
-    >
-      {children}
-    </button>
-  );
-
   return (
     <div className="flex flex-col gap-2 min-h-[200px]">
+      {/* Lock Warning */}
+      {isLocked && (
+        <div className="bg-accent-yellow/10 border-2 border-accent-yellow rounded p-2 text-xs font-mono text-accent-yellow flex items-center gap-2">
+          <Bold className="w-4 h-4" />
+          <span>{isLocked.userName} is currently editing this journal. Please wait...</span>
+        </div>
+      )}
+
       {/* Toolbar */}
       <div className="flex items-center gap-1 p-2 bg-bg-primary border-2 border-accent-yellow">
         <ToolbarButton
           onClick={() => editor.chain().focus().toggleBold().run()}
           active={editor.isActive('bold')}
           title="Bold"
+          disabled={isLocked}
         >
           <Bold className="w-4 h-4" />
         </ToolbarButton>
@@ -86,6 +112,7 @@ export default function CharacterJournal() {
           onClick={() => editor.chain().focus().toggleItalic().run()}
           active={editor.isActive('italic')}
           title="Italic"
+          disabled={isLocked}
         >
           <Italic className="w-4 h-4" />
         </ToolbarButton>
@@ -93,6 +120,7 @@ export default function CharacterJournal() {
           onClick={() => editor.chain().focus().toggleUnderline().run()}
           active={editor.isActive('underline')}
           title="Underline"
+          disabled={isLocked}
         >
           <UnderlineIcon className="w-4 h-4" />
         </ToolbarButton>
@@ -100,6 +128,7 @@ export default function CharacterJournal() {
           onClick={() => editor.chain().focus().toggleStrike().run()}
           active={editor.isActive('strike')}
           title="Strikethrough"
+          disabled={isLocked}
         >
           <Strikethrough className="w-4 h-4" />
         </ToolbarButton>
@@ -108,6 +137,7 @@ export default function CharacterJournal() {
           onClick={() => editor.chain().focus().toggleBulletList().run()}
           active={editor.isActive('bulletList')}
           title="Bullet List"
+          disabled={isLocked}
         >
           <List className="w-4 h-4" />
         </ToolbarButton>

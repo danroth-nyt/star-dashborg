@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { X, ChevronRight, Play, Dice6, Target, Clock, Scroll, Map, Zap, CheckCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { isUserTyping } from '../../lib/keyboardUtils';
 import { useGame } from '../../context/GameContext';
 import CompactOracleResult from '../oracles/CompactOracleResult';
 import {
@@ -13,14 +14,12 @@ import {
   generateEpisodeTitle,
   generateVillain,
   generateMission,
-  generateQuickMission,
   generateScene,
   generateNPC,
   generatePlanet,
   generateOpeningScene,
   generateIncitingIncident,
   characterOracles,
-  soloOracles,
   visualOracles
 } from '../../data/oracles';
 
@@ -33,6 +32,9 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!isOpen) return;
+      
+      // Skip if user is typing
+      if (isUserTyping()) return;
       
       if (e.key === 'Escape') {
         onClose();
@@ -259,7 +261,7 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
         logMessage = `Planet: ${result.terrain}${result.name ? ' - ' + result.name : ''}`;
         break;
 
-      case 'shakeup':
+      case 'shakeup': {
         const threatDie = gameState.threatDie || 1;
         const shakeupCheck = rollSceneShakeup(threatDie);
         if (shakeupCheck.success) {
@@ -278,6 +280,7 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
           logMessage = `No Scene Shakeup (rolled ${shakeupCheck.total})`;
         }
         break;
+      }
 
       case 'event':
         result = rollEventOracle();
@@ -307,11 +310,6 @@ export default function GameFlowDrawer({ isOpen, onClose }) {
       delete updated[stepId];
       return updated;
     });
-  };
-
-  const getStepIcon = (step) => {
-    const Icon = step.icon;
-    return <Icon className="w-5 h-5" />;
   };
 
   return createPortal(

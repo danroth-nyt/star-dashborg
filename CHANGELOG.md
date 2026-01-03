@@ -4,6 +4,109 @@ All notable changes to Star Dashborg are documented in this file.
 
 ## [Current Branch] - Latest Changes
 
+### 🧪 Testing Infrastructure (NEW)
+
+#### ✨ Major Features
+- **Vitest Test Framework**: Complete testing setup with coverage reporting
+  - `vitest` and `@vitest/coverage-v8` for fast unit testing
+  - `@testing-library/react` and `@testing-library/jest-dom` for component testing
+  - `jsdom` environment for DOM simulation
+  - Test commands: `npm test`, `npm run test:ui`, `npm run test:coverage`
+  - Coverage reporting with HTML/JSON/text formats
+  - Test setup file at `src/test/setup.js` with automatic cleanup
+  - Test utilities at `src/test/testUtils.jsx` for easy test authoring
+
+- **Initial Test Suite**: Example tests demonstrating patterns
+  - `ShipStatus.test.jsx` - Component rendering tests
+  - `SpaceCombatView.test.jsx` - Complex component integration tests
+  - `useOracleHistory.test.js` - Custom hook testing
+  - `useSwipeGesture.test.js` - Gesture detection testing
+  - `dice.test.js` - Utility function testing
+  - `keyboardUtils.test.js` - Keyboard utility testing
+  - `starforgedOracles.test.js` - Data structure testing
+  - `CharacterJournal.test.jsx`, `SessionJournal.test.jsx`, `OracleResultDisplay.test.jsx`
+
+- **Coverage Reports**: Generated at `coverage/` directory
+  - HTML reports viewable in browser
+  - JSON output for CI/CD integration
+  - Text summary for terminal output
+  - Excludes test files and setup from coverage metrics
+
+### 🎨 Oracle History System (NEW)
+
+#### ✨ Major Features
+- **Oracle Result History**: Navigate through previous oracle rolls
+  - `useOracleHistory` custom hook manages up to 10 results per tab
+  - `OracleHistoryContext` provides history to oracle components
+  - `OracleHistoryProvider` wraps each oracle tab with isolated history
+  - Navigate forward/backward through results
+  - Current result display with index indicator
+  - Replaces local state pattern in generators
+  
+- **Refactored Oracle Components**: History-aware generators
+  - `MonsterGenerator` now uses history context
+  - `CrimeLordGenerator` now uses history context
+  - `OracleTable` component refactored to add results to history
+  - Removed duplicate result state from individual components
+  - Better separation of concerns (display vs state management)
+
+- **Compact Oracle Results**: Optional compact display mode
+  - `CompactOracleResult` component for dense layouts
+  - History navigation UI (future enhancement ready)
+  - Per-tab result isolation prevents cross-contamination
+
+### ⌨️ Keyboard & Input Utilities (NEW)
+
+#### ✨ Major Features
+- **Keyboard State Detection**: `keyboardUtils.js` utility
+  - `isUserTyping()` function detects active text input
+  - Checks input, textarea, and contenteditable elements
+  - Prevents keyboard shortcuts from firing during typing
+  - Supports TipTap rich text editors
+  - Used in help modal and other keyboard-driven features
+
+- **Swipe Gesture Detection**: `useSwipeGesture` custom hook
+  - Touch and mouse swipe support (unified pointer events)
+  - Configurable threshold (default 50px)
+  - Horizontal swipe detection (left/right)
+  - Prevents accidental vertical scroll interference
+  - Used for mobile oracle navigation (future enhancement)
+  - No external dependencies (native browser APIs)
+
+### 🎲 Enhanced Dice Animations (NEW)
+
+#### ✨ Major Features
+- **Staggered Dice Idle Animation**: Visual polish for dice roller
+  - Each die has unique animation delay (0s, 0.4s, 0.8s, etc.)
+  - Subtle rotation variation per die (-4deg to +4deg)
+  - Creates organic, non-uniform idle movement
+  - CSS custom properties: `--dice-delay`, `--dice-rotation`
+  - Applied to all 8 dice in `DiceRoller` component
+  - Maintains performance with GPU-accelerated transforms
+
+### 🔒 Security Enhancements (NEW)
+
+#### ✨ Major Features
+- **Content Security Policy**: Strict CSP headers in `index.html`
+  - `default-src 'self'` - Only load from same origin
+  - `script-src 'self'` - No inline scripts (except Vite dev)
+  - `style-src 'self' 'unsafe-inline'` - Inline styles for Tailwind
+  - `img-src 'self' data: https:` - Images from safe sources
+  - `font-src 'self' data:` - Fonts from same origin
+  - `connect-src 'self' https://*.supabase.co wss://*.supabase.co` - API/WebSocket whitelist
+  - Protects against XSS and injection attacks
+
+### 🗄️ Database Improvements (NEW)
+
+#### ✨ Major Features
+- **Realtime Migration**: `migrations/enable_realtime_and_timestamps.sql`
+  - Adds `updated_at` columns to `sessions` and `characters` tables
+  - Auto-update triggers for timestamp management
+  - Enables realtime publication for all tables (idempotent)
+  - Supports optimistic locking for conflict resolution
+  - Verification queries included in migration file
+  - Safe to run multiple times (IF EXISTS checks)
+
 ### 🚀 Space Combat System Enhancements
 
 #### ✨ Major Features
@@ -128,6 +231,19 @@ All notable changes to Star Dashborg are documented in this file.
 
 ### 🐛 Bug Fixes
 
+#### Oracle & Dice System
+- **Advantage/Disadvantage Display**: Fixed discarded roll display
+  - Added safety check for `rolls.length === 2` before accessing array
+  - Prevents undefined errors when rolls array is malformed
+  - Correctly shows discarded die value in parentheses
+  - Better null/undefined handling throughout
+
+- **Dice Component Props**: Fixed missing index prop warnings
+  - Added `index` prop to all `Dice` components in `DiceRoller`
+  - Enables staggered animation delays
+  - Eliminates React console warnings
+  - Improves animation performance
+
 #### Oracle System
 - **Scene Shakeup**: Two-stage threat check improvements
   - Better logging with checkRoll, threatDie, and total
@@ -179,7 +295,24 @@ All notable changes to Star Dashborg are documented in this file.
 
 ### 📝 New Files Created
 
+**Testing Infrastructure:**
+- `src/test/setup.js` - Vitest test configuration and global setup
+- `src/test/testUtils.jsx` - Testing utilities and render helpers
+- `src/components/spacecombat/ShipStatus.test.jsx` - Ship status component tests
+- `src/components/spacecombat/SpaceCombatView.test.jsx` - Combat view tests
+- `src/components/character/CharacterJournal.test.jsx` - Journal component tests
+- `src/components/journal/SessionJournal.test.jsx` - Session journal tests
+- `src/components/oracles/OracleResultDisplay.test.jsx` - Oracle display tests
+- `src/hooks/useOracleHistory.test.js` - Oracle history hook tests
+- `src/hooks/useSwipeGesture.test.js` - Swipe gesture hook tests
+- `src/lib/keyboardUtils.test.js` - Keyboard utility tests
+- `src/utils/dice.test.js` - Dice utility tests
+- `src/data/starforgedOracles.test.js` - Starforged data tests
+- `coverage/` - HTML coverage reports and assets
+
 **Components:**
+- `src/components/oracles/CompactOracleResult.jsx` - Compact result display
+- `src/components/ui/LoadingScreen.jsx` - Unified loading component
 - `src/components/spacecombat/stations/PilotStation.jsx`
 - `src/components/spacecombat/stations/CopilotStation.jsx`
 - `src/components/spacecombat/stations/GunnerStation.jsx`
@@ -188,12 +321,21 @@ All notable changes to Star Dashborg are documented in this file.
 - `src/components/character/PartyPanel.jsx`
 - `src/components/ui/LoadingScreen.jsx`
 
-**Data & Utilities:**
-- `src/data/starforgedOracles.js`
-- `src/hooks/useSoundEffects.js`
+**Context & Hooks:**
+- `src/context/OracleHistoryContext.jsx` - Oracle history state management
+- `src/hooks/useOracleHistory.js` - Custom hook for oracle result history
+- `src/hooks/useSwipeGesture.js` - Touch/mouse swipe gesture detection
+- `src/hooks/useSoundEffects.js` - Sound effects management
+
+**Utilities:**
+- `src/lib/keyboardUtils.js` - Keyboard state detection utilities
+
+**Data:**
+- `src/data/starforgedOracles.js` - Starforged oracle data
 
 **Database Migrations:**
-- `migrations/add_respec_columns.sql`
+- `migrations/add_respec_columns.sql` - Character respec support
+- `migrations/enable_realtime_and_timestamps.sql` - Realtime and timestamp support
 
 **Documentation:**
 - `.cursor/plans/starforged_+_duplicate_handling_1b05ebfe.plan.md`
@@ -219,12 +361,20 @@ All notable changes to Star Dashborg are documented in this file.
 - `src/context/GameContext.jsx` - Oracle toggles, state migration
 - `src/context/AuthContext.jsx` - Timeout protection, better error handling
 - `src/components/oracles/OracleQuickBar.jsx` - Two-stage mechanics
+- `src/components/oracles/OracleTable.jsx` - History context integration
+- `src/components/oracles/OracleCompendium.jsx` - History providers for each tab
+- `src/components/oracles/generators/MonsterGenerator.jsx` - History context usage
+- `src/components/oracles/generators/CrimeLordGenerator.jsx` - History context usage
+- `src/components/oracles/generators/NPCGenerator.jsx` - Name generation, history context
+- `src/components/oracles/DiceRoller.jsx` - Staggered animation, index props
+- `src/components/oracles/Dice.jsx` - Animation delay system, CSS custom properties
+- `src/components/oracles/RollResult.jsx` - Fumble terminology, advantage/disadvantage fix
 - `src/components/trackers/ThreatDie.jsx` - Maximum threat alert
 - `src/components/ui/Button.jsx` - Responsive sizing
-- `src/components/oracles/RollResult.jsx` - Fumble terminology
-- `src/components/oracles/generators/NPCGenerator.jsx` - Name generation
 - `src/data/oracles.js` - Multi-source oracle integration
-- `vite.config.js` - Environment-based base path
+- `vite.config.js` - Environment-based base path, Vitest configuration
+- `index.html` - Content Security Policy header
+- `package.json` - Test scripts, testing dependencies
 
 ---
 

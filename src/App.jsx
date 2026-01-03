@@ -32,7 +32,7 @@ function App() {
 
         if (code) {
           // Try to join existing room
-          const { data, error } = await supabase
+          const { error } = await supabase
             .from('sessions')
             .select('room_code')
             .eq('room_code', code)
@@ -169,7 +169,7 @@ function AppContent({ roomCode }) {
         </div>
       ) : (
         // Has character - show dashboard
-        <SpaceCombatProvider>
+        <SpaceCombatProvider roomCode={roomCode}>
           <Dashboard roomCode={roomCode} />
         </SpaceCombatProvider>
       )}

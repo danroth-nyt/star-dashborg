@@ -512,13 +512,13 @@ h1, h2, h3, h4, h5, h6 {
 
   @keyframes dice-tumble {
     0%, 100% {
-      transform: rotate(0deg) translateY(0);
+      transform: rotate(var(--dice-rotation, 0deg)) translateY(0);
     }
     25% {
-      transform: rotate(5deg) translateY(-3px);
+      transform: rotate(calc(var(--dice-rotation, 0deg) + 5deg)) translateY(-3px);
     }
     75% {
-      transform: rotate(-5deg) translateY(-3px);
+      transform: rotate(calc(var(--dice-rotation, 0deg) - 5deg)) translateY(-3px);
     }
   }
 
@@ -528,6 +528,7 @@ h1, h2, h3, h4, h5, h6 {
 
   .dice-idle {
     animation: dice-tumble 3s ease-in-out infinite;
+    animation-delay: var(--dice-delay, 0s);
   }
 
   /* D100 digit reveal */
@@ -1104,6 +1105,17 @@ h1, h2, h3, h4, h5, h6 {
 
   .chevron-collapse {
     animation: chevron-rotate-up 0.2s ease-out;
+  }
+
+  /* Dashboard Grid Layout */
+  .dashboard-grid {
+    grid-template-columns: repeat(12, 1fr);
+    grid-template-rows: 480px 480px 460px;
+  }
+
+  /* Smooth transitions for grid items */
+  .dashboard-grid > * {
+    transition: all 300ms ease-in-out;
   }
 
   /* Tiptap Rich Text Editor Styles */

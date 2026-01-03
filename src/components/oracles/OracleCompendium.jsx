@@ -9,25 +9,20 @@ import PlanetGenerator from './generators/PlanetGenerator';
 import MonsterGenerator from './generators/MonsterGenerator';
 import CrimeLordGenerator from './generators/CrimeLordGenerator';
 import SiteExplorer from '../trackers/SiteExplorer';
+import { OracleHistoryProvider, useOracleHistoryContext } from '../../context/OracleHistoryContext';
 import {
   soloOracles,
   missionGenerators,
   worldOracles,
-  dangerousLocations,
-  npcOracles,
   nameOracles,
   characterOracles,
   gmExtras,
-  monsterOracles,
   equipmentOracles,
   enemyStats,
-  titleGenerators,
   visualOracles,
-  criminalOracles,
   rollOnTable,
   rollDangerousLocation,
   rollDice,
-  generateMonsterName,
   generateEpicTitle,
   generateEpisodeTitle,
   generatePVNPCSurname,
@@ -40,16 +35,6 @@ import Accordion from '../ui/Accordion';
 
 export default function OracleCompendium() {
   const [activeTab, setActiveTab] = useState('core');
-  const [oracleResult, setOracleResult] = useState(null);
-  const { addLog, gameState } = useGame();
-
-  // Determine variant based on result type
-  const getResultVariant = () => {
-    if (!oracleResult) return 'cyan';
-    if (oracleResult.result === 'Scene Shakeup') return 'yellow';
-    if (oracleResult.verb) return 'red';
-    return 'cyan';
-  };
 
   const tabs = [
     { id: 'core', label: 'Core', color: 'cyan' },
@@ -76,19 +61,6 @@ export default function OracleCompendium() {
 
   return (
     <div className="space-y-4">
-      {/* Quick Action Bar */}
-      <div className="border-3 border-accent-cyan bg-bg-secondary p-3">
-        <OracleQuickBar setOracleResult={setOracleResult} />
-      </div>
-
-      {/* Centralized Oracle Result Display */}
-      {oracleResult && (
-        <OracleResultDisplay 
-          result={oracleResult} 
-          variant={getResultVariant()}
-        />
-      )}
-
       {/* Tab Navigation */}
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-1">
         {tabs.map((tab) => (
@@ -109,11 +81,31 @@ export default function OracleCompendium() {
 
       {/* Tab Content */}
       <div className="border-3 border-accent-yellow bg-bg-secondary p-4 overflow-y-auto flex-1">
-        {activeTab === 'core' && <CoreOraclesTab />}
-        {activeTab === 'missions' && <MissionsTab />}
-        {activeTab === 'world' && <WorldTab />}
-        {activeTab === 'characters' && <CharactersTab />}
-        {activeTab === 'combat' && <CombatTab />}
+        {activeTab === 'core' && (
+          <OracleHistoryProvider>
+            <CoreOraclesTab />
+          </OracleHistoryProvider>
+        )}
+        {activeTab === 'missions' && (
+          <OracleHistoryProvider>
+            <MissionsTab />
+          </OracleHistoryProvider>
+        )}
+        {activeTab === 'world' && (
+          <OracleHistoryProvider>
+            <WorldTab />
+          </OracleHistoryProvider>
+        )}
+        {activeTab === 'characters' && (
+          <OracleHistoryProvider>
+            <CharactersTab />
+          </OracleHistoryProvider>
+        )}
+        {activeTab === 'combat' && (
+          <OracleHistoryProvider>
+            <CombatTab />
+          </OracleHistoryProvider>
+        )}
       </div>
     </div>
   );
@@ -153,6 +145,7 @@ function MoraleButton({ morale, label, onCheck }) {
 
 function CoreOraclesTab() {
   const { gameState } = useGame();
+  const history = useOracleHistoryContext();
   const diceType = gameState.includePVOracles ? 'd30' : 'd20';
   
   return (
@@ -160,6 +153,25 @@ function CoreOraclesTab() {
       <div className="text-accent-cyan font-orbitron text-lg font-bold uppercase mb-4">
         Core Solo Play Oracles
       </div>
+
+      {/* Quick Action Bar */}
+      <div className="border-2 border-accent-cyan bg-bg-primary p-3">
+        <OracleQuickBar />
+      </div>
+
+      {/* Result Display */}
+      {history && history.currentResult && (
+        <OracleResultDisplay 
+          result={history.currentResult} 
+          variant={
+            history.currentResult.result === 'Scene Shakeup' ? 'yellow' :
+            history.currentResult.verb ? 'red' : 'cyan'
+          }
+          currentIndex={history.currentIndex}
+          totalResults={history.totalResults}
+          onNavigate={history.navigateTo}
+        />
+      )}
 
       <Accordion title={`Opening Scene (${diceType})`} defaultOpen={false}>
         <OracleTable
@@ -220,6 +232,7 @@ function CoreOraclesTab() {
 
 function MissionsTab() {
   const { addLog } = useGame();
+  const history = useOracleHistoryContext();
 
   const handleEpicTitle = () => {
     const title = generateEpicTitle();
@@ -248,6 +261,17 @@ function MissionsTab() {
       <div className="text-accent-yellow font-orbitron text-lg font-bold uppercase mb-4">
         Mission & Plot Generators
       </div>
+
+      {/* Result Display */}
+      {history && history.currentResult && (
+        <OracleResultDisplay 
+          result={history.currentResult} 
+          variant="yellow"
+          currentIndex={history.currentIndex}
+          totalResults={history.totalResults}
+          onNavigate={history.navigateTo}
+        />
+      )}
 
       <Accordion title="Mission Generator" defaultOpen={true}>
         <MissionGenerator />
@@ -287,12 +311,24 @@ function MissionsTab() {
 
 function WorldTab() {
   const { gameState } = useGame();
+  const history = useOracleHistoryContext();
   
   return (
     <div className="space-y-4">
       <div className="text-accent-cyan font-orbitron text-lg font-bold uppercase mb-4">
         World Building & Locations
       </div>
+
+      {/* Result Display */}
+      {history && history.currentResult && (
+        <OracleResultDisplay 
+          result={history.currentResult} 
+          variant="cyan"
+          currentIndex={history.currentIndex}
+          totalResults={history.totalResults}
+          onNavigate={history.navigateTo}
+        />
+      )}
 
       <Accordion title="World Generator" defaultOpen={true}>
         <PlanetGenerator />
@@ -352,12 +388,6 @@ function WorldTab() {
 function CharactersTab() {
   const { addLog, gameState } = useGame();
 
-  const handleNameRoll = (category, table) => {
-    const name = rollOnTable(table);
-    addLog(`${category}: ${name}`, 'roll');
-    return { result: category, detail: name };
-  };
-
   const handlePVNPCSurname = () => {
     const surname = generatePVNPCSurname();
     addLog(`PV NPC Surname [${surname.firstRoll}, ${surname.secondRoll}]: ${surname.fullSurname}`, 'roll');
@@ -368,12 +398,6 @@ function CharactersTab() {
     const name = generateSpaceOperaName();
     addLog(`Space Opera Name [${name.firstRoll}, ${name.secondRoll}]: ${name.fullName}`, 'roll');
     return name;
-  };
-
-  const handlePVSettlementName = () => {
-    const settlement = generatePVSettlementName();
-    addLog(`PV Settlement Name: ${settlement.fullName}`, 'roll');
-    return settlement;
   };
 
   const handlePVFactionName = () => {
@@ -395,11 +419,24 @@ function CharactersTab() {
     }
   };
 
+  const history = useOracleHistoryContext();
+
   return (
     <div className="space-y-4">
       <div className="text-accent-yellow font-orbitron text-lg font-bold uppercase mb-4">
         Characters & Names
       </div>
+
+      {/* Result Display */}
+      {history && history.currentResult && (
+        <OracleResultDisplay 
+          result={history.currentResult} 
+          variant="yellow"
+          currentIndex={history.currentIndex}
+          totalResults={history.totalResults}
+          onNavigate={history.navigateTo}
+        />
+      )}
 
       <Accordion title="NPC Generator" defaultOpen={true}>
         <NPCGenerator />
@@ -503,6 +540,7 @@ function CharactersTab() {
 
 function CombatTab() {
   const { addLog } = useGame();
+  const history = useOracleHistoryContext();
 
   const checkMorale = (targetMorale) => {
     const die1 = rollDice(6);
@@ -526,6 +564,17 @@ function CombatTab() {
       <div className="text-accent-red font-orbitron text-lg font-bold uppercase mb-4">
         Combat & Enemies
       </div>
+
+      {/* Result Display */}
+      {history && history.currentResult && (
+        <OracleResultDisplay 
+          result={history.currentResult} 
+          variant="red"
+          currentIndex={history.currentIndex}
+          totalResults={history.totalResults}
+          onNavigate={history.navigateTo}
+        />
+      )}
 
       {/* Morale Check */}
       <Accordion title="Morale Check (2D6)" defaultOpen={false}>

@@ -42,6 +42,7 @@ export function PartyProvider({ children, roomCode }) {
     }
 
     try {
+      console.log(`[PartyContext] Loading party members for room: ${roomCode}`);
       const { data, error } = await supabase
         .from('characters')
         .select('*')
@@ -50,6 +51,7 @@ export function PartyProvider({ children, roomCode }) {
 
       if (error) throw error;
 
+      console.log(`[PartyContext] Loaded ${data?.length || 0} party members:`, data);
       const transformedData = (data || []).map(transformCharacterFromDB);
       setPartyMembers(transformedData);
     } catch (err) {
@@ -69,6 +71,7 @@ export function PartyProvider({ children, roomCode }) {
   useEffect(() => {
     if (!roomCode) return;
 
+    console.log(`[PartyContext] Setting up realtime subscription for room: ${roomCode}`);
     const channel = supabase
       .channel(`party:${roomCode}`)
       .on(
@@ -80,8 +83,14 @@ export function PartyProvider({ children, roomCode }) {
           filter: `room_code=eq.${roomCode}`,
         },
         (payload) => {
-          console.log('Character added to party:', payload.new);
-          setPartyMembers((current) => [...current, transformCharacterFromDB(payload.new)]);
+          console.log('[PartyContext] Character added to party:', payload.new);
+          setPartyMembers((current) => {
+            // Prevent duplicates
+            if (current.some(m => m.id === payload.new.id)) {
+              return current;
+            }
+            return [...current, transformCharacterFromDB(payload.new)];
+          });
         }
       )
       .on(
@@ -93,7 +102,7 @@ export function PartyProvider({ children, roomCode }) {
           filter: `room_code=eq.${roomCode}`,
         },
         (payload) => {
-          console.log('Character updated in party:', payload.new);
+          console.log('[PartyContext] Character updated in party:', payload.new);
           setPartyMembers((current) =>
             current.map((member) =>
               member.id === payload.new.id ? transformCharacterFromDB(payload.new) : member
@@ -110,18 +119,26 @@ export function PartyProvider({ children, roomCode }) {
           filter: `room_code=eq.${roomCode}`,
         },
         (payload) => {
-          console.log('Character removed from party:', payload.old);
+          console.log('[PartyContext] Character removed from party:', payload.old);
           setPartyMembers((current) =>
             current.filter((member) => member.id !== payload.old.id)
           );
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`[PartyContext] Subscription status for room ${roomCode}:`, status);
+        // When subscription is established, refresh party members to catch any missed changes
+        if (status === 'SUBSCRIBED') {
+          console.log('[PartyContext] Subscription active, refreshing party members...');
+          loadPartyMembers();
+        }
+      });
 
     return () => {
+      console.log(`[PartyContext] Cleaning up subscription for room: ${roomCode}`);
       supabase.removeChannel(channel);
     };
-  }, [roomCode]);
+  }, [roomCode, loadPartyMembers]);
 
   const value = {
     partyMembers,

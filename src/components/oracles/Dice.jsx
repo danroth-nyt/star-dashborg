@@ -144,17 +144,24 @@ const diceShapes = {
 
 export default function Dice({ 
   sides, 
-  label, 
   variant = 'cyan', 
   isRolling = false, 
   onClick,
-  className 
+  className,
+  index = 0
 }) {
   const variantStyles = {
     cyan: 'text-accent-cyan',
     yellow: 'text-accent-yellow',
     red: 'text-accent-red',
   };
+
+  // Calculate animation delay and initial rotation based on index
+  // Stagger delays: 0s, 0.4s, 0.8s, etc. (cycles within 3s animation)
+  const animationDelay = `${(index * 0.4) % 3}s`;
+  
+  // Vary initial rotation: -4deg to +4deg based on index (subtle variation)
+  const initialRotation = ((index * 3) % 9) - 4;
 
   return (
     <button
@@ -171,6 +178,10 @@ export default function Dice({
         !isRolling && 'dice-idle',
         className
       )}
+      style={{
+        '--dice-delay': animationDelay,
+        '--dice-rotation': `${initialRotation}deg`
+      }}
     >
       <div className="absolute inset-0 flex items-center justify-center p-2">
         {diceShapes[sides]}

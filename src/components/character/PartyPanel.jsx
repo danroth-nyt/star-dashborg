@@ -37,12 +37,14 @@ export default function PartyPanel({ onExpand }) {
   });
 
   return (
-    <div className="space-y-3">
-      {/* Galaxy Save Tracker */}
-      <GalaxySaveTracker />
+    <div className="flex flex-col h-full">
+      {/* Galaxy Save Tracker - Fixed */}
+      <div className="shrink-0">
+        <GalaxySaveTracker />
+      </div>
 
-      {/* Party Header */}
-      <div className="flex items-center justify-between mb-2">
+      {/* Party Header - Fixed */}
+      <div className="flex items-center justify-between my-2 shrink-0">
         <div className="flex items-center gap-2">
           <Users className="w-4 h-4 text-accent-cyan" />
           <h3 className="font-orbitron font-bold text-accent-cyan text-sm">
@@ -60,8 +62,8 @@ export default function PartyPanel({ onExpand }) {
         )}
       </div>
 
-      {/* Party Member Cards */}
-      <div className="space-y-2">
+      {/* Party Member Cards - Scrollable */}
+      <div className="flex-1 overflow-y-auto space-y-2 min-h-0">
         {sortedMembers.map((member) => (
           <PartyMemberCard key={member.id} character={member} />
         ))}

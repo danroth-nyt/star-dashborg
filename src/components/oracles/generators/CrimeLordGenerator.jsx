@@ -1,16 +1,15 @@
-import { useState } from 'react';
 import Button from '../../ui/Button';
-import OracleResultDisplay from '../OracleResultDisplay';
 import { generateCrimeLord } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
+import { useOracleHistoryContext } from '../../../context/OracleHistoryContext';
 
 export default function CrimeLordGenerator() {
   const { addLog } = useGame();
-  const [result, setResult] = useState(null);
+  const history = useOracleHistoryContext();
 
   const handleGenerateCrimeLord = () => {
     const lord = generateCrimeLord();
-    setResult(lord);
+    if (history) history.addResult(lord);
     addLog(`Crime Lord: ${lord.name}`, 'mission');
   };
 
@@ -20,13 +19,6 @@ export default function CrimeLordGenerator() {
         GENERATE CRIME LORD
       </Button>
 
-      {/* Result Display */}
-      {result && (
-        <OracleResultDisplay 
-          result={result}
-          variant="red"
-        />
-      )}
     </div>
   );
 }

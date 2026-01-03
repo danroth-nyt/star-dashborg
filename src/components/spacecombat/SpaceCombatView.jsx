@@ -1,42 +1,42 @@
 import { useState, useEffect } from 'react';
 import { X, Volume2, VolumeX } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
-import { useParty } from '../../context/PartyContext';
 import { useSoundEffects } from '../../hooks/useSoundEffects';
+import { isUserTyping } from '../../lib/keyboardUtils';
 import Button from '../ui/Button';
 import ShipStatus from './ShipStatus';
 import StationGrid from './StationGrid';
 import CombatLog from './CombatLog';
 
 export default function SpaceCombatView() {
-  const { spaceCombat, exitCombat } = useSpaceCombat();
-  const { partyMembers } = useParty();
+  const { exitCombatView } = useSpaceCombat();
   const { toggleMute, getMutedState } = useSoundEffects();
   const [isExiting, setIsExiting] = useState(false);
   const [isMuted, setIsMuted] = useState(getMutedState());
 
+  const handleExitCombatView = () => {
+    setIsExiting(true);
+    setTimeout(() => {
+      exitCombatView(); // Exit view for this user only
+      setIsExiting(false);
+    }, 300);
+  };
+
   // Keyboard shortcuts
   useEffect(() => {
     const handleKeyPress = (e) => {
-      // ESC to exit combat (with confirmation)
+      // Skip if user is typing
+      if (isUserTyping()) return;
+      
+      // ESC to exit combat view (no confirmation needed for local exit)
       if (e.key === 'Escape' && !isExiting) {
-        handleExitCombat();
+        handleExitCombatView();
       }
     };
 
     document.addEventListener('keydown', handleKeyPress);
     return () => document.removeEventListener('keydown', handleKeyPress);
-  }, [isExiting]);
-
-  const handleExitCombat = () => {
-    if (confirm('Exit space combat? Progress will be saved.')) {
-      setIsExiting(true);
-      setTimeout(() => {
-        exitCombat();
-        setIsExiting(false);
-      }, 300);
-    }
-  };
+  }, [isExiting, handleExitCombatView]);
 
   const handleToggleSound = () => {
     const newMutedState = toggleMute();
@@ -85,11 +85,11 @@ export default function SpaceCombatView() {
               
               <Button
                 variant="ghost"
-                onClick={handleExitCombat}
+                onClick={handleExitCombatView}
                 className="flex items-center gap-2"
               >
                 <X className="w-4 h-4" />
-                <span className="hidden sm:inline">Exit Combat</span>
+                <span className="hidden sm:inline">Exit View</span>
               </Button>
             </div>
           </div>

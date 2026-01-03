@@ -31,6 +31,7 @@ const initialSpaceCombatState = {
 export function SpaceCombatProvider({ children }) {
   const { gameState, updateGameState, addLog } = useGame();
   const [localState, setLocalState] = useState(initialSpaceCombatState);
+  const [viewingCombat, setViewingCombat] = useState(false); // Local-only state for this user's view
 
   // Sync with game state
   useEffect(() => {
@@ -54,7 +55,7 @@ export function SpaceCombatProvider({ children }) {
     [updateGameState]
   );
 
-  // Enter space combat mode
+  // Enter space combat mode (shared state + local view)
   const enterCombat = useCallback(() => {
     updateSpaceCombat({ 
       isActive: true,
@@ -63,12 +64,24 @@ export function SpaceCombatProvider({ children }) {
       hyperdriveCharge: 0,
       combatLog: []
     });
+    setViewingCombat(true); // Set local viewing state
     addLog('Entering space combat - Battle Stations!', 'combat');
   }, [updateSpaceCombat, addLog]);
 
-  // Exit space combat mode
+  // Exit combat view for this user only (local state)
+  const exitCombatView = useCallback(() => {
+    setViewingCombat(false);
+  }, []);
+
+  // Join an active combat session (local state only)
+  const joinCombatView = useCallback(() => {
+    setViewingCombat(true);
+  }, []);
+
+  // Exit space combat mode for all users (shared state)
   const exitCombat = useCallback(() => {
     updateSpaceCombat({ isActive: false });
+    setViewingCombat(false); // Also exit local view
     addLog('Space combat ended', 'combat');
   }, [updateSpaceCombat, addLog]);
 
@@ -192,9 +205,12 @@ export function SpaceCombatProvider({ children }) {
 
   const value = {
     spaceCombat: localState,
+    viewingCombat,
     updateSpaceCombat,
     enterCombat,
     exitCombat,
+    exitCombatView,
+    joinCombatView,
     assignStation,
     unassignStation,
     modifyArmor,

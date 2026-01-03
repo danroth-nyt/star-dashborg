@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { rollAffirmation, rollEventOracle, rollSceneShakeup } from '../../data/oracles';
 import { useGame } from '../../context/GameContext';
+import { useOracleHistoryContext } from '../../context/OracleHistoryContext';
 
-export default function OracleQuickBar({ setOracleResult }) {
+export default function OracleQuickBar() {
   const { addLog, gameState } = useGame();
+  const history = useOracleHistoryContext();
   const [rollMode, setRollMode] = useState('normal'); // 'normal', 'advantage', 'disadvantage'
 
   const handleAskOracle = () => {
@@ -32,8 +34,8 @@ export default function OracleQuickBar({ setOracleResult }) {
       logMessage = `Oracle (${oracleResult.roll}): ${oracleResult.result} - ${oracleResult.detail}`;
     }
 
-    if (setOracleResult) {
-      setOracleResult(oracleResult);
+    if (history) {
+      history.addResult(oracleResult);
     }
     addLog(logMessage, 'roll');
   };
@@ -52,8 +54,8 @@ export default function OracleQuickBar({ setOracleResult }) {
         shakeupD20: shakeupCheck.shakeup.d20,
         shakeupRoll: shakeupCheck.shakeup.roll
       };
-      if (setOracleResult) {
-        setOracleResult(result);
+      if (history) {
+        history.addResult(result);
       }
       addLog(`Scene Shakeup Check [${shakeupCheck.checkRoll}] + [${threatDie}] = ${shakeupCheck.total} ✓ → Shakeup [${shakeupCheck.shakeup.d20}] + [${threatDie}] = ${shakeupCheck.shakeup.roll}: ${shakeupCheck.shakeup.result}`, 'roll');
     } else {
@@ -65,8 +67,8 @@ export default function OracleQuickBar({ setOracleResult }) {
         threatDie,
         success: false
       };
-      if (setOracleResult) {
-        setOracleResult(result);
+      if (history) {
+        history.addResult(result);
       }
       addLog(`Scene Shakeup Check [${shakeupCheck.checkRoll}] + [${threatDie}] = ${shakeupCheck.total} ✗ No shakeup`, 'roll');
     }
@@ -74,8 +76,8 @@ export default function OracleQuickBar({ setOracleResult }) {
 
   const handleEvent = () => {
     const event = rollEventOracle();
-    if (setOracleResult) {
-      setOracleResult(event);
+    if (history) {
+      history.addResult(event);
     }
     addLog(`Event (${event.roll}): ${event.verb} ${event.subject} - ${event.specific}`, 'roll');
   };

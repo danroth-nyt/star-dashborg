@@ -1,18 +1,26 @@
 import { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Plus, Trash2, Save, AlertTriangle, Dices, Award, Star, RefreshCw } from 'lucide-react';
+import { X, Plus, Trash2, Save, AlertTriangle, Dices, Award, Star, RefreshCw, User } from 'lucide-react';
 import { useCharacter } from '../../context/CharacterContext';
 import { useGame } from '../../context/GameContext';
+import { useAuth } from '../../context/AuthContext';
+import { usePresence } from '../../hooks/usePresence';
+import { isUserTyping } from '../../lib/keyboardUtils';
 import { SPECIES, CHARACTER_CLASSES } from '../../types/starborg';
 import { getUnclaimedPromotions } from '../../data/progressionData';
 import Button from '../ui/Button';
-import { cn } from '../../lib/utils';
 import CharacterJournal from './CharacterJournal';
 import ProgressionModal from './ProgressionModal';
 
-export default function CharacterSheetDrawer({ isOpen, onClose }) {
-  const { character, updateCharacter, updateField, deleteCharacter, respecCharacter } = useCharacter();
+export default function CharacterSheetDrawer({ isOpen, onClose, roomCode }) {
+  const { character, updateField, deleteCharacter, respecCharacter } = useCharacter();
   const { gameState } = useGame();
+  const { session } = useAuth();
+  const { trackEditing, stopEditing, getFieldEditor } = usePresence(
+    roomCode,
+    session?.user?.id,
+    character?.name || 'Anonymous'
+  );
   const [localCharacter, setLocalCharacter] = useState(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [showRespecConfirm, setShowRespecConfirm] = useState(false);
@@ -30,6 +38,9 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!isOpen) return;
+      
+      // Skip if user is typing
+      if (isUserTyping()) return;
       
       if (e.key === 'Escape') {
         onClose();
@@ -230,13 +241,21 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
             
             {/* Name */}
             <div>
-              <label className="block text-xs font-mono text-text-secondary mb-1 uppercase">
+              <label className="block text-xs font-mono text-text-secondary mb-1 uppercase flex items-center gap-2">
                 Character Name
+                {getFieldEditor('name') && (
+                  <span className="text-accent-yellow text-xs flex items-center gap-1">
+                    <User className="w-3 h-3" />
+                    {getFieldEditor('name').userName} is editing
+                  </span>
+                )}
               </label>
               <input
                 type="text"
                 value={localCharacter.name || ''}
                 onChange={(e) => handleFieldChange('name', e.target.value)}
+                onFocus={() => trackEditing('name')}
+                onBlur={() => stopEditing('name')}
                 placeholder="Enter rebel name..."
                 className="w-full bg-bg-secondary border-2 border-accent-cyan/30 rounded px-3 py-2 text-text-primary font-mono focus:outline-none focus:border-accent-cyan focus:shadow-[0_0_10px_rgba(0,240,255,0.4)] transition-all"
               />
@@ -277,12 +296,23 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
             {/* Motivation */}
             {localCharacter.motivation && (
               <div className="mt-4">
-                <label className="block text-xs font-mono text-text-secondary mb-1 uppercase">
+                <label className="block text-xs font-mono text-text-secondary mb-1 uppercase flex items-center gap-2">
                   Rebel Motivation
+                  {getFieldEditor('motivation') && (
+                    <span className="text-accent-yellow text-xs flex items-center gap-1">
+                      <User className="w-3 h-3" />
+                      {getFieldEditor('motivation').userName} is editing
+                    </span>
+                  )}
                 </label>
-                <div className="bg-bg-secondary border-2 border-accent-yellow/30 rounded px-3 py-2 text-text-primary font-mono text-sm">
-                  {localCharacter.motivation}
-                </div>
+                <textarea
+                  value={localCharacter.motivation || ''}
+                  onChange={(e) => handleFieldChange('motivation', e.target.value)}
+                  onFocus={() => trackEditing('motivation')}
+                  onBlur={() => stopEditing('motivation')}
+                  className="w-full bg-bg-secondary border-2 border-accent-yellow/30 rounded px-3 py-2 text-text-primary font-mono text-sm focus:outline-none focus:border-accent-cyan focus:shadow-[0_0_10px_rgba(0,240,255,0.4)] transition-all"
+                  rows="2"
+                />
               </div>
             )}
           </div>
@@ -337,13 +367,18 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="bg-bg-secondary border-2 border-accent-red rounded p-3">
-                <label className="block text-xs font-mono text-text-secondary mb-1 uppercase">
+                <label className="block text-xs font-mono text-text-secondary mb-1 uppercase flex items-center gap-1">
                   HP Current
+                  {getFieldEditor('hp_current') && (
+                    <User className="w-3 h-3 text-accent-yellow" title={`${getFieldEditor('hp_current').userName} is editing`} />
+                  )}
                 </label>
                 <input
                   type="number"
                   value={localCharacter.hp_current}
                   onChange={(e) => handleFieldChange('hp_current', Math.max(0, parseInt(e.target.value) || 0))}
+                  onFocus={() => trackEditing('hp_current')}
+                  onBlur={() => stopEditing('hp_current')}
                   min="0"
                   className="w-full text-2xl font-orbitron font-bold text-accent-red bg-transparent border-0 focus:outline-none"
                 />
@@ -569,10 +604,20 @@ export default function CharacterSheetDrawer({ isOpen, onClose }) {
 
           {/* Personal Journal */}
           <div className="space-y-4">
-            <h3 className="text-lg font-orbitron font-bold text-accent-yellow uppercase border-b border-accent-yellow/30 pb-2">
+            <h3 className="text-lg font-orbitron font-bold text-accent-yellow uppercase border-b border-accent-yellow/30 pb-2 flex items-center gap-2">
               Personal Journal
+              {getFieldEditor('journal') && (
+                <span className="text-accent-yellow text-xs flex items-center gap-1 font-mono normal-case">
+                  <User className="w-4 h-4" />
+                  {getFieldEditor('journal').userName} is editing
+                </span>
+              )}
             </h3>
-            <CharacterJournal />
+            <CharacterJournal 
+              onFocus={() => trackEditing('journal')}
+              onBlur={() => stopEditing('journal')}
+              isLocked={getFieldEditor('journal')}
+            />
           </div>
 
           {/* Danger Zone */}

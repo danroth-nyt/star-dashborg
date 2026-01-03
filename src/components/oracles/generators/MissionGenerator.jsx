@@ -1,39 +1,40 @@
 import { useState } from 'react';
 import Button from '../../ui/Button';
-import OracleResultDisplay from '../OracleResultDisplay';
 import { generateMission, generateQuickMission, generateVillain, rollOnTable, generateIncitingIncident } from '../../../data/oracles';
 import { missionGenerators } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
+import { useOracleHistoryContext } from '../../../context/OracleHistoryContext';
 
 export default function MissionGenerator() {
   const { addLog, gameState } = useGame();
-  const [result, setResult] = useState(null);
+  const history = useOracleHistoryContext();
   const [missionType, setMissionType] = useState('detailed'); // 'detailed', 'quick', 'villain', 'scenario', or 'inciting'
 
   const handleGenerateMission = () => {
     const mission = generateMission();
-    setResult(mission);
+    if (history) history.addResult(mission);
     addLog(`Mission: ${mission.type} ${mission.goods} at ${mission.spot} for ${mission.reward}`, 'mission');
   };
 
   const handleGenerateQuickMission = () => {
     const mission = generateQuickMission();
-    setResult(mission);
+    if (history) history.addResult(mission);
     addLog(`Quick Mission: ${mission.action} ${mission.target}`, 'mission');
   };
 
   const handleGenerateVillain = () => {
     const villain = generateVillain();
-    setResult(villain);
+    if (history) history.addResult(villain);
     addLog(`Villain: ${villain.villain} wants to ${villain.goal} via ${villain.plan} using ${villain.means}`, 'mission');
   };
 
   const handleGenerateScenario = () => {
     const scenario = rollOnTable(missionGenerators.scenarios);
-    setResult({ 
+    const result = { 
       result: scenario.title, 
       detail: scenario.desc 
-    });
+    };
+    if (history) history.addResult(result);
     addLog(`Scenario: ${scenario.title}`, 'mission');
   };
 
@@ -41,10 +42,11 @@ export default function MissionGenerator() {
     const incident = generateIncitingIncident(gameState.includePVOracles, gameState.includeStarforgedOracles);
     if (!incident) {
       // Both sources disabled
-      setResult({ result: 'No inciting incident sources enabled. Enable Perilous Void or Starforged in Settings (gear icon in the header).' });
+      const result = { result: 'No inciting incident sources enabled. Enable Perilous Void or Starforged in Settings (gear icon in the header).' };
+      if (history) history.addResult(result);
       return;
     }
-    setResult(incident);
+    if (history) history.addResult(incident);
     addLog(`Inciting Incident [${incident.diceType} ${incident.roll}]: ${incident.incident}`, 'mission');
   };
 
@@ -140,13 +142,6 @@ export default function MissionGenerator() {
         </Button>
       )}
 
-      {/* Result Display */}
-      {result && (
-        <OracleResultDisplay 
-          result={result}
-          variant={missionType === 'villain' ? 'red' : (missionType === 'scenario' || missionType === 'inciting') ? 'yellow' : 'cyan'}
-        />
-      )}
     </div>
   );
 }

@@ -57,6 +57,8 @@ export function GameProvider({ children, roomCode }) {
   const [error, setError] = useState(null);
   const syncTimerRef = useRef(null);
   const pendingStateRef = useRef(null);
+  const dirtyFieldsRef = useRef(new Set()); // Track fields with pending local changes
+  const isSyncingRef = useRef(false); // Track if we're currently syncing to DB
 
   // Load initial game state
   useEffect(() => {
@@ -100,7 +102,7 @@ export function GameProvider({ children, roomCode }) {
     loadGameState();
   }, [roomCode]);
 
-  // Subscribe to realtime changes
+  // Subscribe to realtime changes with field-level merging
   useEffect(() => {
     if (!roomCode) return;
 
@@ -116,7 +118,27 @@ export function GameProvider({ children, roomCode }) {
         },
         (payload) => {
           if (payload.new?.game_state) {
-            setGameState(payload.new.game_state);
+            const remoteState = payload.new.game_state;
+            
+            // Merge strategy: Only accept remote values for fields we're not currently editing
+            setGameState((currentState) => {
+              // If we're in the middle of syncing our own changes, ignore this update
+              if (isSyncingRef.current) {
+                return currentState;
+              }
+
+              const mergedState = { ...currentState };
+              
+              // For each top-level field in remote state
+              Object.keys(remoteState).forEach((key) => {
+                // Only accept remote value if this field isn't marked as dirty (locally edited)
+                if (!dirtyFieldsRef.current.has(key)) {
+                  mergedState[key] = remoteState[key];
+                }
+              });
+              
+              return mergedState;
+            });
           }
         }
       )
@@ -136,17 +158,31 @@ export function GameProvider({ children, roomCode }) {
     };
   }, []);
 
-  // Update game state in Supabase
+  // Update game state in Supabase with dirty field tracking
   const updateGameState = useCallback(
     (updates) => {
       if (!roomCode) return;
 
       let newState;
+      let changedFields = new Set();
       
       // Immediate UI update
       setGameState(currentState => {
         newState = typeof updates === 'function' ? updates(currentState) : { ...currentState, ...updates };
         pendingStateRef.current = newState;
+        
+        // Track which top-level fields changed
+        if (typeof updates === 'function') {
+          // For function updates, mark all fields as potentially dirty
+          Object.keys(newState).forEach(key => changedFields.add(key));
+        } else {
+          // For object updates, only mark the changed fields
+          Object.keys(updates).forEach(key => changedFields.add(key));
+        }
+        
+        // Mark these fields as dirty (locally modified, pending sync)
+        changedFields.forEach(field => dirtyFieldsRef.current.add(field));
+        
         return newState;
       });
 
@@ -157,7 +193,9 @@ export function GameProvider({ children, roomCode }) {
 
       syncTimerRef.current = setTimeout(async () => {
         try {
+          isSyncingRef.current = true; // Flag that we're syncing
           const stateToSync = pendingStateRef.current;
+          
           const { error } = await supabase
             .from('sessions')
             .upsert({
@@ -166,9 +204,14 @@ export function GameProvider({ children, roomCode }) {
             });
 
           if (error) throw error;
+          
+          // Clear dirty fields after successful sync
+          dirtyFieldsRef.current.clear();
         } catch (err) {
           console.error('Error syncing game state:', err);
           setError(err.message);
+        } finally {
+          isSyncingRef.current = false; // Clear syncing flag
         }
       }, 300); // 300ms debounce
     },
