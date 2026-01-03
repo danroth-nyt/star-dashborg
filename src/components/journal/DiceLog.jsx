@@ -48,14 +48,22 @@ const diceIcons = {
 
 export default function DiceLog() {
   const { gameState } = useGame();
-  const logContainerRef = useRef(null);
+  const containerRef = useRef(null);
   const [latestLogId, setLatestLogId] = useState(null);
 
+  // Auto-scroll to bottom when new log entries are added
   useEffect(() => {
-    if (logContainerRef.current) {
-      logContainerRef.current.scrollTop = logContainerRef.current.scrollHeight;
+    if (containerRef.current && gameState.log.length > 0) {
+      // Find the scrollable parent (Panel's content div)
+      const scrollableParent = containerRef.current.parentElement;
+      if (scrollableParent) {
+        scrollableParent.scrollTop = scrollableParent.scrollHeight;
+      }
     }
-    // Track latest entry for animation
+  }, [gameState.log.length]);
+
+  // Track latest entry for animation
+  useEffect(() => {
     if (gameState.log.length > 0) {
       const latest = gameState.log[gameState.log.length - 1];
       if (latest.id !== latestLogId) {
@@ -158,7 +166,7 @@ export default function DiceLog() {
   };
 
   return (
-    <div ref={logContainerRef} className="h-full overflow-y-auto space-y-2 font-mono text-sm">
+    <div ref={containerRef} className="space-y-2 font-mono text-sm">
       {gameState.log.length === 0 ? (
         <div className="h-full flex items-center justify-center">
           <div className="text-center space-y-2">

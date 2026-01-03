@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { Minimize2, Maximize2, HelpCircle } from 'lucide-react';
+import { Minus, Plus, HelpCircle } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-export default function Panel({ title, children, className, variant = 'cyan', defaultCollapsed = false, collapsed, onCollapsedChange, maxHeightExpanded, minHeightExpanded, onHelpClick }) {
+export default function Panel({ title, children, className, variant = 'cyan', defaultCollapsed = false, collapsed, onCollapsedChange, maxHeightExpanded, minHeightExpanded, onHelpClick, draggable, onDragStart, onDragEnd }) {
   const [internalCollapsed, setInternalCollapsed] = useState(defaultCollapsed);
   
   // Use controlled state if provided, otherwise use internal state
@@ -36,13 +36,19 @@ export default function Panel({ title, children, className, variant = 'cyan', de
       className
     )}>
       {title && (
-        <div className={cn(
-          'px-4 py-2 font-orbitron font-bold uppercase text-lg shrink-0 flex items-center justify-between h-[52px]',
-          textColors[variant],
-          'bg-bg-primary',
-          'overflow-hidden',
-          !isCollapsed && `border-b-3 ${borderColors[variant]}`
-        )}>
+        <div 
+          draggable={draggable}
+          onDragStart={onDragStart}
+          onDragEnd={onDragEnd}
+          className={cn(
+            'px-4 py-2 font-orbitron font-bold uppercase text-lg shrink-0 flex items-center justify-between h-[52px]',
+            textColors[variant],
+            'bg-bg-primary',
+            'overflow-hidden',
+            !isCollapsed && `border-b-3 ${borderColors[variant]}`,
+            draggable && 'cursor-grab active:cursor-grabbing'
+          )}
+        >
           <span className="break-words flex-1">{title}</span>
           <div className="flex items-center gap-1">
             {onHelpClick && (
@@ -69,9 +75,9 @@ export default function Panel({ title, children, className, variant = 'cyan', de
               aria-label={isCollapsed ? 'Expand panel' : 'Collapse panel'}
             >
               {isCollapsed ? (
-                <Maximize2 className="w-4 h-4" />
+                <Plus className="w-4 h-4" />
               ) : (
-                <Minimize2 className="w-4 h-4" />
+                <Minus className="w-4 h-4" />
               )}
             </button>
           </div>

@@ -287,12 +287,9 @@ export default function Dashboard({ roomCode }) {
         )}
         
         <div
-          draggable
-          onDragStart={(e) => handleDragStart(e, panel.id)}
           onDragOver={(e) => handleDragOver(e, panel.id)}
           onDrop={(e) => handleDrop(e, panel.id)}
-          onDragEnd={handleDragEnd}
-          className={`cursor-move transition-all duration-200 mb-4 lg:mb-6 last:mb-0 ${
+          className={`transition-all duration-200 mb-4 lg:mb-6 last:mb-0 ${
             isBeingDragged ? 'opacity-40 scale-95' : ''
           } ${isDragOver ? 'ring-2 ring-accent-cyan ring-offset-2 ring-offset-bg-primary' : ''}`}
         >
@@ -314,6 +311,9 @@ export default function Dashboard({ roomCode }) {
               panel.id === 'danger-clocks' ? () => openHelp('dangerClocks') :
               undefined
             }
+            draggable
+            onDragStart={(e) => handleDragStart(e, panel.id)}
+            onDragEnd={handleDragEnd}
           >
             {components[panel.component]}
           </Panel>

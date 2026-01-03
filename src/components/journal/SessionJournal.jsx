@@ -5,6 +5,7 @@ import Underline from '@tiptap/extension-underline';
 import { Bold, Italic, Underline as UnderlineIcon, Strikethrough, List, User } from 'lucide-react';
 import { useGame } from '../../context/GameContext';
 import { useAuth } from '../../context/AuthContext';
+import { useCharacter } from '../../context/CharacterContext';
 import { usePresence } from '../../hooks/usePresence';
 import { useDebounce } from '../../hooks/useDebounce';
 import { cn } from '../../lib/utils';
@@ -12,6 +13,7 @@ import { cn } from '../../lib/utils';
 export default function SessionJournal({ roomCode }) {
   const { gameState, updateGameState } = useGame();
   const { session } = useAuth();
+  const { character } = useCharacter();
   const [localJournal, setLocalJournal] = useState(gameState.journal || '');
   const debouncedJournal = useDebounce(localJournal, 2000);
 
@@ -19,7 +21,7 @@ export default function SessionJournal({ roomCode }) {
   const { trackEditing, stopEditing, getFieldEditor } = usePresence(
     roomCode,
     session?.user?.id,
-    'Player' // Could be enhanced to use character name if available
+    character?.name || 'Unknown Rebel'
   );
 
   const editorLock = getFieldEditor('sessionJournal');
