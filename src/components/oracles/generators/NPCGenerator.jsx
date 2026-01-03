@@ -1,17 +1,17 @@
-import { useState } from 'react';
 import Button from '../../ui/Button';
 import OracleResultDisplay from '../OracleResultDisplay';
 import { generateNPC, generateTravelEncounter, rollOnTable } from '../../../data/oracles';
 import { npcOracles } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
+import { useOracleHistoryContext } from '../../../context/OracleHistoryContext';
 
 export default function NPCGenerator() {
   const { addLog, gameState } = useGame();
-  const [result, setResult] = useState(null);
+  const history = useOracleHistoryContext();
 
   const handleGenerateNPC = () => {
     const npc = generateNPC(gameState.includePVOracles);
-    setResult(npc);
+    if (history) history.addResult(npc);
     addLog(`NPC: ${npc.name} - ${npc.species} ${npc.role} - ${npc.demeanor}`, 'mission');
   };
 
@@ -28,7 +28,7 @@ export default function NPCGenerator() {
         checkRoll: encounterCheck.checkRoll,
         total: encounterCheck.total
       };
-      setResult(result);
+      if (history) history.addResult(result);
       addLog(`Travel Encounter Check [${encounterCheck.checkRoll}] + [${threatDie}] = ${encounterCheck.total} ✓ → ${encounterCheck.encounter.theme} - ${encounterCheck.encounter.actor}`, 'mission');
     } else {
       const result = {
@@ -39,26 +39,29 @@ export default function NPCGenerator() {
         total: encounterCheck.total,
         success: false
       };
-      setResult(result);
+      if (history) history.addResult(result);
       addLog(`Travel Encounter Check [${encounterCheck.checkRoll}] + [${threatDie}] = ${encounterCheck.total} ✗ No encounter`, 'roll');
     }
   };
 
   const handleGenerateRebelContact = () => {
     const contact = rollOnTable(npcOracles.rebelContacts);
-    setResult({ result: 'Rebel Contact', detail: contact });
+    const result = { result: 'Rebel Contact', detail: contact };
+    if (history) history.addResult(result);
     addLog(`Rebel Contact: ${contact}`, 'mission');
   };
 
   const handleGenerateWeirdoAlien = () => {
     const alien = rollOnTable(npcOracles.weirdoAliens);
-    setResult({ result: 'Weirdo Alien', detail: alien });
+    const result = { result: 'Weirdo Alien', detail: alien };
+    if (history) history.addResult(result);
     addLog(`Weirdo Alien: ${alien}`, 'mission');
   };
 
   const handleGenerateReaction = () => {
     const reaction = rollOnTable(npcOracles.reactions);
-    setResult({ result: 'NPC Reaction', detail: reaction });
+    const result = { result: 'NPC Reaction', detail: reaction };
+    if (history) history.addResult(result);
     addLog(`Reaction: ${reaction}`, 'roll');
   };
 
@@ -92,10 +95,13 @@ export default function NPCGenerator() {
       </div>
 
       {/* Result Display */}
-      {result && (
+      {history && history.currentResult && (
         <OracleResultDisplay 
-          result={result}
+          result={history.currentResult}
           variant="yellow"
+          currentIndex={history.currentIndex}
+          totalResults={history.totalResults}
+          onNavigate={history.navigateTo}
         />
       )}
     </div>

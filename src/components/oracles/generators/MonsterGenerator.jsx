@@ -1,16 +1,16 @@
-import { useState } from 'react';
 import Button from '../../ui/Button';
 import OracleResultDisplay from '../OracleResultDisplay';
 import { generateMonster } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
+import { useOracleHistoryContext } from '../../../context/OracleHistoryContext';
 
 export default function MonsterGenerator() {
   const { addLog } = useGame();
-  const [result, setResult] = useState(null);
+  const history = useOracleHistoryContext();
 
   const handleGenerateMonster = () => {
     const monster = generateMonster();
-    setResult(monster);
+    if (history) history.addResult(monster);
     addLog(`Monster: ${monster.name} - ${monster.beast}`, 'mission');
   };
 
@@ -21,10 +21,13 @@ export default function MonsterGenerator() {
       </Button>
 
       {/* Result Display */}
-      {result && (
+      {history && history.currentResult && (
         <OracleResultDisplay 
-          result={result}
+          result={history.currentResult}
           variant="red"
+          currentIndex={history.currentIndex}
+          totalResults={history.totalResults}
+          onNavigate={history.navigateTo}
         />
       )}
     </div>

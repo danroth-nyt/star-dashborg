@@ -9,6 +9,7 @@ import PlanetGenerator from './generators/PlanetGenerator';
 import MonsterGenerator from './generators/MonsterGenerator';
 import CrimeLordGenerator from './generators/CrimeLordGenerator';
 import SiteExplorer from '../trackers/SiteExplorer';
+import { OracleHistoryProvider, useOracleHistoryContext } from '../../context/OracleHistoryContext';
 import {
   soloOracles,
   missionGenerators,
@@ -40,31 +41,7 @@ import Accordion from '../ui/Accordion';
 
 export default function OracleCompendium() {
   const [activeTab, setActiveTab] = useState('core');
-  const [resultHistory, setResultHistory] = useState([]);
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const { addLog, gameState } = useGame();
-
-  // Add new result to history (max 10 items)
-  const addOracleResult = (newResult) => {
-    setResultHistory(prev => [newResult, ...prev].slice(0, 10));
-    setCurrentIndex(0); // Jump to newest result
-  };
-
-  // Navigate to specific index in history
-  const navigateTo = (index) => {
-    setCurrentIndex(Math.max(0, Math.min(index, resultHistory.length - 1)));
-  };
-
-  // Get current result from history
-  const oracleResult = resultHistory[currentIndex] || null;
-
-  // Determine variant based on result type
-  const getResultVariant = () => {
-    if (!oracleResult) return 'cyan';
-    if (oracleResult.result === 'Scene Shakeup') return 'yellow';
-    if (oracleResult.verb) return 'red';
-    return 'cyan';
-  };
+  const { gameState } = useGame();
 
   const tabs = [
     { id: 'core', label: 'Core', color: 'cyan' },
@@ -91,22 +68,6 @@ export default function OracleCompendium() {
 
   return (
     <div className="space-y-4">
-      {/* Quick Action Bar */}
-      <div className="border-3 border-accent-cyan bg-bg-secondary p-3">
-        <OracleQuickBar setOracleResult={addOracleResult} />
-      </div>
-
-      {/* Centralized Oracle Result Display */}
-      {oracleResult && (
-        <OracleResultDisplay 
-          result={oracleResult} 
-          variant={getResultVariant()}
-          currentIndex={currentIndex}
-          totalResults={resultHistory.length}
-          onNavigate={navigateTo}
-        />
-      )}
-
       {/* Tab Navigation */}
       <div className="grid grid-cols-3 sm:grid-cols-5 gap-1">
         {tabs.map((tab) => (
@@ -127,11 +88,31 @@ export default function OracleCompendium() {
 
       {/* Tab Content */}
       <div className="border-3 border-accent-yellow bg-bg-secondary p-4 overflow-y-auto flex-1">
-        {activeTab === 'core' && <CoreOraclesTab />}
-        {activeTab === 'missions' && <MissionsTab />}
-        {activeTab === 'world' && <WorldTab />}
-        {activeTab === 'characters' && <CharactersTab />}
-        {activeTab === 'combat' && <CombatTab />}
+        {activeTab === 'core' && (
+          <OracleHistoryProvider>
+            <CoreOraclesTab />
+          </OracleHistoryProvider>
+        )}
+        {activeTab === 'missions' && (
+          <OracleHistoryProvider>
+            <MissionsTab />
+          </OracleHistoryProvider>
+        )}
+        {activeTab === 'world' && (
+          <OracleHistoryProvider>
+            <WorldTab />
+          </OracleHistoryProvider>
+        )}
+        {activeTab === 'characters' && (
+          <OracleHistoryProvider>
+            <CharactersTab />
+          </OracleHistoryProvider>
+        )}
+        {activeTab === 'combat' && (
+          <OracleHistoryProvider>
+            <CombatTab />
+          </OracleHistoryProvider>
+        )}
       </div>
     </div>
   );
@@ -171,6 +152,7 @@ function MoraleButton({ morale, label, onCheck }) {
 
 function CoreOraclesTab() {
   const { gameState } = useGame();
+  const history = useOracleHistoryContext();
   const diceType = gameState.includePVOracles ? 'd30' : 'd20';
   
   return (
@@ -178,6 +160,25 @@ function CoreOraclesTab() {
       <div className="text-accent-cyan font-orbitron text-lg font-bold uppercase mb-4">
         Core Solo Play Oracles
       </div>
+
+      {/* Quick Action Bar */}
+      <div className="border-2 border-accent-cyan bg-bg-primary p-3">
+        <OracleQuickBar />
+      </div>
+
+      {/* Result Display */}
+      {history && history.currentResult && (
+        <OracleResultDisplay 
+          result={history.currentResult} 
+          variant={
+            history.currentResult.result === 'Scene Shakeup' ? 'yellow' :
+            history.currentResult.verb ? 'red' : 'cyan'
+          }
+          currentIndex={history.currentIndex}
+          totalResults={history.totalResults}
+          onNavigate={history.navigateTo}
+        />
+      )}
 
       <Accordion title={`Opening Scene (${diceType})`} defaultOpen={false}>
         <OracleTable

@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import Button from '../ui/Button';
 import OracleResultDisplay from './OracleResultDisplay';
 import { rollOnTable, rollDice } from '../../data/oracles';
 import { useGame } from '../../context/GameContext';
+import { useOracleHistoryContext } from '../../context/OracleHistoryContext';
 
 // Helper to format complex oracle results for logging
 function formatLogMessage(title, result) {
@@ -88,7 +88,7 @@ export default function OracleTable({
   setOracleResult = null
 }) {
   const { addLog } = useGame();
-  const [result, setResult] = useState(null);
+  const history = useOracleHistoryContext();
 
   const handleRoll = () => {
     let rollResult;
@@ -107,10 +107,12 @@ export default function OracleTable({
     // Format result if formatter provided
     const formattedResult = formatResult ? formatResult(rollResult) : rollResult;
     
-    // Always set local result for display
-    setResult(formattedResult);
+    // Add to history context if available
+    if (history) {
+      history.addResult(formattedResult);
+    }
     
-    // Optionally set parent result if provided (for centralized display)
+    // Optionally set parent result if provided (for centralized display - legacy support)
     if (setOracleResult) {
       setOracleResult(formattedResult);
     }
@@ -139,11 +141,14 @@ export default function OracleTable({
         ROLL
       </Button>
 
-      {result && (
+      {history && history.currentResult && (
         <OracleResultDisplay 
-          result={result} 
+          result={history.currentResult} 
           variant={variant}
           className="mt-3"
+          currentIndex={history.currentIndex}
+          totalResults={history.totalResults}
+          onNavigate={history.navigateTo}
         />
       )}
     </div>
