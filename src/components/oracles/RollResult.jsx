@@ -127,12 +127,12 @@ export default function RollResult({ result, diceType, sides, rolls, rollMode, o
           )}
           
           {/* Show discarded roll when advantage/disadvantage */}
-          {!isRevealing && hasAdvDis && rolls && (
+          {!isRevealing && hasAdvDis && rolls && rolls.length === 2 && (
             <span className={cn(
               'ml-2 text-2xl font-orbitron font-bold opacity-50',
               getVariantColor()
             )}>
-              [{rolls.find(r => r !== result)}]
+              [{rolls[0] === result ? rolls[1] : rolls[0]}]
             </span>
           )}
         </div>

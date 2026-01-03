@@ -46,6 +46,95 @@ const diceIcons = {
   ),
 };
 
+// Safe text formatter components - replaces dangerouslySetInnerHTML
+const FormattedLogMessage = ({ message, type }) => {
+  if (type === 'roll') {
+    return <RollMessage message={message} />;
+  }
+  if (type === 'oracle') {
+    return <OracleMessage message={message} />;
+  }
+  return <span>{message}</span>;
+};
+
+const RollMessage = ({ message }) => {
+  // Handle advantage/disadvantage rolls
+  if (message.includes('(ADV)') || message.includes('(DIS)')) {
+    // Format: "Rolled D20 (ADV): [18, 12] = 18"
+    const advDisMatch = message.match(/^(.*?)(\((?:ADV|DIS)\))(.*)$/);
+    if (advDisMatch) {
+      const [, before, mode, after] = advDisMatch;
+      
+      // Check if there's a result after "="
+      const resultMatch = after.match(/^(.*= )(\d+)$/);
+      if (resultMatch) {
+        const [, beforeResult, result] = resultMatch;
+        return (
+          <>
+            {before}
+            <span className="text-accent-yellow">{mode}</span>
+            {beforeResult}
+            <strong className="text-glow-cyan">{result}</strong>
+          </>
+        );
+      }
+      
+      return (
+        <>
+          {before}
+          <span className="text-accent-yellow">{mode}</span>
+          {after}
+        </>
+      );
+    }
+  }
+  
+  // Normal roll - bold the result number
+  const resultMatch = message.match(/^(.*: )(\d+)$/);
+  if (resultMatch) {
+    const [, before, result] = resultMatch;
+    return (
+      <>
+        {before}
+        <strong className="text-glow-cyan">{result}</strong>
+      </>
+    );
+  }
+  
+  return <span>{message}</span>;
+};
+
+const OracleMessage = ({ message }) => {
+  // Split on pipe separator for structured oracle results
+  if (message.includes(' | ')) {
+    const parts = message.split(' | ');
+    return (
+      <>
+        {parts.map((part, idx) => (
+          <span key={idx}>
+            {idx > 0 && <span className="text-accent-yellow/40"> | </span>}
+            {idx === 0 ? part : <span className="text-accent-cyan">{part}</span>}
+          </span>
+        ))}
+      </>
+    );
+  }
+  
+  // Highlight values after colons
+  const colonMatch = message.match(/^(.*: )([^:]+)$/);
+  if (colonMatch) {
+    const [, before, value] = colonMatch;
+    return (
+      <>
+        {before}
+        <span className="text-accent-cyan">{value}</span>
+      </>
+    );
+  }
+  
+  return <span>{message}</span>;
+};
+
 export default function DiceLog() {
   const { gameState } = useGame();
   const containerRef = useRef(null);
@@ -117,44 +206,6 @@ export default function DiceLog() {
     }
   };
 
-  const formatRollMessage = (message) => {
-    // Check if it's an advantage/disadvantage roll
-    if (message.includes('(ADV)') || message.includes('(DIS)')) {
-      // Format: "Rolled D20 (ADV): [18, 12] = 18"
-      // Highlight the mode label
-      const withMode = message.replace(
-        /\((ADV|DIS)\)/,
-        '<span class="text-accent-yellow">($1)</span>'
-      );
-      // Highlight the final result after the equals sign
-      return withMode.replace(
-        /= (\d+)$/,
-        '= <strong class="text-glow-cyan">$1</strong>'
-      );
-    }
-    // Normal roll - bold the result number
-    return message.replace(/: (\d+)$/, ': <strong class="text-glow-cyan">$1</strong>');
-  };
-
-  const formatOracleMessage = (message) => {
-    // Split on pipe separator for structured oracle results
-    if (message.includes(' | ')) {
-      const parts = message.split(' | ');
-      const formatted = parts.map((part, idx) => {
-        if (idx === 0) {
-          // First part includes the title - keep it normal
-          return part;
-        }
-        // Highlight subsequent parts
-        return `<span class="text-accent-cyan">${part}</span>`;
-      }).join(' <span class="text-accent-yellow/40">|</span> ');
-      return formatted;
-    }
-    
-    // Highlight values after colons
-    return message.replace(/: ([^:]+)$/, ': <span class="text-accent-cyan">$1</span>');
-  };
-
   const formatTimestamp = (timestamp) => {
     const date = new Date(timestamp);
     return date.toLocaleTimeString('en-US', { 
@@ -213,14 +264,9 @@ export default function DiceLog() {
                   </span>
                   
                   {/* Message */}
-                  <span 
-                    className={getLogColor(entry.type)}
-                    dangerouslySetInnerHTML={{ 
-                      __html: entry.type === 'roll' ? formatRollMessage(entry.message) : 
-                             entry.type === 'oracle' ? formatOracleMessage(entry.message) :
-                             entry.message 
-                    }}
-                  />
+                  <span className={getLogColor(entry.type)}>
+                    <FormattedLogMessage message={entry.message} type={entry.type} />
+                  </span>
                 </div>
               </div>
             </div>
