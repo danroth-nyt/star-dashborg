@@ -1,6 +1,12 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useGame } from './GameContext';
 import { getMaxArmorTier } from '../utils/shipUpgrades';
+import { 
+  rollMoraleCheck, 
+  rollWeaponDamage, 
+  calculateDamageAfterArmor,
+  ENEMY_SHIPS 
+} from '../data/enemyShipData';
 
 const SpaceCombatContext = createContext();
 
@@ -26,6 +32,7 @@ const initialSpaceCombatState = {
     gunner2: null,
   },
   combatLog: [],
+  enemies: [], // Enemy ships/units being tracked
 };
 
 export function SpaceCombatProvider({ children }) {
@@ -203,6 +210,225 @@ export function SpaceCombatProvider({ children }) {
     [updateSpaceCombat]
   );
 
+  // ==========================================
+  // ENEMY MANAGEMENT
+  // ==========================================
+
+  // Add a single enemy
+  const addEnemy = useCallback(
+    (enemy) => {
+      updateSpaceCombat((prev) => ({
+        ...prev,
+        enemies: [...(prev.enemies || []), enemy],
+      }));
+      addCombatLog(`Enemy spawned: ${enemy.name}`, 'enemy', { enemyId: enemy.id });
+    },
+    [updateSpaceCombat, addCombatLog]
+  );
+
+  // Add multiple enemies at once
+  const addEnemies = useCallback(
+    (enemies) => {
+      updateSpaceCombat((prev) => ({
+        ...prev,
+        enemies: [...(prev.enemies || []), ...enemies],
+      }));
+      const names = enemies.map(e => e.name).join(', ');
+      addCombatLog(`Enemies spawned: ${names}`, 'enemy', { count: enemies.length });
+    },
+    [updateSpaceCombat, addCombatLog]
+  );
+
+  // Update an existing enemy
+  const updateEnemy = useCallback(
+    (enemyId, updates) => {
+      updateSpaceCombat((prev) => ({
+        ...prev,
+        enemies: (prev.enemies || []).map((enemy) =>
+          enemy.id === enemyId ? { ...enemy, ...updates } : enemy
+        ),
+      }));
+    },
+    [updateSpaceCombat]
+  );
+
+  // Remove an enemy
+  const removeEnemy = useCallback(
+    (enemyId) => {
+      updateSpaceCombat((prev) => {
+        const enemy = (prev.enemies || []).find(e => e.id === enemyId);
+        return {
+          ...prev,
+          enemies: (prev.enemies || []).filter((e) => e.id !== enemyId),
+        };
+      });
+    },
+    [updateSpaceCombat]
+  );
+
+  // Clear all enemies
+  const clearAllEnemies = useCallback(() => {
+    updateSpaceCombat((prev) => ({
+      ...prev,
+      enemies: [],
+    }));
+    addCombatLog('All enemies cleared', 'info');
+  }, [updateSpaceCombat, addCombatLog]);
+
+  // Apply damage to an enemy (with armor calculation)
+  const applyDamageToEnemy = useCallback(
+    (enemyId, damage) => {
+      updateSpaceCombat((prev) => {
+        const enemies = prev.enemies || [];
+        const enemy = enemies.find(e => e.id === enemyId);
+        if (!enemy) return prev;
+
+        // Calculate damage after armor
+        const { finalDamage, reduction, armorDie } = calculateDamageAfterArmor(damage, enemy.armor);
+        
+        // Check for fodder (one-hit kill)
+        let newHp;
+        if (enemy.fodder && finalDamage > 0) {
+          newHp = 0;
+        } else {
+          newHp = Math.max(0, enemy.hp.current - finalDamage);
+        }
+
+        const newStatus = newHp === 0 ? 'destroyed' : enemy.status;
+
+        // Log the damage
+        let logMessage = `${enemy.name} takes ${finalDamage} damage`;
+        if (reduction > 0) {
+          logMessage += ` (${damage} - ${armorDie}[${reduction}] armor)`;
+        }
+        if (newHp === 0) {
+          logMessage += ' - DESTROYED!';
+        } else {
+          logMessage += ` [${newHp}/${enemy.hp.max} HP]`;
+        }
+
+        return {
+          ...prev,
+          enemies: enemies.map((e) =>
+            e.id === enemyId
+              ? { ...e, hp: { ...e.hp, current: newHp }, status: newStatus }
+              : e
+          ),
+          combatLog: [
+            {
+              id: Date.now().toString(),
+              timestamp: new Date().toISOString(),
+              message: logMessage,
+              type: newHp === 0 ? 'destroy' : 'damage',
+              data: { enemyId, damage, finalDamage, reduction },
+            },
+            ...prev.combatLog,
+          ].slice(0, 50),
+        };
+      });
+    },
+    [updateSpaceCombat]
+  );
+
+  // Roll enemy attack (returns damage result for display)
+  const rollEnemyAttack = useCallback(
+    (enemyId) => {
+      const enemies = localState.enemies || [];
+      const enemy = enemies.find(e => e.id === enemyId);
+      if (!enemy || !enemy.weapon) return null;
+
+      const result = rollWeaponDamage(enemy.weapon, enemy.weapon.advantage);
+      
+      addCombatLog(
+        `${enemy.name} attacks with ${enemy.weapon.name}: ${result.total} damage`,
+        'attack',
+        { enemyId, ...result }
+      );
+
+      return result;
+    },
+    [localState.enemies, addCombatLog]
+  );
+
+  // Roll morale check for an enemy
+  const rollEnemyMorale = useCallback(
+    (enemyId) => {
+      const enemies = localState.enemies || [];
+      const enemy = enemies.find(e => e.id === enemyId);
+      if (!enemy || enemy.morale === null) return null;
+
+      // Check for squadthink bonus
+      const sameTypeCount = enemies.filter(
+        e => e.type === enemy.type && e.status === 'active'
+      ).length;
+      const template = ENEMY_SHIPS[enemy.type];
+      const effectiveMorale = (sameTypeCount >= 4 && template?.moraleBoosted) 
+        ? template.moraleBoosted 
+        : enemy.morale;
+
+      const result = rollMoraleCheck(effectiveMorale);
+
+      let logMessage = `${enemy.name} morale check: [${result.dice.join(', ')}] = ${result.total} vs MRL ${effectiveMorale}`;
+      if (sameTypeCount >= 4 && template?.moraleBoosted) {
+        logMessage += ' (Squadthink)';
+      }
+
+      if (result.demoralized) {
+        logMessage += ` - DEMORALIZED! ${result.outcome === 'flees' ? 'FLEEING!' : 'SURRENDERS!'}`;
+        
+        // Update enemy status
+        updateSpaceCombat((prev) => ({
+          ...prev,
+          enemies: (prev.enemies || []).map((e) =>
+            e.id === enemyId
+              ? { ...e, status: result.outcome === 'flees' ? 'fleeing' : 'surrendered' }
+              : e
+          ),
+        }));
+      } else {
+        logMessage += ' - Holds firm!';
+      }
+
+      addCombatLog(logMessage, result.demoralized ? 'morale-fail' : 'morale', {
+        enemyId,
+        ...result,
+        effectiveMorale,
+      });
+
+      return result;
+    },
+    [localState.enemies, addCombatLog, updateSpaceCombat]
+  );
+
+  // Quick HP adjustment (for inline roster)
+  const adjustEnemyHp = useCallback(
+    (enemyId, delta) => {
+      updateSpaceCombat((prev) => {
+        const enemies = prev.enemies || [];
+        const enemy = enemies.find(e => e.id === enemyId);
+        if (!enemy) return prev;
+
+        const newHp = Math.max(0, Math.min(enemy.hp.max, enemy.hp.current + delta));
+        const newStatus = newHp === 0 ? 'destroyed' : (newHp > 0 && enemy.status === 'destroyed') ? 'active' : enemy.status;
+
+        return {
+          ...prev,
+          enemies: enemies.map((e) =>
+            e.id === enemyId
+              ? { ...e, hp: { ...e.hp, current: newHp }, status: newStatus }
+              : e
+          ),
+        };
+      });
+    },
+    [updateSpaceCombat]
+  );
+
+  // Get count of active enemies
+  const getActiveEnemyCount = useCallback(() => {
+    return (localState.enemies || []).filter(e => e.status === 'active').length;
+  }, [localState.enemies]);
+
   const value = {
     spaceCombat: localState,
     viewingCombat,
@@ -220,6 +446,17 @@ export function SpaceCombatProvider({ children }) {
     decrementHyperdrive,
     resetHyperdrive,
     addCombatLog,
+    // Enemy management
+    addEnemy,
+    addEnemies,
+    updateEnemy,
+    removeEnemy,
+    clearAllEnemies,
+    applyDamageToEnemy,
+    rollEnemyAttack,
+    rollEnemyMorale,
+    adjustEnemyHp,
+    getActiveEnemyCount,
   };
 
   return (
