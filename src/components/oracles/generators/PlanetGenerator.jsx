@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import Button from '../../ui/Button';
-import { generatePlanet, generateSettlement, generateScene, rollOnTable } from '../../../data/oracles';
+import { generatePlanet, generateSettlement, rollOnTable } from '../../../data/oracles';
 import { worldOracles } from '../../../data/oracles';
 import { useGame } from '../../../context/GameContext';
 import { useOracleHistoryContext } from '../../../context/OracleHistoryContext';
@@ -8,7 +8,7 @@ import { useOracleHistoryContext } from '../../../context/OracleHistoryContext';
 export default function PlanetGenerator() {
   const { addLog, gameState } = useGame();
   const history = useOracleHistoryContext();
-  const [generatorType, setGeneratorType] = useState('planet'); // 'planet', 'settlement', 'scene'
+  const [generatorType, setGeneratorType] = useState('planet'); // 'planet', 'settlement'
 
   const handleGeneratePlanet = () => {
     const planet = generatePlanet();
@@ -20,20 +20,6 @@ export default function PlanetGenerator() {
     const settlement = generateSettlement(gameState.includePVOracles);
     if (history) history.addResult(settlement);
     addLog(`Settlement: ${settlement.name} (Leader: ${settlement.leader}) - ${settlement.knownFor}`, 'mission');
-  };
-
-  const handleGenerateScene = () => {
-    const scene = generateScene();
-    const result = {
-      location: scene.location,
-      tone: scene.tone,
-      obstacle: scene.obstacle,
-      locationRoll: scene.locationRoll,
-      toneRoll: scene.toneRoll,
-      obstacleRoll: scene.obstacleRoll
-    };
-    if (history) history.addResult(result);
-    addLog(`Scene: ${scene.location} - ${scene.tone} - ${scene.obstacle}`, 'mission');
   };
 
   const handleGeneratePlanetFeature = () => {
@@ -74,7 +60,7 @@ export default function PlanetGenerator() {
   return (
     <div className="space-y-4">
       {/* Generator Type Selector */}
-      <div className="grid grid-cols-3 gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <button
           onClick={() => setGeneratorType('planet')}
           className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
@@ -95,16 +81,6 @@ export default function PlanetGenerator() {
         >
           Settlement
         </button>
-        <button
-          onClick={() => setGeneratorType('scene')}
-          className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
-            generatorType === 'scene'
-              ? 'bg-accent-cyan text-bg-primary border-accent-cyan'
-              : 'bg-transparent text-accent-cyan border-accent-cyan hover:bg-accent-cyan hover:text-bg-primary'
-          }`}
-        >
-          Scene
-        </button>
       </div>
 
       {/* Main Generate Button */}
@@ -117,12 +93,6 @@ export default function PlanetGenerator() {
       {generatorType === 'settlement' && (
         <Button onClick={handleGenerateSettlement} variant="primary" className="w-full">
           Generate Settlement
-        </Button>
-      )}
-      
-      {generatorType === 'scene' && (
-        <Button onClick={handleGenerateScene} variant="primary" className="w-full">
-          Generate Scene
         </Button>
       )}
 

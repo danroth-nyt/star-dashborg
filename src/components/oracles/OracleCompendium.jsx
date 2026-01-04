@@ -29,7 +29,8 @@ import {
   generatePVNPCSurname,
   generateSpaceOperaName,
   generatePVSettlementName,
-  generatePVFactionName
+  generatePVFactionName,
+  generateScene
 } from '../../data/oracles';
 import { useGame } from '../../context/GameContext';
 import Accordion from '../ui/Accordion';
@@ -39,7 +40,7 @@ export default function OracleCompendium() {
 
   const tabs = [
     { id: 'core', label: 'Core', color: 'cyan' },
-    { id: 'missions', label: 'Missions', color: 'yellow' },
+    { id: 'story', label: 'Story', color: 'yellow' },
     { id: 'world', label: 'World', color: 'cyan' },
     { id: 'characters', label: 'Characters', color: 'yellow' },
     { id: 'combat', label: 'Combat', color: 'red' }
@@ -87,9 +88,9 @@ export default function OracleCompendium() {
             <CoreOraclesTab />
           </OracleHistoryProvider>
         )}
-        {activeTab === 'missions' && (
+        {activeTab === 'story' && (
           <OracleHistoryProvider>
-            <MissionsTab />
+            <StoryTab />
           </OracleHistoryProvider>
         )}
         {activeTab === 'world' && (
@@ -171,27 +172,9 @@ function CoreOraclesTab() {
           currentIndex={history.currentIndex}
           totalResults={history.totalResults}
           onNavigate={history.navigateTo}
+          onClear={history.clearHistory}
         />
       )}
-
-      <Accordion title={`Opening Scene (${diceType})`} defaultOpen={false}>
-        <OracleTable
-          title="Opening Scene"
-          table={soloOracles.openingScene}
-          variant="cyan"
-          diceType={diceType}
-        />
-        {gameState.includePVOracles && (
-          <div className="mt-4 p-3 border-2 border-accent-yellow bg-bg-secondary">
-            <div className="text-accent-yellow font-orbitron text-xs uppercase mb-2">
-              Perilous Void Entries (21-30)
-            </div>
-            <p className="text-gray-300 text-sm">
-              Rolls 21-30 use structured incidents with follow-up questions from The Perilous Void.
-            </p>
-          </div>
-        )}
-      </Accordion>
 
       <Accordion title="Crit & Blunder (d4)" defaultOpen={false}>
         <div className="space-y-4">
@@ -226,14 +209,28 @@ function CoreOraclesTab() {
   );
 }
 
-function MissionsTab() {
-  const { addLog } = useGame();
+function StoryTab() {
+  const { gameState } = useGame();
   const history = useOracleHistoryContext();
+  const diceType = gameState.includePVOracles ? 'd30' : 'd20';
+
+  const handleGenerateScene = () => {
+    const scene = generateScene();
+    // Just return result - OracleTable handles history.addResult() and logging
+    return {
+      result: 'Scene',
+      location: scene.location,
+      tone: scene.tone,
+      obstacle: scene.obstacle,
+      locationRoll: scene.locationRoll,
+      toneRoll: scene.toneRoll,
+      obstacleRoll: scene.obstacleRoll
+    };
+  };
 
   const handleEpicTitle = () => {
     const title = generateEpicTitle();
-    const titleString = `${title.col1} ${title.col2} ${title.col3} ${title.col4}`;
-    addLog(`Epic Title [${title.col1Roll}, ${title.col2Roll}, ${title.col3Roll}, ${title.col4Roll}]: ${titleString}`, 'mission');
+    // Just return result - OracleTable handles history.addResult() and logging
     return { 
       result: 'Campaign Title', 
       titleType: 'epic',
@@ -243,8 +240,7 @@ function MissionsTab() {
 
   const handleEpisodeTitle = () => {
     const title = generateEpisodeTitle();
-    const titleString = `${title.col1} ${title.col2} ${title.col3} ${title.col4}`;
-    addLog(`Episode Title [${title.col1Roll}, ${title.col2Roll}, ${title.col3Roll}, ${title.col4Roll}]: ${titleString}`, 'mission');
+    // Just return result - OracleTable handles history.addResult() and logging
     return { 
       result: 'Episode Title',
       titleType: 'episode',
@@ -255,7 +251,7 @@ function MissionsTab() {
   return (
     <div className="space-y-4">
       <div className="text-accent-yellow font-orbitron text-lg font-bold uppercase mb-4">
-        Mission & Plot Generators
+        Story & Plot Generators
       </div>
 
       {/* Result Display */}
@@ -266,21 +262,41 @@ function MissionsTab() {
           currentIndex={history.currentIndex}
           totalResults={history.totalResults}
           onNavigate={history.navigateTo}
+          onClear={history.clearHistory}
         />
       )}
 
-      <Accordion title="Mission Generator" defaultOpen={true}>
-        <MissionGenerator />
+      <Accordion title="Scene Generator (3d6)" defaultOpen={true}>
+        <OracleTable
+          title="Generate Scene"
+          table={[]}
+          variant="cyan"
+          diceType="3d6"
+          rollFunction={handleGenerateScene}
+        />
       </Accordion>
 
-      <Accordion title="Pre-Made Scenarios (d6)" defaultOpen={false}>
+      <Accordion title={`Opening Scene (${diceType})`} defaultOpen={false}>
         <OracleTable
-          title="Campaign Scenario"
-          table={missionGenerators.scenarios}
-          variant="yellow"
-          diceType="d6"
-          formatResult={(result) => ({ result: result.title, detail: result.desc })}
+          title="Opening Scene"
+          table={soloOracles.openingScene}
+          variant="cyan"
+          diceType={diceType}
         />
+        {gameState.includePVOracles && (
+          <div className="mt-4 p-3 border-2 border-accent-yellow bg-bg-secondary">
+            <div className="text-accent-yellow font-orbitron text-xs uppercase mb-2">
+              Perilous Void Entries (21-30)
+            </div>
+            <p className="text-gray-300 text-sm">
+              Rolls 21-30 use structured incidents with follow-up questions from The Perilous Void.
+            </p>
+          </div>
+        )}
+      </Accordion>
+
+      <Accordion title="Mission Generator" defaultOpen={false}>
+        <MissionGenerator />
       </Accordion>
 
       <Accordion title="Title Generators" defaultOpen={false}>
@@ -300,6 +316,16 @@ function MissionsTab() {
             rollFunction={handleEpisodeTitle}
           />
         </div>
+      </Accordion>
+
+      <Accordion title="Pre-Made Scenarios (d6)" defaultOpen={false}>
+        <OracleTable
+          title="Campaign Scenario"
+          table={missionGenerators.scenarios}
+          variant="yellow"
+          diceType="d6"
+          formatResult={(result) => ({ result: result.title, detail: result.desc })}
+        />
       </Accordion>
     </div>
   );
@@ -323,6 +349,7 @@ function WorldTab() {
           currentIndex={history.currentIndex}
           totalResults={history.totalResults}
           onNavigate={history.navigateTo}
+          onClear={history.clearHistory}
         />
       )}
 
@@ -433,6 +460,7 @@ function CharactersTab() {
           currentIndex={history.currentIndex}
           totalResults={history.totalResults}
           onNavigate={history.navigateTo}
+          onClear={history.clearHistory}
         />
       )}
 
@@ -552,6 +580,7 @@ function CombatTab() {
           currentIndex={history.currentIndex}
           totalResults={history.totalResults}
           onNavigate={history.navigateTo}
+          onClear={history.clearHistory}
         />
       )}
 

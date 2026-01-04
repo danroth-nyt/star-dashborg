@@ -1,7 +1,10 @@
-import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { supabase } from '../lib/supabaseClient';
 
 const GameContext = createContext();
+
+// Generate a unique client ID for this browser tab
+const generateClientId = () => `client-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 export function useGame() {
   const context = useContext(GameContext);
@@ -59,6 +62,11 @@ export function GameProvider({ children, roomCode }) {
   const pendingStateRef = useRef(null);
   const dirtyFieldsRef = useRef(new Set()); // Track fields with pending local changes
   const isSyncingRef = useRef(false); // Track if we're currently syncing to DB
+  const broadcastChannelRef = useRef(null); // Broadcast channel for instant sync
+  const lastBroadcastTimestampRef = useRef(0); // Track last received broadcast timestamp
+  
+  // Generate stable client ID for this session
+  const clientId = useMemo(() => generateClientId(), []);
 
   // Load initial game state
   useEffect(() => {
@@ -102,7 +110,45 @@ export function GameProvider({ children, roomCode }) {
     loadGameState();
   }, [roomCode]);
 
-  // Subscribe to realtime changes with field-level merging
+  // Subscribe to broadcast channel for instant sync
+  useEffect(() => {
+    if (!roomCode) return;
+
+    const broadcastChannel = supabase
+      .channel(`game-sync:${roomCode}`)
+      .on('broadcast', { event: 'game_state_update' }, (payload) => {
+        const { senderId, timestamp, updates } = payload.payload;
+        
+        // Ignore our own broadcasts
+        if (senderId === clientId) return;
+        
+        // Ignore stale broadcasts (older than our last received)
+        if (timestamp <= lastBroadcastTimestampRef.current) return;
+        lastBroadcastTimestampRef.current = timestamp;
+        
+        // Apply the updates from the broadcast
+        setGameState((currentState) => {
+          // Only update fields that aren't dirty locally
+          const mergedState = { ...currentState };
+          Object.keys(updates).forEach((key) => {
+            if (!dirtyFieldsRef.current.has(key)) {
+              mergedState[key] = updates[key];
+            }
+          });
+          return mergedState;
+        });
+      })
+      .subscribe();
+
+    broadcastChannelRef.current = broadcastChannel;
+
+    return () => {
+      supabase.removeChannel(broadcastChannel);
+      broadcastChannelRef.current = null;
+    };
+  }, [roomCode, clientId]);
+
+  // Subscribe to postgres_changes as fallback for persistence/reconnection
   useEffect(() => {
     if (!roomCode) return;
 
@@ -121,6 +167,7 @@ export function GameProvider({ children, roomCode }) {
             const remoteState = payload.new.game_state;
             
             // Merge strategy: Only accept remote values for fields we're not currently editing
+            // This serves as a fallback - broadcast should have already applied most updates
             setGameState((currentState) => {
               // If we're in the middle of syncing our own changes, ignore this update
               if (isSyncingRef.current) {
@@ -158,13 +205,14 @@ export function GameProvider({ children, roomCode }) {
     };
   }, []);
 
-  // Update game state in Supabase with dirty field tracking
+  // Update game state in Supabase with dirty field tracking and instant broadcast
   const updateGameState = useCallback(
     (updates) => {
       if (!roomCode) return;
 
       let newState;
       let changedFields = new Set();
+      let changedUpdates = {};
       
       // Immediate UI update
       setGameState(currentState => {
@@ -173,11 +221,19 @@ export function GameProvider({ children, roomCode }) {
         
         // Track which top-level fields changed
         if (typeof updates === 'function') {
-          // For function updates, mark all fields as potentially dirty
-          Object.keys(newState).forEach(key => changedFields.add(key));
+          // For function updates, find actual differences
+          Object.keys(newState).forEach(key => {
+            if (JSON.stringify(currentState[key]) !== JSON.stringify(newState[key])) {
+              changedFields.add(key);
+              changedUpdates[key] = newState[key];
+            }
+          });
         } else {
           // For object updates, only mark the changed fields
-          Object.keys(updates).forEach(key => changedFields.add(key));
+          Object.keys(updates).forEach(key => {
+            changedFields.add(key);
+            changedUpdates[key] = updates[key];
+          });
         }
         
         // Mark these fields as dirty (locally modified, pending sync)
@@ -186,7 +242,20 @@ export function GameProvider({ children, roomCode }) {
         return newState;
       });
 
-      // Debounced database sync
+      // Broadcast changes immediately for instant sync with other clients
+      if (broadcastChannelRef.current && Object.keys(changedUpdates).length > 0) {
+        broadcastChannelRef.current.send({
+          type: 'broadcast',
+          event: 'game_state_update',
+          payload: {
+            senderId: clientId,
+            timestamp: Date.now(),
+            updates: changedUpdates,
+          },
+        });
+      }
+
+      // Debounced database sync for persistence
       if (syncTimerRef.current) {
         clearTimeout(syncTimerRef.current);
       }
@@ -215,7 +284,7 @@ export function GameProvider({ children, roomCode }) {
         }
       }, 300); // 300ms debounce
     },
-    [roomCode]
+    [roomCode, clientId]
   );
 
   // Add log entry
@@ -267,6 +336,7 @@ export function GameProvider({ children, roomCode }) {
     toggleStarforgedOracles,
     loading,
     error,
+    roomCode, // Expose roomCode for child contexts
   };
 
   return <GameContext.Provider value={value}>{children}</GameContext.Provider>;

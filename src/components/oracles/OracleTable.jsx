@@ -51,6 +51,21 @@ function formatLogMessage(title, result) {
     return `${title}: ${result.name} - ${result.beast}`;
   }
   
+  // Scene results (location, tone, obstacle)
+  if (result.location && result.tone && result.obstacle) {
+    const rolls = [result.locationRoll, result.toneRoll, result.obstacleRoll].filter(r => r !== undefined);
+    const rollStr = rolls.length > 0 ? ` [${rolls.join(', ')}]` : '';
+    return `Scene${rollStr}: ${result.location} - ${result.tone} - ${result.obstacle}`;
+  }
+  
+  // Title Generator results (4 columns)
+  if (result.titleType && result.col1 && result.col2 && result.col3 && result.col4) {
+    const typeName = result.titleType === 'epic' ? 'Epic Title' : 'Episode Title';
+    const rolls = [result.col1Roll, result.col2Roll, result.col3Roll, result.col4Roll].filter(r => r !== undefined);
+    const rollStr = rolls.length > 0 ? ` [${rolls.join(', ')}]` : '';
+    return `${typeName}${rollStr}: ${result.col1} ${result.col2} ${result.col3} ${result.col4}`;
+  }
+  
   // Generic result/detail format
   if (result.result && result.detail) {
     return `${title}: ${result.result} - ${result.detail}`;

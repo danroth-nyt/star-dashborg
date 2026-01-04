@@ -106,7 +106,7 @@ All notable changes to Star Dashborg are documented in this file.
   - Test setup file at `src/test/setup.js` with automatic cleanup
   - Test utilities at `src/test/testUtils.jsx` for easy test authoring
 
-- **Comprehensive Test Suite**: 191 tests across 15 test files
+- **Comprehensive Test Suite**: 264 tests across 19 test files
   - **Context Tests**: `OracleHistoryContext.test.jsx` (7 tests) - Provider, history management, isolation
   - **Component Tests**:
     - `OracleQuickBar.test.jsx` (12 tests) - Modifier buttons, roll modes, responsive labels
@@ -115,14 +115,17 @@ All notable changes to Star Dashborg are documented in this file.
     - `LoadingScreen.test.jsx` (22 tests) - Render states, animations, layout, edge cases
     - `ShipStatus.test.jsx` (5 tests) - Ship stats display
     - `SpaceCombatView.test.jsx` (3 tests) - Combat view integration
+    - `StationCard.test.jsx` (16 tests) - Station assignment, upgrade badges, party integration
     - `CharacterJournal.test.jsx` (3 tests) - Character journal
     - `SessionJournal.test.jsx` (3 tests) - Session journal
     - `OracleResultDisplay.test.jsx` (5 tests) - Oracle result formatting
   - **Hook Tests**:
     - `useOracleHistory.test.js` (17 tests) - History management, navigation, limits
     - `useSwipeGesture.test.js` (19 tests) - Touch/mouse gesture detection
+    - `useDebounce.test.js` (8 tests) - Debounce timer behavior, cleanup
   - **Utility Tests**:
     - `dice.test.js` (37 tests) - Dice rolling functions
+    - `shipUpgrades.test.js` (36 tests) - Ship upgrade utility functions
     - `keyboardUtils.test.js` (8 tests) - Keyboard state detection
     - `starforgedOracles.test.js` (14 tests) - Oracle data validation
 
@@ -131,6 +134,31 @@ All notable changes to Star Dashborg are documented in this file.
   - JSON output for CI/CD integration
   - Text summary for terminal output
   - Excludes test files and setup from coverage metrics
+
+### 🔧 New Utilities & Hooks
+
+#### ✨ Features
+- **Ship Upgrades Utility**: `src/utils/shipUpgrades.js`
+  - 13 pure functions for ship upgrade logic
+  - `hasUpgrade()` - Check if upgrade is owned
+  - `getMaxArmorTier()` - Calculate max armor with Overcharge Shields
+  - `getGunnerDamage()` - Get turret damage (d6 or d8 with Turbo Lasers)
+  - `canLoadTorpedo()` - Check torpedo loading permissions (Winch upgrade)
+  - `getAvailableUpgrades()` - Filter purchasable upgrades
+  - `getTotalCost()` - Calculate upgrade costs
+  - Full test coverage with 36 unit tests
+
+- **Debounce Hook**: `src/hooks/useDebounce.js`
+  - Simple, reusable debounce for auto-save functionality
+  - Configurable delay (default 300ms)
+  - Proper cleanup on unmount
+  - Used in journal auto-save features
+  - 8 unit tests covering timer behavior
+
+#### 🐛 Bug Fixes
+- **SpaceCombatView.test.jsx**: Fixed missing `getActiveEnemyCount` mock
+  - Test was failing due to incomplete context mock
+  - Added proper mock function for enemy count calculation
 
 ### 🎨 Oracle History System (NEW)
 

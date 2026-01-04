@@ -15,6 +15,13 @@ export default function VisualBoostOracle() {
   // Visual Oracle boost array (20 items)
   const boostIcons = visualOracles.boost;
 
+  // Reset selected icon when history is cleared
+  useEffect(() => {
+    if (history && history.clearVersion > 0) {
+      setSelectedIndex(null);
+    }
+  }, [history?.clearVersion]);
+
   const handleRoll = () => {
     if (isRolling) return;
 

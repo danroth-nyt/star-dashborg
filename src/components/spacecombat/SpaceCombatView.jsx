@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, Volume2, VolumeX } from 'lucide-react';
+import { X, Volume2, VolumeX, Users } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
 import { useSoundEffects } from '../../hooks/useSoundEffects';
 import { isUserTyping } from '../../lib/keyboardUtils';
@@ -7,12 +7,17 @@ import Button from '../ui/Button';
 import ShipStatus from './ShipStatus';
 import StationGrid from './StationGrid';
 import CombatLog from './CombatLog';
+import EnemyRoster from './EnemyRoster';
+import EnemyDrawer from './EnemyDrawer';
 
 export default function SpaceCombatView() {
-  const { exitCombatView } = useSpaceCombat();
+  const { exitCombatView, spaceCombat, getActiveEnemyCount } = useSpaceCombat();
   const { toggleMute, getMutedState } = useSoundEffects();
   const [isExiting, setIsExiting] = useState(false);
   const [isMuted, setIsMuted] = useState(getMutedState());
+  const [isEnemyDrawerOpen, setIsEnemyDrawerOpen] = useState(false);
+  
+  const activeEnemyCount = getActiveEnemyCount();
 
   const handleExitCombatView = () => {
     setIsExiting(true);
@@ -71,6 +76,24 @@ export default function SpaceCombatView() {
             </div>
 
             <div className="flex items-center gap-2">
+              {/* Enemy Forces Button */}
+              <button
+                onClick={() => setIsEnemyDrawerOpen(true)}
+                className={`relative p-2 transition-colors rounded border-2 ${
+                  activeEnemyCount > 0
+                    ? 'text-accent-red hover:text-white border-accent-red/50 hover:border-accent-red hover:bg-accent-red/20'
+                    : 'text-gray-400 hover:text-accent-cyan border-transparent hover:border-accent-cyan'
+                }`}
+                title="Manage enemy forces"
+              >
+                <Users className="w-4 h-4" />
+                {activeEnemyCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 text-[10px] font-bold bg-accent-red text-white rounded-full flex items-center justify-center">
+                    {activeEnemyCount > 9 ? '9+' : activeEnemyCount}
+                  </span>
+                )}
+              </button>
+              
               <button
                 onClick={handleToggleSound}
                 className="p-2 text-gray-400 hover:text-accent-cyan transition-colors rounded border-2 border-transparent hover:border-accent-cyan"
@@ -102,6 +125,9 @@ export default function SpaceCombatView() {
               {/* Left Column - Unified Ship Panel */}
               <div className="lg:col-span-4 xl:col-span-3 space-y-4">
                 <ShipStatus />
+                
+                {/* Enemy Roster (Compact Inline) */}
+                <EnemyRoster onOpenDrawer={() => setIsEnemyDrawerOpen(true)} />
 
                 {/* Combat Notes */}
                 <div className="bg-bg-secondary/80 backdrop-blur-sm border-3 border-gray-700 p-4">
@@ -162,6 +188,12 @@ export default function SpaceCombatView() {
           </div>
         </footer>
       </div>
+      
+      {/* Enemy Management Drawer */}
+      <EnemyDrawer 
+        isOpen={isEnemyDrawerOpen} 
+        onClose={() => setIsEnemyDrawerOpen(false)} 
+      />
     </div>
   );
 }

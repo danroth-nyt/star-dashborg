@@ -139,17 +139,21 @@ export default function DiceLog() {
   const { gameState } = useGame();
   const containerRef = useRef(null);
   const [latestLogId, setLatestLogId] = useState(null);
-
-  // Auto-scroll to bottom when new log entries are added
+  
+  // Auto-scroll to bottom when new log entries are added (matches desktop behavior)
   useEffect(() => {
     if (containerRef.current && gameState.log.length > 0) {
-      // Find the scrollable parent (Panel's content div)
+      // Find the scrollable parent (Panel's content div with overflow-auto)
       const scrollableParent = containerRef.current.parentElement;
       if (scrollableParent) {
-        scrollableParent.scrollTop = scrollableParent.scrollHeight;
+        // Use requestAnimationFrame to ensure DOM has updated, especially important for mobile
+        requestAnimationFrame(() => {
+          // Scroll to bottom to show newest entry - matches original desktop behavior
+          scrollableParent.scrollTop = scrollableParent.scrollHeight;
+        });
       }
     }
-  }, [gameState.log.length]);
+  }, [gameState.log]);
 
   // Track latest entry for animation
   useEffect(() => {
