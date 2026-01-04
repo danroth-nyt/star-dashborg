@@ -1,7 +1,26 @@
+import { useEffect } from 'react';
 import { HelpCircle, GripVertical, ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-export default function Panel({ title, children, className, variant = 'cyan', onHelpClick, draggable, onDragStart, onDragEnd, collapsible, collapsed, onCollapsedChange, mobileMaxHeight }) {
+export default function Panel({ 
+  title, 
+  children, 
+  className, 
+  variant = 'cyan', 
+  onHelpClick, 
+  draggable, 
+  onDragStart, 
+  onDragEnd, 
+  collapsible, 
+  collapsed, 
+  onCollapsedChange, 
+  mobileMaxHeight,
+  // Touch drag props for mobile
+  touchDraggable,
+  panelId,
+  isDragging,
+  isDropTarget
+}) {
 
   const borderColors = {
     cyan: 'border-accent-cyan',
@@ -15,11 +34,23 @@ export default function Panel({ title, children, className, variant = 'cyan', on
     red: 'text-accent-red',
   };
 
+  const showGrip = draggable || touchDraggable;
+
+  // #region agent log
+  useEffect(() => {
+    if (touchDraggable && panelId) {
+      fetch('http://127.0.0.1:7243/ingest/796fb027-eb71-4dd1-95d0-a5c2bee24805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Panel.jsx:40',message:'Panel rendered with touch drag',data:{panelId:panelId,touchDraggable:touchDraggable},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
+    }
+  }, [touchDraggable, panelId]);
+  // #endregion
+
   return (
     <div className={cn(
       'border-3 flex flex-col relative transition-all duration-300 bg-bg-secondary overflow-hidden',
       collapsed ? 'h-auto' : 'h-full',
       borderColors[variant],
+      isDragging && 'opacity-50 scale-[0.98]',
+      isDropTarget && 'ring-2 ring-accent-cyan ring-offset-2 ring-offset-bg-primary',
       className
     )}>
       {title && (
@@ -27,17 +58,24 @@ export default function Panel({ title, children, className, variant = 'cyan', on
           draggable={draggable}
           onDragStart={onDragStart}
           onDragEnd={onDragEnd}
+          data-panel-header={touchDraggable ? true : undefined}
+          data-panel-id={touchDraggable ? panelId : undefined}
           className={cn(
             'px-4 py-2 font-orbitron font-bold uppercase text-lg shrink-0 flex items-center justify-between h-[52px]',
             textColors[variant],
             'bg-bg-primary',
             'overflow-hidden',
             !collapsed && `border-b-3 ${borderColors[variant]}`,
-            draggable && 'cursor-grab active:cursor-grabbing'
+            (draggable || touchDraggable) && 'cursor-grab active:cursor-grabbing',
+            touchDraggable && 'select-none'
           )}
         >
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            {draggable && <GripVertical className="w-4 h-4 opacity-50 shrink-0" />}
+            {showGrip && (
+              <div className="flex items-center justify-center shrink-0 p-1 -ml-1 rounded hover:bg-current/10 active:bg-current/20 transition-colors">
+                <GripVertical className="w-5 h-5 opacity-60" />
+              </div>
+            )}
             <span className="break-words truncate">{title}</span>
           </div>
           <div className="flex items-center gap-1">
@@ -72,7 +110,7 @@ export default function Panel({ title, children, className, variant = 'cyan', on
               >
                 <ChevronDown className={cn(
                   'w-4 h-4 transition-transform duration-200',
-                  collapsed && 'rotate-180'
+                  !collapsed && 'rotate-180'
                 )} />
               </button>
             )}

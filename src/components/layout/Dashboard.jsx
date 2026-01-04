@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Header from './Header';
 import Panel from './Panel';
 import ThreatDie from '../trackers/ThreatDie';
@@ -27,11 +27,11 @@ const defaultPanels = [
   { id: 'threat-die', component: 'ThreatDie', title: 'Threat Die', variant: 'red', mobileCollapsedDefault: false },
   { id: 'dice-roller', component: 'DiceRoller', title: 'Dice Roller', variant: 'yellow', mobileCollapsedDefault: false },
   { id: 'oracle-compendium', component: 'OraclePanel', title: 'Oracle Compendium', variant: 'cyan', mobileCollapsedDefault: false },
-  { id: 'ship-log', component: 'DiceLog', title: 'Ship Log', variant: 'cyan', mobileCollapsedDefault: true },
+  { id: 'ship-log', component: 'DiceLog', title: 'Ship Log', variant: 'cyan', mobileCollapsedDefault: true, mobileMaxHeight: '30vh' },
   { id: 'party-panel', component: 'PartyPanel', title: 'Party', variant: 'red', mobileCollapsedDefault: false },
   { id: 'danger-clocks', component: 'DangerClock', title: 'Danger Clocks', variant: 'red', mobileCollapsedDefault: true },
   { id: 'mission-tracks', component: 'MissionTrack', title: 'Mission Tracks', variant: 'cyan', mobileCollapsedDefault: true },
-  { id: 'session-journal', component: 'SessionJournal', title: 'Session Journal', variant: 'yellow', mobileCollapsedDefault: false },
+  { id: 'session-journal', component: 'SessionJournal', title: 'Session Journal', variant: 'yellow', mobileCollapsedDefault: false, mobileMaxHeight: '35vh' },
 ];
 
 export default function Dashboard({ roomCode }) {
@@ -90,6 +90,13 @@ export default function Dashboard({ roomCode }) {
   const [helpModalOpen, setHelpModalOpen] = useState(false);
   const [helpModalTab, setHelpModalTab] = useState('threatDie');
   const [characterSheetOpen, setCharacterSheetOpen] = useState(false);
+  
+  // Mobile touch drag state
+  const [touchDraggedPanel, setTouchDraggedPanel] = useState(null);
+  const [touchDropTarget, setTouchDropTarget] = useState(null);
+  const panelRefs = useRef({});
+  const dragStateRef = useRef({ panelId: null, startY: 0, reorderInProgress: false });
+  const touchDropTargetRef = useRef(null); // Ref to track drop target for closure-safe access
   
   // Mobile collapsed state - load from localStorage or use defaults
   const [mobileCollapsed, setMobileCollapsed] = useState(() => {
@@ -187,6 +194,96 @@ export default function Dashboard({ roomCode }) {
     }));
   };
 
+  // Mobile touch drag - attach listeners with passive: false
+  useEffect(() => {
+    const handleTouchStart = (e) => {
+      const target = e.target.closest('[data-panel-header]');
+      if (!target) return;
+      
+      const panelId = target.dataset.panelId;
+      if (!panelId) return;
+      
+      // Only start drag if touching near the grip icon (left 70px)
+      const touch = e.touches[0];
+      const rect = target.getBoundingClientRect();
+      const touchX = touch.clientX - rect.left;
+      
+      if (touchX > 70) return;
+      
+      e.preventDefault();
+      dragStateRef.current = { panelId, startY: touch.clientY, reorderInProgress: false };
+      setTouchDraggedPanel(panelId);
+    };
+
+    const handleTouchMove = (e) => {
+      if (!dragStateRef.current.panelId) return;
+      
+      e.preventDefault();
+      const touch = e.touches[0];
+      
+      // Find which panel we're over
+      for (const [id, ref] of Object.entries(panelRefs.current)) {
+        if (ref && id !== dragStateRef.current.panelId) {
+          const rect = ref.getBoundingClientRect();
+          if (touch.clientY >= rect.top && touch.clientY <= rect.bottom) {
+            touchDropTargetRef.current = id;
+            setTouchDropTarget(id);
+            return;
+          }
+        }
+      }
+      touchDropTargetRef.current = null;
+      setTouchDropTarget(null);
+    };
+
+    const handleTouchEnd = (e) => {
+      const draggedId = dragStateRef.current.panelId;
+      if (!draggedId) return;
+      
+      // Guard against double execution
+      if (dragStateRef.current.reorderInProgress) return;
+      dragStateRef.current.reorderInProgress = true;
+      
+      e.preventDefault();
+      
+      // Capture drop target from ref (closure-safe)
+      const dropTargetId = touchDropTargetRef.current;
+      
+      // Clear visual states first
+      setTouchDraggedPanel(null);
+      setTouchDropTarget(null);
+      touchDropTargetRef.current = null;
+      
+      // Perform reorder if we have a valid drop target
+      if (dropTargetId && dropTargetId !== draggedId) {
+        setPanels((currentPanels) => {
+          const draggedIndex = currentPanels.findIndex(p => p.id === draggedId);
+          const targetIndex = currentPanels.findIndex(p => p.id === dropTargetId);
+
+          if (draggedIndex !== -1 && targetIndex !== -1 && draggedIndex !== targetIndex) {
+            const newPanels = [...currentPanels];
+            const [removed] = newPanels.splice(draggedIndex, 1);
+            newPanels.splice(targetIndex, 0, removed);
+            return newPanels;
+          }
+          return currentPanels;
+        });
+      }
+      
+      // Reset drag state
+      dragStateRef.current = { panelId: null, startY: 0, reorderInProgress: false };
+    };
+
+    document.addEventListener('touchstart', handleTouchStart, { passive: false });
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    document.addEventListener('touchend', handleTouchEnd, { passive: false });
+
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchmove', handleTouchMove);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, []);
 
   // Define grid slots - panels adapt to whatever slot they're placed in
   const gridSlots = [
@@ -228,8 +325,19 @@ export default function Dashboard({ roomCode }) {
       return null;
     }
 
+    const isDragging = touchDraggedPanel === panel.id;
+    const isDropTarget = touchDropTarget === panel.id;
+
     return (
-      <div key={panel.id} className="relative">
+      <div 
+        key={panel.id} 
+        ref={(el) => { panelRefs.current[panel.id] = el; }}
+        className={`relative transition-all duration-150 ${
+          isDragging ? 'z-50 opacity-50' : ''
+        } ${
+          isDropTarget ? 'ring-1 ring-accent-cyan/60 rounded' : ''
+        }`}
+      >
         <Panel 
           title={panel.title}
           variant={panel.variant}
@@ -242,7 +350,11 @@ export default function Dashboard({ roomCode }) {
           collapsible={true}
           collapsed={mobileCollapsed[panel.id] || false}
           onCollapsedChange={(isCollapsed) => handleMobileCollapse(panel.id, isCollapsed)}
-          mobileMaxHeight={panel.id === 'ship-log' ? '30vh' : undefined}
+          mobileMaxHeight={panel.mobileMaxHeight}
+          touchDraggable={true}
+          panelId={panel.id}
+          isDragging={isDragging}
+          isDropTarget={isDropTarget}
         >
           {components[panel.component]}
         </Panel>
