@@ -58,7 +58,8 @@ export default function EnemyCard({ enemy, onRemove }) {
   } = useSpaceCombat();
   const { play } = useSoundEffects();
   
-  const hpPercent = enemy.hp.max ? (enemy.hp.current / enemy.hp.max) * 100 : 0;
+  const isInfiniteHp = enemy.hp.max === null || enemy.hp.max === undefined;
+  const hpPercent = isInfiniteHp ? 100 : (enemy.hp.max ? (enemy.hp.current / enemy.hp.max) * 100 : 0);
   const isInactive = enemy.status !== 'active';
   const armorInfo = ENEMY_ARMOR_TIERS[enemy.armor] || ENEMY_ARMOR_TIERS[0];
   
@@ -68,6 +69,7 @@ export default function EnemyCard({ enemy, onRemove }) {
   // HP bar color
   const getHpColor = () => {
     if (enemy.status === 'destroyed') return 'bg-gray-600';
+    if (isInfiniteHp) return 'bg-purple-500'; // Special color for infinite HP
     if (hpPercent > 66) return 'bg-accent-cyan';
     if (hpPercent > 33) return 'bg-accent-yellow';
     return 'bg-accent-red';
@@ -78,7 +80,16 @@ export default function EnemyCard({ enemy, onRemove }) {
     const result = rollEnemyAttack(enemy.id);
     if (result) {
       setLastAttackResult(result);
-      play('enemyAttack', 0.5);
+      
+      // Play different sound based on enemy type
+      if (enemy.type === 'dreadnought') {
+        play('turboCannonAttack', 0.6);
+      } else if (enemy.type === 'predatorLeader') {
+        play('particleBeamAttack', 0.5);
+      } else {
+        play('enemyAttack', 0.5);
+      }
+      
       // Clear result after 3 seconds
       setTimeout(() => setLastAttackResult(null), 3000);
     }
@@ -155,8 +166,8 @@ export default function EnemyCard({ enemy, onRemove }) {
               style={{ width: `${hpPercent}%` }}
             />
           </div>
-          <span className="text-xs font-mono text-gray-400 w-12 text-right">
-            {enemy.hp.current}/{enemy.hp.max}
+          <span className={`text-xs font-mono w-12 text-right ${isInfiniteHp ? 'text-purple-400' : 'text-gray-400'}`}>
+            {isInfiniteHp ? '∞' : `${enemy.hp.current}/${enemy.hp.max}`}
           </span>
         </div>
       </div>
@@ -222,38 +233,46 @@ export default function EnemyCard({ enemy, onRemove }) {
           )}
           
           {/* HP Adjustment */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-gray-400">HP:</span>
-            <div className="flex items-center gap-1">
-              <button
-                onClick={() => adjustEnemyHp(enemy.id, -5)}
-                className="px-2 py-1 text-xs bg-accent-red/20 text-accent-red border border-accent-red rounded hover:bg-accent-red hover:text-bg-primary transition-colors"
-              >
-                -5
-              </button>
-              <button
-                onClick={() => adjustEnemyHp(enemy.id, -1)}
-                className="px-2 py-1 text-xs bg-accent-red/20 text-accent-red border border-accent-red rounded hover:bg-accent-red hover:text-bg-primary transition-colors"
-              >
-                -1
-              </button>
-              <span className="px-3 py-1 text-sm font-mono bg-gray-800 rounded min-w-[60px] text-center">
-                {enemy.hp.current}
+          {isInfiniteHp ? (
+            <div className="flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 p-2 rounded">
+              <span className="text-xs text-purple-400 font-mono">
+                ∞ IMPERVIOUS - Cannot be damaged by conventional weapons
               </span>
-              <button
-                onClick={() => adjustEnemyHp(enemy.id, 1)}
-                className="px-2 py-1 text-xs bg-accent-cyan/20 text-accent-cyan border border-accent-cyan rounded hover:bg-accent-cyan hover:text-bg-primary transition-colors"
-              >
-                +1
-              </button>
-              <button
-                onClick={() => adjustEnemyHp(enemy.id, 5)}
-                className="px-2 py-1 text-xs bg-accent-cyan/20 text-accent-cyan border border-accent-cyan rounded hover:bg-accent-cyan hover:text-bg-primary transition-colors"
-              >
-                +5
-              </button>
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-gray-400">HP:</span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => adjustEnemyHp(enemy.id, -5)}
+                  className="px-2 py-1 text-xs bg-accent-red/20 text-accent-red border border-accent-red rounded hover:bg-accent-red hover:text-bg-primary transition-colors"
+                >
+                  -5
+                </button>
+                <button
+                  onClick={() => adjustEnemyHp(enemy.id, -1)}
+                  className="px-2 py-1 text-xs bg-accent-red/20 text-accent-red border border-accent-red rounded hover:bg-accent-red hover:text-bg-primary transition-colors"
+                >
+                  -1
+                </button>
+                <span className="px-3 py-1 text-sm font-mono bg-gray-800 rounded min-w-[60px] text-center">
+                  {enemy.hp.current}
+                </span>
+                <button
+                  onClick={() => adjustEnemyHp(enemy.id, 1)}
+                  className="px-2 py-1 text-xs bg-accent-cyan/20 text-accent-cyan border border-accent-cyan rounded hover:bg-accent-cyan hover:text-bg-primary transition-colors"
+                >
+                  +1
+                </button>
+                <button
+                  onClick={() => adjustEnemyHp(enemy.id, 5)}
+                  className="px-2 py-1 text-xs bg-accent-cyan/20 text-accent-cyan border border-accent-cyan rounded hover:bg-accent-cyan hover:text-bg-primary transition-colors"
+                >
+                  +5
+                </button>
+              </div>
+            </div>
+          )}
           
           {/* Action Buttons */}
           {!isInactive && (

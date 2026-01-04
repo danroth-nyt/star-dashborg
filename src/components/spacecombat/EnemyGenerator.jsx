@@ -79,7 +79,13 @@ export default function EnemyGenerator() {
   const handleQuickSpawn = (shipType) => {
     const enemy = createEnemy(shipType);
     addEnemy(enemy);
-    play('enemySpawn', 0.6);
+    
+    // Play specific sound for dreadnought
+    if (shipType === 'dreadnought') {
+      play('dreadnoughtSpawn', 0.7);
+    } else {
+      play('enemySpawn', 0.6);
+    }
   };
   
   // Spawn with selected options
@@ -94,7 +100,12 @@ export default function EnemyGenerator() {
       addEnemies(squad);
     }
     
-    play('enemySpawn', 0.6);
+    // Play specific sound for dreadnought
+    if (selectedType === 'dreadnought') {
+      play('dreadnoughtSpawn', 0.7);
+    } else {
+      play('enemySpawn', 0.6);
+    }
     
     // Reset selections
     setSelectedType(null);
@@ -183,7 +194,12 @@ export default function EnemyGenerator() {
       addEnemies(squad);
     }
     
-    play('enemySpawn', 0.6);
+    // Play specific sound for dreadnought
+    if (selectedShip === 'dreadnought') {
+      play('dreadnoughtSpawn', 0.7);
+    } else {
+      play('enemySpawn', 0.6);
+    }
   };
 
   return (

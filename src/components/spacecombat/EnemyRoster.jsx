@@ -19,12 +19,14 @@ function StatusIcon({ status, size = 'w-3 h-3' }) {
 
 // Single enemy row in the compact roster
 function EnemyRow({ enemy, onAdjustHp }) {
-  const hpPercent = enemy.hp.max ? (enemy.hp.current / enemy.hp.max) * 100 : 0;
+  const isInfiniteHp = enemy.hp.max === null || enemy.hp.max === undefined;
+  const hpPercent = isInfiniteHp ? 100 : (enemy.hp.max ? (enemy.hp.current / enemy.hp.max) * 100 : 0);
   const isInactive = enemy.status !== 'active';
   
   // HP bar color based on percentage
   const getHpColor = () => {
     if (enemy.status === 'destroyed') return 'bg-gray-600';
+    if (isInfiniteHp) return 'bg-purple-500'; // Special color for infinite HP
     if (hpPercent > 66) return 'bg-accent-cyan';
     if (hpPercent > 33) return 'bg-accent-yellow';
     return 'bg-accent-red';
@@ -59,13 +61,13 @@ function EnemyRow({ enemy, onAdjustHp }) {
       
       {/* HP Text */}
       <span className={`text-[10px] font-mono w-10 text-right ${
-        isInactive ? 'text-gray-600' : 'text-gray-400'
+        isInactive ? 'text-gray-600' : isInfiniteHp ? 'text-purple-400' : 'text-gray-400'
       }`}>
-        {enemy.hp.current}/{enemy.hp.max}
+        {isInfiniteHp ? '∞' : `${enemy.hp.current}/${enemy.hp.max}`}
       </span>
       
       {/* Quick Adjust Buttons */}
-      {!isInactive && (
+      {!isInactive && !isInfiniteHp && (
         <div className="flex gap-0.5">
           <button
             onClick={(e) => {
