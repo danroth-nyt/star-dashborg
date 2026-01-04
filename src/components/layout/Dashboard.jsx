@@ -31,7 +31,7 @@ const defaultPanels = [
   { id: 'party-panel', component: 'PartyPanel', title: 'Party', variant: 'red', mobileCollapsedDefault: false },
   { id: 'danger-clocks', component: 'DangerClock', title: 'Danger Clocks', variant: 'red', mobileCollapsedDefault: true },
   { id: 'mission-tracks', component: 'MissionTrack', title: 'Mission Tracks', variant: 'cyan', mobileCollapsedDefault: true },
-  { id: 'session-journal', component: 'SessionJournal', title: 'Session Journal', variant: 'yellow', mobileCollapsedDefault: false, mobileMaxHeight: '35vh' },
+  { id: 'session-journal', component: 'SessionJournal', title: 'Session Journal', variant: 'yellow', mobileCollapsedDefault: false },
 ];
 
 export default function Dashboard({ roomCode }) {
