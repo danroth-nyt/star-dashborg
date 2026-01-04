@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Copy, Check } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Copy, Check, Trash2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useSwipeGesture } from '../../hooks/useSwipeGesture';
 
@@ -230,7 +230,7 @@ function formatResultForCopy(result) {
   return lines.join('\n');
 }
 
-export default function OracleResultDisplay({ result, variant = 'cyan', className, currentIndex = 0, totalResults = 0, onNavigate }) {
+export default function OracleResultDisplay({ result, variant = 'cyan', className, currentIndex = 0, totalResults = 0, onNavigate, onClear }) {
   const [isVisible, setIsVisible] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
   const [slideDirection, setSlideDirection] = useState('none');
@@ -1215,29 +1215,47 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
             <div />
           )}
 
-          {/* Right: Copy Button */}
-          <button
-            onClick={handleCopy}
-            className={cn(
-              'flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-orbitron uppercase border-2 transition-all whitespace-nowrap',
-              isCopied
-                ? 'bg-accent-yellow/20 border-accent-yellow text-accent-yellow'
-                : 'bg-transparent border-accent-cyan text-accent-cyan hover:bg-accent-cyan hover:text-bg-primary'
+          {/* Right: Clear All & Copy Buttons */}
+          <div className="flex items-center gap-2">
+            {/* Clear All Button - only show when history exists */}
+            {hasHistory && onClear && (
+              <button
+                onClick={onClear}
+                className={cn(
+                  'flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-orbitron uppercase border-2 transition-all whitespace-nowrap',
+                  'bg-transparent border-accent-red text-accent-red hover:bg-accent-red hover:text-bg-primary'
+                )}
+                aria-label="Clear all results"
+              >
+                <Trash2 className="w-3 h-3" />
+                <span className="hidden sm:inline">CLEAR</span>
+              </button>
             )}
-            disabled={isCopied}
-          >
-            {isCopied ? (
-              <>
-                <Check className="w-3 h-3" />
-                <span className="hidden sm:inline">COPIED</span>
-              </>
-            ) : (
-              <>
-                <Copy className="w-3 h-3" />
-                <span className="hidden sm:inline">COPY</span>
-              </>
-            )}
-          </button>
+
+            {/* Copy Button */}
+            <button
+              onClick={handleCopy}
+              className={cn(
+                'flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 text-xs font-orbitron uppercase border-2 transition-all whitespace-nowrap',
+                isCopied
+                  ? 'bg-accent-yellow/20 border-accent-yellow text-accent-yellow'
+                  : 'bg-transparent border-accent-cyan text-accent-cyan hover:bg-accent-cyan hover:text-bg-primary'
+              )}
+              disabled={isCopied}
+            >
+              {isCopied ? (
+                <>
+                  <Check className="w-3 h-3" />
+                  <span className="hidden sm:inline">COPIED</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3 h-3" />
+                  <span className="hidden sm:inline">COPY</span>
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
       </div>

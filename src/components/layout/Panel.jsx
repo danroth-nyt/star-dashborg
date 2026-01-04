@@ -1,7 +1,7 @@
 import { HelpCircle, GripVertical, ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
-export default function Panel({ title, children, className, variant = 'cyan', onHelpClick, draggable, onDragStart, onDragEnd, collapsible, collapsed, onCollapsedChange }) {
+export default function Panel({ title, children, className, variant = 'cyan', onHelpClick, draggable, onDragStart, onDragEnd, collapsible, collapsed, onCollapsedChange, mobileMaxHeight }) {
 
   const borderColors = {
     cyan: 'border-accent-cyan',
@@ -81,7 +81,15 @@ export default function Panel({ title, children, className, variant = 'cyan', on
       )}
       {!collapsed && (
         <div 
-          className="p-4 flex-1 overflow-auto accordion-reveal relative"
+          className={cn(
+            "p-4 flex-1 overflow-y-auto overflow-x-hidden accordion-reveal relative overscroll-contain",
+            mobileMaxHeight && "scroll-smooth"
+          )}
+          style={mobileMaxHeight ? { 
+            maxHeight: mobileMaxHeight,
+            touchAction: 'pan-y',
+            isolation: 'isolate'
+          } : undefined}
         >
           {children}
         </div>

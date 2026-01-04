@@ -10,6 +10,7 @@ import { useState, useCallback } from 'react';
 export function useOracleHistory(maxHistory = 10) {
   const [resultHistory, setResultHistory] = useState([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [clearVersion, setClearVersion] = useState(0);
 
   // Add new result to history (prepends to array)
   const addResult = useCallback((newResult) => {
@@ -22,6 +23,13 @@ export function useOracleHistory(maxHistory = 10) {
     setCurrentIndex(Math.max(0, Math.min(index, resultHistory.length - 1)));
   }, [resultHistory.length]);
 
+  // Clear all history and increment version counter
+  const clearHistory = useCallback(() => {
+    setResultHistory([]);
+    setCurrentIndex(0);
+    setClearVersion(prev => prev + 1);
+  }, []);
+
   // Get current result from history
   const currentResult = resultHistory[currentIndex] || null;
 
@@ -31,6 +39,8 @@ export function useOracleHistory(maxHistory = 10) {
     currentResult,
     addResult,
     navigateTo,
+    clearHistory,
+    clearVersion,
     totalResults: resultHistory.length
   };
 }

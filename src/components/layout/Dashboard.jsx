@@ -242,6 +242,7 @@ export default function Dashboard({ roomCode }) {
           collapsible={true}
           collapsed={mobileCollapsed[panel.id] || false}
           onCollapsedChange={(isCollapsed) => handleMobileCollapse(panel.id, isCollapsed)}
+          mobileMaxHeight={panel.id === 'ship-log' ? '30vh' : undefined}
         >
           {components[panel.component]}
         </Panel>

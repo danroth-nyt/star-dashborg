@@ -171,6 +171,7 @@ function CoreOraclesTab() {
           currentIndex={history.currentIndex}
           totalResults={history.totalResults}
           onNavigate={history.navigateTo}
+          onClear={history.clearHistory}
         />
       )}
 
@@ -323,6 +324,7 @@ function WorldTab() {
           currentIndex={history.currentIndex}
           totalResults={history.totalResults}
           onNavigate={history.navigateTo}
+          onClear={history.clearHistory}
         />
       )}
 
@@ -433,6 +435,7 @@ function CharactersTab() {
           currentIndex={history.currentIndex}
           totalResults={history.totalResults}
           onNavigate={history.navigateTo}
+          onClear={history.clearHistory}
         />
       )}
 
@@ -552,6 +555,7 @@ function CombatTab() {
           currentIndex={history.currentIndex}
           totalResults={history.totalResults}
           onNavigate={history.navigateTo}
+          onClear={history.clearHistory}
         />
       )}
 
