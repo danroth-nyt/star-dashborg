@@ -4,6 +4,30 @@ All notable changes to Star Dashborg are documented in this file.
 
 ## [Current Branch] - Latest Changes
 
+### 🧪 Additional Test Coverage (2026-01-04)
+
+#### ✨ New Test Files
+- **`utils.test.js`** (14 tests) - Core utility function tests
+  - `cn()` className merging with Tailwind
+  - `generateRoomCode()` format validation and character set
+  - `getRoomFromURL()` query parameter handling
+  - `updateURLWithRoom()` browser history integration
+
+- **`useSoundEffects.test.js`** (8 tests) - Sound hook tests
+  - Mute state initialization from localStorage
+  - `toggleMute()` state toggling and persistence
+  - Hook API shape validation
+
+#### 🐛 Bug Fixes
+- **Audio Mock in setup.js**: Fixed to work as proper constructor
+  - Changed from `vi.fn().mockImplementation()` to function constructor
+  - Enables proper `new Audio()` calls in tests
+  - Adds `cloneNode()` support for sound effects
+
+**Test count increased from 264 → 286 tests**
+
+---
+
 ### 🔧 Asset Path Hotfix (NEW)
 
 #### ✨ Features
@@ -106,7 +130,7 @@ All notable changes to Star Dashborg are documented in this file.
   - Test setup file at `src/test/setup.js` with automatic cleanup
   - Test utilities at `src/test/testUtils.jsx` for easy test authoring
 
-- **Comprehensive Test Suite**: 264 tests across 19 test files
+- **Comprehensive Test Suite**: 286 tests across 21 test files
   - **Context Tests**: `OracleHistoryContext.test.jsx` (7 tests) - Provider, history management, isolation
   - **Component Tests**:
     - `OracleQuickBar.test.jsx` (12 tests) - Modifier buttons, roll modes, responsive labels
@@ -122,10 +146,12 @@ All notable changes to Star Dashborg are documented in this file.
   - **Hook Tests**:
     - `useOracleHistory.test.js` (17 tests) - History management, navigation, limits
     - `useSwipeGesture.test.js` (19 tests) - Touch/mouse gesture detection
+    - `useSoundEffects.test.js` (8 tests) - Sound mute toggle, localStorage persistence
     - `useDebounce.test.js` (8 tests) - Debounce timer behavior, cleanup
   - **Utility Tests**:
     - `dice.test.js` (37 tests) - Dice rolling functions
     - `shipUpgrades.test.js` (36 tests) - Ship upgrade utility functions
+    - `utils.test.js` (14 tests) - Room code generation, URL handling, className merging
     - `keyboardUtils.test.js` (8 tests) - Keyboard state detection
     - `starforgedOracles.test.js` (14 tests) - Oracle data validation
 

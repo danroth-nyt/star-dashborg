@@ -5,7 +5,7 @@ A real-time multiplayer TTRPG companion dashboard for Star Borg, featuring an au
 ![Star Borg](https://img.shields.io/badge/Star%20Borg-Rebel%20Dashboard-yellow?style=flat-square)
 ![React](https://img.shields.io/badge/React-19-blue?style=flat-square)
 ![Tailwind](https://img.shields.io/badge/Tailwind-CSS-cyan?style=flat-square)
-![Tests](https://img.shields.io/badge/Tests-264%20passing-green?style=flat-square)
+![Tests](https://img.shields.io/badge/Tests-286%20passing-green?style=flat-square)
 
 ## ⚡ Quick Overview
 
@@ -307,14 +307,14 @@ React 19 • Vite • Vitest • Tailwind CSS • Supabase • Lucide React
 ### Commands
 ```bash
 npm run dev        # Start dev server
-npm test           # Run tests (264 tests)
+npm test           # Run tests (286 tests)
 npm run test:ui    # Vitest UI
 npm run test:coverage  # Coverage report
 npm run build      # Production build
 ```
 
 ### Testing
-- **264 tests** across 19 test files
+- **286 tests** across 21 test files
 - Component, hook, utility, and integration tests
 - Coverage reports in `coverage/` directory
 
@@ -329,9 +329,11 @@ npm run build      # Production build
 - `useOracleHistory.test.js` (17 tests) - History management
 - `VisualBoostOracle.test.jsx` (16 tests) - Visual oracle
 - `StationCard.test.jsx` (16 tests) - Station assignments
+- `utils.test.js` (14 tests) - Room code generation, URL handling
 - `starforgedOracles.test.js` (14 tests) - Oracle data
 - `assetPath.test.js` (13 tests) - Asset path handling
 - `OracleQuickBar.test.jsx` (12 tests) - Modifier buttons
+- `useSoundEffects.test.js` (8 tests) - Sound mute toggle, localStorage
 - `keyboardUtils.test.js` (8 tests) - Keyboard detection
 - `useDebounce.test.js` (8 tests) - Debounce hook
 - Plus context, component, and integration tests
