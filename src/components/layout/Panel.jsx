@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { HelpCircle, GripVertical, ChevronDown } from 'lucide-react';
 import { cn } from '../../lib/utils';
 
@@ -35,14 +34,6 @@ export default function Panel({
   };
 
   const showGrip = draggable || touchDraggable;
-
-  // #region agent log
-  useEffect(() => {
-    if (touchDraggable && panelId) {
-      fetch('http://127.0.0.1:7243/ingest/796fb027-eb71-4dd1-95d0-a5c2bee24805',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'Panel.jsx:40',message:'Panel rendered with touch drag',data:{panelId:panelId,touchDraggable:touchDraggable},timestamp:Date.now(),sessionId:'debug-session',hypothesisId:'H2'})}).catch(()=>{});
-    }
-  }, [touchDraggable, panelId]);
-  // #endregion
 
   return (
     <div className={cn(
