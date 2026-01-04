@@ -180,7 +180,7 @@ describe('VisualBoostOracle', () => {
       const { rollDice } = await import('../../data/oracles');
       rollDice.mockReturnValue(3);
       
-      const { container } = render(<VisualBoostOracle />);
+      render(<VisualBoostOracle />);
       
       const rollButton = screen.getByRole('button', { name: /roll d20/i });
       await user.click(rollButton);

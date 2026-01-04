@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { X, Volume2, VolumeX, Crosshair } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
 import { useSoundEffects } from '../../hooks/useSoundEffects';
@@ -11,7 +11,7 @@ import EnemyRoster from './EnemyRoster';
 import EnemyDrawer from './EnemyDrawer';
 
 export default function SpaceCombatView() {
-  const { exitCombatView, spaceCombat, getActiveEnemyCount } = useSpaceCombat();
+  const { exitCombatView, getActiveEnemyCount } = useSpaceCombat();
   const { toggleMute, getMutedState } = useSoundEffects();
   const [isExiting, setIsExiting] = useState(false);
   const [isMuted, setIsMuted] = useState(getMutedState());
@@ -19,13 +19,13 @@ export default function SpaceCombatView() {
   
   const activeEnemyCount = getActiveEnemyCount();
 
-  const handleExitCombatView = () => {
+  const handleExitCombatView = useCallback(() => {
     setIsExiting(true);
     setTimeout(() => {
       exitCombatView(); // Exit view for this user only
       setIsExiting(false);
     }, 300);
-  };
+  }, [exitCombatView]);
 
   // Keyboard shortcuts
   useEffect(() => {

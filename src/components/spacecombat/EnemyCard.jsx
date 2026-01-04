@@ -51,7 +51,6 @@ export default function EnemyCard({ enemy, onRemove }) {
   const [lastMoraleResult, setLastMoraleResult] = useState(null);
   const { 
     updateEnemy, 
-    applyDamageToEnemy, 
     rollEnemyAttack, 
     rollEnemyMorale,
     adjustEnemyHp 

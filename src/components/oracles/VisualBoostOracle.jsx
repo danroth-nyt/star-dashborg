@@ -20,6 +20,7 @@ export default function VisualBoostOracle() {
     if (history && history.clearVersion > 0) {
       setSelectedIndex(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only react to clearVersion changes
   }, [history?.clearVersion]);
 
   const handleRoll = () => {

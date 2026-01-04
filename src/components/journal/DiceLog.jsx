@@ -160,6 +160,7 @@ export default function DiceLog() {
     if (gameState.log.length > 0) {
       const latest = gameState.log[gameState.log.length - 1];
       if (latest.id !== latestLogId) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Track latest log ID for animation purposes
         setLatestLogId(latest.id);
       }
     }

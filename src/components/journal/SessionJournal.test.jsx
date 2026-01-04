@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '../../test/testUtils';
 import SessionJournal from './SessionJournal';
 
@@ -23,7 +23,7 @@ const mockEditor = {
 
 vi.mock('@tiptap/react', () => ({
   useEditor: vi.fn(() => mockEditor),
-  EditorContent: ({ editor }) => <div data-testid="editor-content">Editor</div>,
+  EditorContent: () => <div data-testid="editor-content">Editor</div>,
 }));
 
 vi.mock('@tiptap/starter-kit', () => ({

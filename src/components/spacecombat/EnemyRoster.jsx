@@ -102,7 +102,7 @@ function EnemyRow({ enemy, onAdjustHp }) {
 }
 
 // Grouped enemies row (when 4+ of same type)
-function GroupedEnemyRow({ type, enemies, onExpandGroup }) {
+function GroupedEnemyRow({ enemies, onExpandGroup }) {
   const activeCount = enemies.filter(e => e.status === 'active').length;
   const totalHp = enemies.reduce((sum, e) => sum + e.hp.current, 0);
   const maxHp = enemies.reduce((sum, e) => sum + e.hp.max, 0);
@@ -240,7 +240,7 @@ export default function EnemyRoster({ onOpenDrawer }) {
         </div>
       ) : (
         <div className="max-h-48 overflow-y-auto">
-          {displayItems.map((item, index) => {
+          {displayItems.map((item) => {
             if (item.type === 'group') {
               return (
                 <GroupedEnemyRow

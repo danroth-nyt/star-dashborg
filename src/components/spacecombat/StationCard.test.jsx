@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '../../test/testUtils';
 import StationCard from './StationCard';
 
@@ -314,7 +314,7 @@ describe('StationCard', () => {
   });
 
   it('disables children when station is unmanned', () => {
-    const { container } = render(
+    render(
       <StationCard
         station={mockStation}
         assignedCharacterId={null}

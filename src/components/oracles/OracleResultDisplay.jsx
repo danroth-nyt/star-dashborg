@@ -238,6 +238,7 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
   // Handle result changes with slide animation
   useEffect(() => {
     if (result) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: trigger CSS animation on result change
       setIsVisible(false);
       setTimeout(() => setIsVisible(true), 50);
     }
@@ -262,7 +263,7 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
         setSlideDirection('none');
       }, 150);
     }
-  }, [currentIndex, totalResults, onNavigate]);
+  }, [currentIndex, onNavigate]);
 
   // Keyboard navigation
   useEffect(() => {

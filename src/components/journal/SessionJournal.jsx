@@ -83,6 +83,7 @@ export default function SessionJournal({ roomCode }) {
       editor.commands.setContent(gameState.journal || '');
       setLocalJournal(gameState.journal);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only sync when external journal or editor changes
   }, [gameState.journal, editor]);
 
   // Save to Supabase when debounced value changes
@@ -90,6 +91,7 @@ export default function SessionJournal({ roomCode }) {
     if (debouncedJournal !== gameState.journal) {
       updateGameState({ journal: debouncedJournal });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only save when debounced value changes
   }, [debouncedJournal]);
 
   if (!editor) {

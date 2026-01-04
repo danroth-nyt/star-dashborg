@@ -110,6 +110,7 @@ export function SpaceCombatProvider({ children }) {
   // Sync with game state (fallback for persistence/reconnection)
   useEffect(() => {
     if (gameState.spaceCombat) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Sync external game state with local combat state
       setLocalState(gameState.spaceCombat);
     }
   }, [gameState.spaceCombat]);
@@ -133,6 +134,7 @@ export function SpaceCombatProvider({ children }) {
       try {
         const savedViewState = localStorage.getItem(getCombatViewKey(roomCode));
         if (savedViewState === 'true' && !viewingCombat) {
+          // eslint-disable-next-line react-hooks/set-state-in-effect -- Restore viewing state from localStorage on mount
           setViewingCombat(true);
         }
       } catch {
@@ -379,13 +381,10 @@ export function SpaceCombatProvider({ children }) {
   // Remove an enemy
   const removeEnemy = useCallback(
     (enemyId) => {
-      updateSpaceCombat((prev) => {
-        const enemy = (prev.enemies || []).find(e => e.id === enemyId);
-        return {
-          ...prev,
-          enemies: (prev.enemies || []).filter((e) => e.id !== enemyId),
-        };
-      });
+      updateSpaceCombat((prev) => ({
+        ...prev,
+        enemies: (prev.enemies || []).filter((e) => e.id !== enemyId),
+      }));
     },
     [updateSpaceCombat]
   );
