@@ -1,6 +1,5 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
 import VisualBoostOracle from './VisualBoostOracle';
 
 // Mock GameContext
@@ -48,9 +47,33 @@ vi.mock('../../data/oracles', () => ({
   rollDice: vi.fn(() => 5) // Default to rolling 5
 }));
 
+// Animation timing constants (must match component)
+const CYCLE_INTERVAL_MS = 150;
+const TOTAL_CYCLES = 10;
+const FINAL_DELAY_MS = 200;
+
+// Helper to complete the roll animation with fake timers
+async function completeRollAnimation() {
+  // Run through all the interval cycles
+  for (let i = 0; i < TOTAL_CYCLES; i++) {
+    await act(async () => {
+      vi.advanceTimersByTime(CYCLE_INTERVAL_MS);
+    });
+  }
+  // Run the final setTimeout
+  await act(async () => {
+    vi.advanceTimersByTime(FINAL_DELAY_MS);
+  });
+}
+
 describe('VisualBoostOracle', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
   });
 
   describe('rendering', () => {
@@ -91,174 +114,194 @@ describe('VisualBoostOracle', () => {
 
   describe('roll button', () => {
     it('should change button text while rolling', async () => {
-      const user = userEvent.setup();
       render(<VisualBoostOracle />);
       
       const rollButton = screen.getByRole('button', { name: /roll d20/i });
       
-      await user.click(rollButton);
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
       
       // Button should immediately show "rolling" text
       expect(rollButton).toHaveTextContent(/rolling/i);
     });
 
     it('should disable button while rolling', async () => {
-      const user = userEvent.setup();
       render(<VisualBoostOracle />);
       
       const rollButton = screen.getByRole('button', { name: /roll d20/i });
       
-      await user.click(rollButton);
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
       
       // Button should be disabled immediately
       expect(rollButton).toBeDisabled();
     });
 
     it('should re-enable button after rolling completes', async () => {
-      const user = userEvent.setup();
       render(<VisualBoostOracle />);
       
       const rollButton = screen.getByRole('button', { name: /roll d20/i });
       
-      await user.click(rollButton);
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
+      expect(rollButton).toBeDisabled();
       
-      // Wait for the animation to complete (10 cycles * 150ms + 200ms = ~1700ms)
-      await waitFor(() => {
-        expect(rollButton).not.toBeDisabled();
-      }, { timeout: 3000 });
+      // Complete the animation
+      await completeRollAnimation();
+      
+      expect(rollButton).not.toBeDisabled();
     });
   });
 
   describe('roll animation', () => {
     it('should call rollDice when roll button is clicked', async () => {
-      const user = userEvent.setup();
       const { rollDice } = await import('../../data/oracles');
       
       render(<VisualBoostOracle />);
       
       const rollButton = screen.getByRole('button', { name: /roll d20/i });
-      await user.click(rollButton);
+      
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
       
       expect(rollDice).toHaveBeenCalledWith(20);
     });
 
     it('should display result after animation completes', async () => {
-      const user = userEvent.setup();
       const { rollDice } = await import('../../data/oracles');
       rollDice.mockReturnValue(5);
       
       render(<VisualBoostOracle />);
       
       const rollButton = screen.getByRole('button', { name: /roll d20/i });
-      await user.click(rollButton);
       
-      // Wait for animation to complete
-      await waitFor(() => {
-        expect(screen.getByText(/result #5/i)).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
+      
+      // Result shouldn't be visible yet
+      expect(screen.queryByText(/result #5/i)).not.toBeInTheDocument();
+      
+      // Complete animation
+      await completeRollAnimation();
+      
+      expect(screen.getByText(/result #5/i)).toBeInTheDocument();
     });
 
     it('should show correct interpretation text', async () => {
-      const user = userEvent.setup();
       const { rollDice } = await import('../../data/oracles');
       rollDice.mockReturnValue(1);
       
       render(<VisualBoostOracle />);
       
       const rollButton = screen.getByRole('button', { name: /roll d20/i });
-      await user.click(rollButton);
       
-      await waitFor(() => {
-        expect(screen.getByText(/star \/ compass \/ direction/i)).toBeInTheDocument();
-      }, { timeout: 3000 });
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
+      
+      await completeRollAnimation();
+      
+      expect(screen.getByText(/star \/ compass \/ direction/i)).toBeInTheDocument();
     });
   });
 
   describe('icon selection states', () => {
     it('should highlight selected icon after roll', async () => {
-      const user = userEvent.setup();
       const { rollDice } = await import('../../data/oracles');
       rollDice.mockReturnValue(3);
       
       render(<VisualBoostOracle />);
       
       const rollButton = screen.getByRole('button', { name: /roll d20/i });
-      await user.click(rollButton);
       
-      await waitFor(() => {
-        // Find the div containing "3" and check its parent for highlight classes
-        const iconNumber = screen.getByText('3');
-        const iconContainer = iconNumber.closest('div[class*="border"]');
-        
-        expect(iconContainer).toHaveClass('border-accent-cyan');
-        expect(iconContainer).toHaveClass('scale-105');
-      }, { timeout: 3000 });
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
+      
+      await completeRollAnimation();
+      
+      // Find the div containing "3" and check its parent for highlight classes
+      const iconNumber = screen.getByText('3');
+      const iconContainer = iconNumber.closest('div[class*="border"]');
+      
+      expect(iconContainer).toHaveClass('border-accent-cyan');
+      expect(iconContainer).toHaveClass('scale-105');
     });
 
     it('should dim non-selected icons after roll', async () => {
-      const user = userEvent.setup();
       const { rollDice } = await import('../../data/oracles');
       rollDice.mockReturnValue(5);
       
       render(<VisualBoostOracle />);
       
       const rollButton = screen.getByRole('button', { name: /roll d20/i });
-      await user.click(rollButton);
       
-      await waitFor(() => {
-        // Icon 1 should be dimmed
-        const icon1 = screen.getByText('1').closest('div[class*="border"]');
-        expect(icon1).toHaveClass('opacity-30');
-        
-        // Icon 5 should not be dimmed
-        const icon5 = screen.getByText('5').closest('div[class*="border"]');
-        expect(icon5).not.toHaveClass('opacity-30');
-      }, { timeout: 3000 });
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
+      
+      await completeRollAnimation();
+      
+      // Icon 1 should be dimmed
+      const icon1 = screen.getByText('1').closest('div[class*="border"]');
+      expect(icon1).toHaveClass('opacity-30');
+      
+      // Icon 5 should not be dimmed
+      const icon5 = screen.getByText('5').closest('div[class*="border"]');
+      expect(icon5).not.toHaveClass('opacity-30');
     });
   });
 
   describe('integration with contexts', () => {
     it('should add result to oracle history', async () => {
-      const user = userEvent.setup();
       const { rollDice } = await import('../../data/oracles');
       rollDice.mockReturnValue(7);
       
       render(<VisualBoostOracle />);
       
       const rollButton = screen.getByRole('button', { name: /roll d20/i });
-      await user.click(rollButton);
       
-      await waitFor(() => {
-        expect(mockAddResult).toHaveBeenCalledWith({
-          roll: 7,
-          result: 'Visual Oracle',
-          detail: expect.stringContaining('Monster')
-        });
-      }, { timeout: 3000 });
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
+      
+      await completeRollAnimation();
+      
+      expect(mockAddResult).toHaveBeenCalledWith({
+        roll: 7,
+        result: 'Visual Oracle',
+        detail: expect.stringContaining('Monster')
+      });
     });
 
     it('should log result to game log', async () => {
-      const user = userEvent.setup();
       const { rollDice } = await import('../../data/oracles');
       rollDice.mockReturnValue(10);
       
       render(<VisualBoostOracle />);
       
       const rollButton = screen.getByRole('button', { name: /roll d20/i });
-      await user.click(rollButton);
       
-      await waitFor(() => {
-        expect(mockAddLog).toHaveBeenCalledWith(
-          expect.stringContaining('Visual Oracle (10)'),
-          'oracle'
-        );
-      }, { timeout: 3000 });
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
+      
+      await completeRollAnimation();
+      
+      expect(mockAddLog).toHaveBeenCalledWith(
+        expect.stringContaining('Visual Oracle (10)'),
+        'oracle'
+      );
     });
   });
 
   describe('multiple rolls', () => {
     it('should allow rolling again after previous roll completes', async () => {
-      const user = userEvent.setup();
       const { rollDice } = await import('../../data/oracles');
       rollDice.mockReturnValueOnce(5).mockReturnValueOnce(15);
       
@@ -267,24 +310,24 @@ describe('VisualBoostOracle', () => {
       const rollButton = screen.getByRole('button', { name: /roll d20/i });
       
       // First roll
-      await user.click(rollButton);
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
+      await completeRollAnimation();
       
-      await waitFor(() => {
-        expect(screen.getByText(/result #5/i)).toBeInTheDocument();
-      }, { timeout: 3000 });
+      expect(screen.getByText(/result #5/i)).toBeInTheDocument();
       
       // Second roll
-      await user.click(rollButton);
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
+      await completeRollAnimation();
       
-      await waitFor(() => {
-        expect(screen.getByText(/result #15/i)).toBeInTheDocument();
-      }, { timeout: 3000 });
-      
+      expect(screen.getByText(/result #15/i)).toBeInTheDocument();
       expect(rollDice).toHaveBeenCalledTimes(2);
     });
 
     it('should update selection when rolling again', async () => {
-      const user = userEvent.setup();
       const { rollDice } = await import('../../data/oracles');
       rollDice.mockReturnValueOnce(3).mockReturnValueOnce(18);
       
@@ -293,28 +336,25 @@ describe('VisualBoostOracle', () => {
       const rollButton = screen.getByRole('button', { name: /roll d20/i });
       
       // First roll - select icon 3
-      await user.click(rollButton);
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
+      await completeRollAnimation();
       
-      await waitFor(() => {
-        const icon3 = screen.getByText('3').closest('div[class*="border"]');
-        expect(icon3).toHaveClass('border-accent-cyan');
-      }, { timeout: 3000 });
-      
-      // Wait for button to be re-enabled before second roll
-      await waitFor(() => {
-        expect(rollButton).not.toBeDisabled();
-      }, { timeout: 3000 });
+      const icon3First = screen.getByText('3').closest('div[class*="border"]');
+      expect(icon3First).toHaveClass('border-accent-cyan');
       
       // Second roll - select icon 18
-      await user.click(rollButton);
+      await act(async () => {
+        fireEvent.click(rollButton);
+      });
+      await completeRollAnimation();
       
-      await waitFor(() => {
-        const icon18 = screen.getByText('18').closest('div[class*="border"]');
-        expect(icon18).toHaveClass('border-accent-cyan');
-        
-        const icon3 = screen.getByText('3').closest('div[class*="border"]');
-        expect(icon3).toHaveClass('opacity-30');
-      }, { timeout: 3000 });
+      const icon18 = screen.getByText('18').closest('div[class*="border"]');
+      expect(icon18).toHaveClass('border-accent-cyan');
+      
+      const icon3After = screen.getByText('3').closest('div[class*="border"]');
+      expect(icon3After).toHaveClass('opacity-30');
     });
   });
 });
