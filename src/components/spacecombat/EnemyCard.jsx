@@ -78,7 +78,7 @@ export default function EnemyCard({ enemy, onRemove }) {
     const result = rollEnemyAttack(enemy.id);
     if (result) {
       setLastAttackResult(result);
-      play('laserFire', 0.5);
+      play('enemyAttack', 0.5);
       // Clear result after 3 seconds
       setTimeout(() => setLastAttackResult(null), 3000);
     }
@@ -90,7 +90,11 @@ export default function EnemyCard({ enemy, onRemove }) {
     if (result) {
       setLastMoraleResult(result);
       if (result.demoralized) {
-        play('alarmCritical', 0.3);
+        if (result.outcome === 'flees') {
+          play('enemyFlee', 0.5);
+        } else {
+          play('alarmCritical', 0.3);
+        }
       }
       // Clear result after 4 seconds
       setTimeout(() => setLastMoraleResult(null), 4000);

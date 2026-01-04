@@ -16,6 +16,10 @@ const sounds = {
   deflectors: `${import.meta.env.BASE_URL}sounds/deflectors.mp3`,
   steady: `${import.meta.env.BASE_URL}sounds/steady.mp3`,
   shieldPowerUp: `${import.meta.env.BASE_URL}sounds/shield-power-up.mp3`,
+  // Enemy sounds
+  enemyAttack: `${import.meta.env.BASE_URL}sounds/tie-fighter-laser.mp3`,
+  enemyFlee: `${import.meta.env.BASE_URL}sounds/tie-fighter-roar.mp3`,
+  enemySpawn: `${import.meta.env.BASE_URL}sounds/enemy-spawn.mp3`,
 };
 
 export function useSoundEffects() {

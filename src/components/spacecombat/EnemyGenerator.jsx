@@ -79,7 +79,7 @@ export default function EnemyGenerator() {
   const handleQuickSpawn = (shipType) => {
     const enemy = createEnemy(shipType);
     addEnemy(enemy);
-    play('targetLock', 0.5);
+    play('enemySpawn', 0.6);
   };
   
   // Spawn with selected options
@@ -94,7 +94,7 @@ export default function EnemyGenerator() {
       addEnemies(squad);
     }
     
-    play('targetLock', 0.5);
+    play('enemySpawn', 0.6);
     
     // Reset selections
     setSelectedType(null);
@@ -136,7 +136,7 @@ export default function EnemyGenerator() {
     const build = rollFighterBuild();
     const enemy = createEnemy('hunterFighter', { build: build.id });
     addEnemy(enemy);
-    play('targetLock', 0.5);
+    play('enemySpawn', 0.6);
     
     // Flash the result
     setLastRolledBuild(build);
@@ -183,7 +183,7 @@ export default function EnemyGenerator() {
       addEnemies(squad);
     }
     
-    play('targetLock', 0.5);
+    play('enemySpawn', 0.6);
   };
 
   return (
