@@ -83,6 +83,7 @@ export default function SessionJournal({ roomCode }) {
       editor.commands.setContent(gameState.journal || '');
       setLocalJournal(gameState.journal);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only sync when external journal or editor changes
   }, [gameState.journal, editor]);
 
   // Save to Supabase when debounced value changes
@@ -90,6 +91,7 @@ export default function SessionJournal({ roomCode }) {
     if (debouncedJournal !== gameState.journal) {
       updateGameState({ journal: debouncedJournal });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only save when debounced value changes
   }, [debouncedJournal]);
 
   if (!editor) {
@@ -97,7 +99,7 @@ export default function SessionJournal({ roomCode }) {
   }
 
   return (
-    <div className="relative min-h-[400px] lg:absolute lg:inset-0 lg:min-h-0 flex flex-col gap-2">
+    <div className="relative lg:absolute lg:inset-0 flex flex-col gap-2">
       {/* Lock Banner - when someone else is editing */}
       {isLocked && (
         <div className="flex items-center gap-2 px-3 py-2 bg-accent-yellow/20 border border-accent-yellow/50 rounded text-accent-yellow text-xs shrink-0">
@@ -152,7 +154,7 @@ export default function SessionJournal({ roomCode }) {
       </div>
 
       {/* Editor */}
-      <div className="flex-1 min-h-0 bg-bg-primary border-2 border-accent-yellow text-text-primary focus-within:border-accent-cyan focus-within:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all duration-300 overflow-auto">
+      <div className="flex-1 min-h-[150px] max-h-[30vh] lg:max-h-none lg:min-h-0 bg-bg-primary border-2 border-accent-yellow text-text-primary focus-within:border-accent-cyan focus-within:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all duration-300 overflow-auto">
         <EditorContent 
           editor={editor} 
           className="h-full"

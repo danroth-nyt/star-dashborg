@@ -133,7 +133,7 @@ describe('ThreatDie', () => {
 
     it('should show alert with proper styling', () => {
       mockThreatDie = 6;
-      const { container } = render(<ThreatDie />);
+      render(<ThreatDie />);
       
       const alert = screen.getByText(/maximum threat/i).closest('div[class*="border"]');
       

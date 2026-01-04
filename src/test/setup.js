@@ -29,17 +29,28 @@ vi.mock('../lib/supabaseClient', () => ({
   },
 }));
 
-// Mock Audio API
-global.Audio = vi.fn().mockImplementation(() => ({
-  play: vi.fn(() => Promise.resolve()),
-  pause: vi.fn(),
-  load: vi.fn(),
-  addEventListener: vi.fn(),
-  removeEventListener: vi.fn(),
-  volume: 1,
-  currentTime: 0,
-  loop: false,
-}));
+// Mock Audio API as a constructor function
+global.Audio = function(src) {
+  return {
+    src,
+    play: vi.fn(() => Promise.resolve()),
+    pause: vi.fn(),
+    load: vi.fn(),
+    addEventListener: vi.fn(),
+    removeEventListener: vi.fn(),
+    preload: '',
+    volume: 1,
+    currentTime: 0,
+    loop: false,
+    cloneNode: vi.fn(function() {
+      return {
+        src: this.src,
+        play: vi.fn(() => Promise.resolve()),
+        volume: 1,
+      };
+    }),
+  };
+};
 
 // Mock window.matchMedia
 Object.defineProperty(window, 'matchMedia', {

@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '../../test/testUtils';
+import { render, screen } from '../../test/testUtils';
 import SpaceCombatView from './SpaceCombatView';
 
 // Mock context hooks

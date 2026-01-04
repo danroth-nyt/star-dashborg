@@ -937,6 +937,36 @@ h1, h2, h3, h4, h5, h6 {
     animation: inline-alert-pulse 2s ease-in-out infinite;
   }
 
+  /* Stat roll result reveal animation */
+  @keyframes stat-result-reveal {
+    0% {
+      opacity: 0;
+      transform: scale(0.8);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .stat-result-reveal {
+    animation: stat-result-reveal 0.3s ease-out forwards;
+  }
+
+  /* Stat roll result fade out animation */
+  @keyframes stat-result-fade {
+    0% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  .stat-result-fade {
+    animation: stat-result-fade 0.3s ease-out forwards;
+  }
+
   /* Intensified danger glow for critical states */
   @keyframes danger-glow-intense {
     0%, 100% {

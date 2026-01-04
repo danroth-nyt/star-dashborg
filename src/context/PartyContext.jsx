@@ -127,11 +127,6 @@ export function PartyProvider({ children, roomCode }) {
       )
       .subscribe((status) => {
         console.log(`[PartyContext] Subscription status for room ${roomCode}:`, status);
-        // When subscription is established, refresh party members to catch any missed changes
-        if (status === 'SUBSCRIBED') {
-          console.log('[PartyContext] Subscription active, refreshing party members...');
-          loadPartyMembers();
-        }
       });
 
     return () => {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronRight, BookOpen, Shield, Dice5, Zap, AlertTriangle } from 'lucide-react';
+import { ChevronDown, ChevronRight, BookOpen, Shield, Dice5, Zap, AlertTriangle as AlertTriangleIcon } from 'lucide-react';
 import { 
   MORALE_RULES, 
   SPACE_COMBAT_RULES, 
@@ -162,7 +162,7 @@ export default function EnemyDocsPanel() {
       </DocSection>
       
       {/* Special Rules */}
-      <DocSection title="Special Rules" icon={AlertTriangle}>
+      <DocSection title="Special Rules" icon={AlertTriangleIcon}>
         <div className="space-y-3">
           {Object.values(SPACE_COMBAT_RULES).map((rule) => (
             <div key={rule.title}>

@@ -7,6 +7,7 @@ export default function CompactOracleResult({ result, variant = 'cyan', onDismis
 
   useEffect(() => {
     if (result) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- Intentional: trigger CSS animation on result change
       setIsVisible(false);
       setTimeout(() => setIsVisible(true), 50);
     }

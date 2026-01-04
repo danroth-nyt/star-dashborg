@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent } from '../../test/testUtils';
+import { render, screen } from '../../test/testUtils';
 import OracleResultDisplay from './OracleResultDisplay';
 
 // Mock context hooks

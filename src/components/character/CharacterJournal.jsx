@@ -66,6 +66,7 @@ export default function CharacterJournal({ onFocus, onBlur, isLocked }) {
       editor.commands.setContent(character?.journal || '');
       setLocalJournal(character?.journal || '');
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only sync when external character journal or editor changes
   }, [character?.journal, editor]);
 
   // Save to Supabase when debounced value changes
@@ -73,6 +74,7 @@ export default function CharacterJournal({ onFocus, onBlur, isLocked }) {
     if (character && debouncedJournal !== character.journal) {
       updateField('journal', debouncedJournal);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Only save when debounced value changes
   }, [debouncedJournal]);
 
   // Update editor editable state when isLocked changes

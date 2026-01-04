@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, memo } from 'react';
 import { Heart, Plus, Minus, Sparkles, Coins, Award } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useCharacter } from '../../context/CharacterContext';
@@ -7,23 +7,102 @@ import { getUnclaimedPromotions } from '../../data/progressionData';
 import { rollD20 } from '../../utils/dice';
 import { supabase } from '../../lib/supabaseClient';
 
+// Format modifier with +/- prefix
+const formatModifier = (value) => {
+  if (value > 0) return `+${value}`;
+  if (value === 0) return '0';
+  return `${value}`;
+};
+
+// Get color class based on stat value
+const getStatColor = (value) => {
+  if (value >= 2) return 'text-accent-green';
+  if (value >= 1) return 'text-accent-cyan';
+  if (value === 0) return 'text-text-primary';
+  if (value >= -1) return 'text-accent-yellow';
+  return 'text-accent-red';
+};
+
+// Memoized component for displaying roll result
+const RollResultOverlay = memo(({ roll, isFading }) => {
+  const { d20Roll, modifier, total, isCrit, isBlunder } = roll;
+  
+  // Determine color classes based on result
+  const getResultColor = () => {
+    if (isCrit) return 'text-accent-yellow text-glow-yellow';
+    if (isBlunder) return 'text-accent-red text-glow-red';
+    return 'text-accent-cyan';
+  };
+  
+  const animationClass = isFading ? 'stat-result-fade' : 'stat-result-reveal';
+  
+  return (
+    <div className={`flex flex-col items-center justify-center h-full ${animationClass}`}>
+      <div className="text-[9px] font-mono text-text-secondary mb-0.5">
+        [{d20Roll}]
+      </div>
+      <div className={`text-2xl font-orbitron font-bold leading-none ${getResultColor()}`}>
+        {total}
+      </div>
+      <div className="text-[9px] font-mono text-text-secondary mt-0.5">
+        {formatModifier(modifier)}
+      </div>
+    </div>
+  );
+});
+
+RollResultOverlay.displayName = 'RollResultOverlay';
+
+// Memoized component for normal stat display
+const StatDisplay = memo(({ statName, value }) => {
+  return (
+    <>
+      <div className="text-[10px] font-mono text-text-secondary uppercase mb-0.5">
+        {statName}
+      </div>
+      <div className={`text-xl font-orbitron font-bold leading-none ${getStatColor(value)}`}>
+        {formatModifier(value)}
+      </div>
+    </>
+  );
+});
+
+StatDisplay.displayName = 'StatDisplay';
+
 export default function PartyMemberCard({ character: characterProp }) {
   const { user } = useAuth();
   const { character: currentUserCharacter } = useCharacter();
   const { gameState, addLog } = useGame();
   const [rollingStatId, setRollingStatId] = useState(null);
+  const [showRollResult, setShowRollResult] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
   
   // Local state for optimistic updates (since realtime doesn't work)
   const [localCharacter, setLocalCharacter] = useState(characterProp);
   
   // Use ref to always have latest character data and avoid stale closures
   const characterRef = useRef(localCharacter);
+  const rollDataRef = useRef(null);
+  const dismissTimerRef = useRef(null);
+  const fadeTimerRef = useRef(null);
   
   // Update local state when prop changes (from realtime or initial load)
   useEffect(() => {
     setLocalCharacter(characterProp);
     characterRef.current = characterProp;
   }, [characterProp]);
+  
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (dismissTimerRef.current) {
+        clearTimeout(dismissTimerRef.current);
+      }
+      if (fadeTimerRef.current) {
+        clearTimeout(fadeTimerRef.current);
+      }
+    };
+  }, []);
   
   const isOwnCharacter = user?.id === characterProp.user_id;
   
@@ -92,43 +171,74 @@ export default function PartyMemberCard({ character: characterProp }) {
     await updateCharacterField('bits', newBits);
   };
 
-  // Format modifier with +/- prefix
-  const formatModifier = (value) => {
-    if (value > 0) return `+${value}`;
-    if (value === 0) return '0';
-    return `${value}`;
-  };
-
-  // Get color class based on stat value
-  const getStatColor = (value) => {
-    if (value >= 2) return 'text-accent-green';
-    if (value >= 1) return 'text-accent-cyan';
-    if (value === 0) return 'text-text-primary';
-    if (value >= -1) return 'text-accent-yellow';
-    return 'text-accent-red';
-  };
-
   // Handle stat quick roll
   const handleStatRoll = (statName, statValue) => {
     if (!isOwnCharacter) return;
+    
+    // Clear any existing timers
+    if (dismissTimerRef.current) {
+      clearTimeout(dismissTimerRef.current);
+      dismissTimerRef.current = null;
+    }
+    if (fadeTimerRef.current) {
+      clearTimeout(fadeTimerRef.current);
+      fadeTimerRef.current = null;
+    }
+    
+    // Reset fade state if re-rolling
+    setIsFadingOut(false);
+    
+    // Calculate roll immediately
+    const d20Roll = rollD20();
+    const total = d20Roll + statValue;
+    const isCrit = d20Roll === 20;
+    const isBlunder = d20Roll === 1;
+    const rollTimestamp = Date.now();
+    
+    // Store roll data in ref (doesn't trigger re-render)
+    rollDataRef.current = {
+      statName,
+      d20Roll,
+      modifier: statValue,
+      total,
+      isCrit,
+      isBlunder,
+      timestamp: rollTimestamp,
+    };
+    
+    // Set rolling state (shows pulse animation)
     setRollingStatId(statName);
     
+    // After rolling animation, show result
     setTimeout(() => {
-      const d20Roll = rollD20();
-      const total = d20Roll + statValue;
-      const isCrit = d20Roll === 20;
-      const isBlunder = d20Roll === 1;
-      
-      let resultText = `${statName.toUpperCase()} Test: [${d20Roll}] ${formatModifier(statValue)} = ${total}`;
-      
-      if (isCrit) {
-        resultText += ' ★ CRITICAL ★';
-      } else if (isBlunder) {
-        resultText += ' ✕ FUMBLE ✕';
-      }
-      
-      addLog(resultText, isCrit ? 'success' : isBlunder ? 'danger' : 'roll');
+      // Clear rolling state and show result
       setRollingStatId(null);
+      setShowRollResult(true);
+      
+      // Defer log to avoid re-render during animation
+      requestAnimationFrame(() => {
+        let resultText = `${statName.toUpperCase()} Test: [${d20Roll}] ${formatModifier(statValue)} = ${total}`;
+        
+        if (isCrit) {
+          resultText += ' ★ CRITICAL ★';
+        } else if (isBlunder) {
+          resultText += ' ✕ FUMBLE ✕';
+        }
+        
+        addLog(resultText, isCrit ? 'success' : isBlunder ? 'danger' : 'roll');
+      });
+      
+      // Start fade-out after 3 seconds
+      dismissTimerRef.current = setTimeout(() => {
+        setIsFadingOut(true);
+        
+        // Completely hide after fade animation completes (300ms)
+        fadeTimerRef.current = setTimeout(() => {
+          setShowRollResult(false);
+          setIsFadingOut(false);
+          rollDataRef.current = null;
+        }, 300);
+      }, 3000);
     }, 400);
   };
 
@@ -229,21 +339,37 @@ export default function PartyMemberCard({ character: characterProp }) {
         <>
           {/* Stats Grid - Quick Roll */}
           <div className="grid grid-cols-4 gap-1 mt-2">
-            {Object.entries(character.stats).map(([statName, value]) => (
-              <button
-                key={statName}
-                onClick={() => handleStatRoll(statName, value)}
-                disabled={rollingStatId === statName}
-                className="bg-bg-primary border border-accent-cyan/30 hover:border-accent-cyan hover:shadow-[0_0_8px_rgba(0,240,255,0.3)] transition-all p-1.5 text-center group disabled:animate-pulse"
-              >
-                <div className="text-[10px] font-mono text-text-secondary uppercase mb-0.5">
-                  {statName}
-                </div>
-                <div className={`text-xl font-orbitron font-bold leading-none ${getStatColor(value)}`}>
-                  {formatModifier(value)}
-                </div>
-              </button>
-            ))}
+            {Object.entries(character.stats).map(([statName, value]) => {
+              const rollData = rollDataRef.current;
+              const isShowingResult = showRollResult && rollData?.statName === statName;
+              
+              // Determine border and shadow based on result
+              let borderClass = 'border-accent-cyan/30 hover:border-accent-cyan hover:shadow-[0_0_8px_rgba(0,240,255,0.3)]';
+              if (isShowingResult && rollData) {
+                if (rollData.isCrit) {
+                  borderClass = 'border-accent-yellow shadow-[0_0_12px_rgba(255,252,0,0.6)]';
+                } else if (rollData.isBlunder) {
+                  borderClass = 'border-accent-red shadow-[0_0_12px_rgba(255,0,60,0.6)]';
+                } else {
+                  borderClass = 'border-accent-cyan shadow-[0_0_8px_rgba(0,240,255,0.5)]';
+                }
+              }
+              
+              return (
+                <button
+                  key={statName}
+                  onClick={() => handleStatRoll(statName, value)}
+                  disabled={rollingStatId === statName}
+                  className={`bg-bg-primary border ${borderClass} transition-colors transition-shadow duration-200 p-1.5 text-center group disabled:animate-pulse`}
+                >
+                  {isShowingResult && rollData ? (
+                    <RollResultOverlay key={rollData.timestamp} roll={rollData} isFading={isFadingOut} />
+                  ) : (
+                    <StatDisplay statName={statName} value={value} />
+                  )}
+                </button>
+              );
+            })}
           </div>
 
           {/* Destiny Points & Bits */}

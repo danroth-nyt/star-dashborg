@@ -101,6 +101,39 @@ export default function QuickReferenceDrawer({ isOpen, onClose }) {
             </div>
           </div>
 
+          {/* Abilities */}
+          <div className="border-t border-accent-yellow/30 pt-3">
+            <h3 className="font-orbitron font-bold text-accent-cyan uppercase mb-2 text-xs">
+              Abilities
+            </h3>
+            <div className="space-y-2 text-xs">
+              <div>
+                <span className="font-bold text-accent-cyan font-mono">AGI</span>
+                <span className="text-accent-yellow mx-1">•</span>
+                <span className="text-gray-400">Agility:</span>
+                <div className="text-gray-300 ml-4">Sneak, Dodge, Pilot, Throw</div>
+              </div>
+              <div>
+                <span className="font-bold text-accent-cyan font-mono">KNW</span>
+                <span className="text-accent-yellow mx-1">•</span>
+                <span className="text-gray-400">Knowledge:</span>
+                <div className="text-gray-300 ml-4">Tech, Search, Magi Arts</div>
+              </div>
+              <div>
+                <span className="font-bold text-accent-cyan font-mono">PRS</span>
+                <span className="text-accent-yellow mx-1">•</span>
+                <span className="text-gray-400">Presence:</span>
+                <div className="text-gray-300 ml-4">Charm, Bluff, Fire Blaster</div>
+              </div>
+              <div>
+                <span className="font-bold text-accent-cyan font-mono">STR</span>
+                <span className="text-accent-yellow mx-1">•</span>
+                <span className="text-gray-400">Strength:</span>
+                <div className="text-gray-300 ml-4">Strike, Wrestle, Lift, Endure</div>
+              </div>
+            </div>
+          </div>
+
           {/* Solo Hit Results */}
           <div className="border-t border-accent-yellow/30 pt-3">
             <h3 className="font-orbitron font-bold text-accent-cyan uppercase mb-2 text-xs">

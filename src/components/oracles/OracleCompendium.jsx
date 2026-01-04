@@ -20,7 +20,6 @@ import {
   gmExtras,
   equipmentOracles,
   enemyStats,
-  visualOracles,
   rollOnTable,
   rollDangerousLocation,
   rollDice,
@@ -28,7 +27,6 @@ import {
   generateEpisodeTitle,
   generatePVNPCSurname,
   generateSpaceOperaName,
-  generatePVSettlementName,
   generatePVFactionName,
   generateScene
 } from '../../data/oracles';
@@ -146,9 +144,7 @@ function MoraleButton({ morale, label, onCheck }) {
 // ==========================================
 
 function CoreOraclesTab() {
-  const { gameState } = useGame();
   const history = useOracleHistoryContext();
-  const diceType = gameState.includePVOracles ? 'd30' : 'd20';
   
   return (
     <div className="space-y-4">

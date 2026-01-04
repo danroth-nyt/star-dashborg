@@ -160,6 +160,7 @@ export default function DiceLog() {
     if (gameState.log.length > 0) {
       const latest = gameState.log[gameState.log.length - 1];
       if (latest.id !== latestLogId) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- Track latest log ID for animation purposes
         setLatestLogId(latest.id);
       }
     }
@@ -241,7 +242,7 @@ export default function DiceLog() {
 
           return (
             <div 
-              key={entry.id} 
+              key={`${entry.id}-${index}`} 
               className={`border-l-2 pl-3 py-1 hover:border-accent-cyan hover:bg-bg-secondary/30 transition-all duration-200 ${
                 isLatest ? 'log-entry-slide new-entry-pulse' : 'slide-up'
               } ${

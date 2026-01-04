@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { X, Volume2, VolumeX, Users } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { X, Volume2, VolumeX, Crosshair } from 'lucide-react';
 import { useSpaceCombat } from '../../context/SpaceCombatContext';
 import { useSoundEffects } from '../../hooks/useSoundEffects';
 import { isUserTyping } from '../../lib/keyboardUtils';
@@ -11,7 +11,7 @@ import EnemyRoster from './EnemyRoster';
 import EnemyDrawer from './EnemyDrawer';
 
 export default function SpaceCombatView() {
-  const { exitCombatView, spaceCombat, getActiveEnemyCount } = useSpaceCombat();
+  const { exitCombatView, getActiveEnemyCount } = useSpaceCombat();
   const { toggleMute, getMutedState } = useSoundEffects();
   const [isExiting, setIsExiting] = useState(false);
   const [isMuted, setIsMuted] = useState(getMutedState());
@@ -19,13 +19,13 @@ export default function SpaceCombatView() {
   
   const activeEnemyCount = getActiveEnemyCount();
 
-  const handleExitCombatView = () => {
+  const handleExitCombatView = useCallback(() => {
     setIsExiting(true);
     setTimeout(() => {
       exitCombatView(); // Exit view for this user only
       setIsExiting(false);
     }, 300);
-  };
+  }, [exitCombatView]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -86,7 +86,7 @@ export default function SpaceCombatView() {
                 }`}
                 title="Manage enemy forces"
               >
-                <Users className="w-4 h-4" />
+                <Crosshair className="w-4 h-4" />
                 {activeEnemyCount > 0 && (
                   <span className="absolute -top-1 -right-1 w-4 h-4 text-[10px] font-bold bg-accent-red text-white rounded-full flex items-center justify-center">
                     {activeEnemyCount > 9 ? '9+' : activeEnemyCount}

@@ -1,9 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { getAssetPath } from './assetPath';
 
 describe('getAssetPath', () => {
-  const originalEnv = import.meta.env.BASE_URL;
-
   afterEach(() => {
     // Reset to original value after each test
     vi.unstubAllEnvs();
