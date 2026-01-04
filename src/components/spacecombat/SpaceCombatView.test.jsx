@@ -76,8 +76,10 @@ describe('SpaceCombatView', () => {
         shipHP: 10,
         shipHPMax: 10,
         shipArmor: 2,
+        enemies: [],
       },
       exitCombatView: mockExitCombatView,
+      getActiveEnemyCount: vi.fn(() => 0),
     });
   });
 
