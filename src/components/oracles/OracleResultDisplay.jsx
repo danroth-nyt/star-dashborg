@@ -1217,8 +1217,8 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
 
           {/* Right: Clear All & Copy Buttons */}
           <div className="flex items-center gap-2">
-            {/* Clear All Button - only show when history exists */}
-            {hasHistory && onClear && (
+            {/* Clear All Button - show when onClear is provided */}
+            {onClear && (
               <button
                 onClick={onClear}
                 className={cn(

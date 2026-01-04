@@ -8,7 +8,7 @@ import { useOracleHistoryContext } from '../../../context/OracleHistoryContext';
 export default function MissionGenerator() {
   const { addLog, gameState } = useGame();
   const history = useOracleHistoryContext();
-  const [missionType, setMissionType] = useState('detailed'); // 'detailed', 'quick', 'villain', 'scenario', or 'inciting'
+  const [missionType, setMissionType] = useState('detailed'); // 'detailed', 'quick', 'plot', 'scenario', or 'inciting'
 
   const handleGenerateMission = () => {
     const mission = generateMission();
@@ -78,14 +78,14 @@ export default function MissionGenerator() {
           Quick
         </button>
         <button
-          onClick={() => setMissionType('villain')}
+          onClick={() => setMissionType('plot')}
           className={`px-1 sm:px-2 py-1 text-[10px] sm:text-xs font-orbitron uppercase border-2 transition-colors leading-tight ${
-            missionType === 'villain'
+            missionType === 'plot'
               ? 'bg-accent-red text-bg-primary border-accent-red'
               : 'bg-transparent text-accent-red border-accent-red hover:bg-accent-red hover:text-bg-primary'
           }`}
         >
-          Villain
+          Plot
         </button>
         {showIncitingTab && (
           <button
@@ -124,7 +124,7 @@ export default function MissionGenerator() {
         </Button>
       )}
       
-      {missionType === 'villain' && (
+      {missionType === 'plot' && (
         <Button onClick={handleGenerateVillain} variant="danger" className="w-full">
           Generate Villain Plot
         </Button>
