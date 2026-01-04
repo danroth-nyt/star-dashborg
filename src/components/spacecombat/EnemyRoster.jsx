@@ -22,6 +22,7 @@ function EnemyRow({ enemy, onAdjustHp }) {
   const isInfiniteHp = enemy.hp.max === null || enemy.hp.max === undefined;
   const hpPercent = isInfiniteHp ? 100 : (enemy.hp.max ? (enemy.hp.current / enemy.hp.max) * 100 : 0);
   const isInactive = enemy.status !== 'active';
+  const showButtons = !isInactive && !isInfiniteHp;
   
   // HP bar color based on percentage
   const getHpColor = () => {
@@ -34,7 +35,7 @@ function EnemyRow({ enemy, onAdjustHp }) {
 
   return (
     <div 
-      className={`flex items-center gap-2 py-1.5 px-2 border-b border-gray-700/50 last:border-b-0 transition-opacity ${
+      className={`grid grid-cols-[auto_1fr_auto] items-center gap-2 py-1.5 px-2 border-b border-gray-700/50 last:border-b-0 transition-opacity ${
         isInactive ? 'opacity-50' : ''
       }`}
     >
@@ -43,7 +44,7 @@ function EnemyRow({ enemy, onAdjustHp }) {
       
       {/* Name (truncated) */}
       <span 
-        className={`flex-1 text-xs font-mono truncate ${
+        className={`text-xs font-mono truncate min-w-0 ${
           isInactive ? 'text-gray-500 line-through' : 'text-text-primary'
         }`}
         title={enemy.name}
@@ -51,46 +52,51 @@ function EnemyRow({ enemy, onAdjustHp }) {
         {enemy.name}
       </span>
       
-      {/* HP Bar */}
-      <div className="w-16 h-2 bg-gray-800 rounded-sm overflow-hidden">
-        <div 
-          className={`h-full transition-all duration-300 ${getHpColor()}`}
-          style={{ width: `${hpPercent}%` }}
-        />
-      </div>
-      
-      {/* HP Text */}
-      <span className={`text-[10px] font-mono w-10 text-right ${
-        isInactive ? 'text-gray-600' : isInfiniteHp ? 'text-purple-400' : 'text-gray-400'
-      }`}>
-        {isInfiniteHp ? '∞' : `${enemy.hp.current}/${enemy.hp.max}`}
-      </span>
-      
-      {/* Quick Adjust Buttons */}
-      {!isInactive && !isInfiniteHp && (
-        <div className="flex gap-0.5">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onAdjustHp(enemy.id, -1);
-            }}
-            className="p-0.5 text-accent-red hover:bg-accent-red/20 rounded transition-colors"
-            title="Decrease HP"
-          >
-            <Minus className="w-3 h-3" />
-          </button>
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              onAdjustHp(enemy.id, 1);
-            }}
-            className="p-0.5 text-accent-cyan hover:bg-accent-cyan/20 rounded transition-colors"
-            title="Increase HP"
-          >
-            <Plus className="w-3 h-3" />
-          </button>
+      {/* Right side: HP Bar + Text + Buttons (fixed width container) */}
+      <div className="flex items-center gap-1.5">
+        {/* HP Bar */}
+        <div className="w-14 h-2 bg-gray-800 rounded-sm overflow-hidden flex-shrink-0">
+          <div 
+            className={`h-full transition-all duration-300 ${getHpColor()}`}
+            style={{ width: `${hpPercent}%` }}
+          />
         </div>
-      )}
+        
+        {/* HP Text */}
+        <span className={`text-[10px] font-mono w-11 text-right flex-shrink-0 ${
+          isInactive ? 'text-gray-600' : isInfiniteHp ? 'text-purple-400' : 'text-gray-400'
+        }`}>
+          {isInfiniteHp ? '∞' : `${enemy.hp.current}/${enemy.hp.max}`}
+        </span>
+        
+        {/* Quick Adjust Buttons - fixed width container */}
+        <div className="flex gap-0.5 w-9 flex-shrink-0 justify-end">
+          {showButtons ? (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAdjustHp(enemy.id, -1);
+                }}
+                className="p-0.5 text-accent-red hover:bg-accent-red/20 rounded transition-colors"
+                title="Decrease HP"
+              >
+                <Minus className="w-3 h-3" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onAdjustHp(enemy.id, 1);
+                }}
+                className="p-0.5 text-accent-cyan hover:bg-accent-cyan/20 rounded transition-colors"
+                title="Increase HP"
+              >
+                <Plus className="w-3 h-3" />
+              </button>
+            </>
+          ) : null}
+        </div>
+      </div>
     </div>
   );
 }
@@ -105,25 +111,31 @@ function GroupedEnemyRow({ type, enemies, onExpandGroup }) {
   return (
     <button
       onClick={onExpandGroup}
-      className="w-full flex items-center gap-2 py-1.5 px-2 border-b border-gray-700/50 last:border-b-0 hover:bg-gray-700/30 transition-colors"
+      className="w-full grid grid-cols-[auto_1fr_auto] items-center gap-2 py-1.5 px-2 border-b border-gray-700/50 last:border-b-0 hover:bg-gray-700/30 transition-colors text-left"
     >
-      <Crosshair className="w-3 h-3 text-accent-cyan" />
+      <Crosshair className="w-3 h-3 text-accent-cyan flex-shrink-0" />
       
-      <span className="flex-1 text-xs font-mono truncate text-text-primary">
+      <span className="text-xs font-mono truncate text-text-primary min-w-0">
         {enemies[0]?.name?.replace(/\s[α-ω]$/, '')} ×{enemies.length}
       </span>
       
-      <span className="text-[10px] text-gray-400 font-mono">
-        {activeCount} active
-      </span>
-      
-      <div className="w-12 h-2 bg-gray-800 rounded-sm overflow-hidden">
-        <div 
-          className={`h-full transition-all duration-300 ${
-            hpPercent > 66 ? 'bg-accent-cyan' : hpPercent > 33 ? 'bg-accent-yellow' : 'bg-accent-red'
-          }`}
-          style={{ width: `${hpPercent}%` }}
-        />
+      {/* Right side: Status + HP Bar (aligned with EnemyRow) */}
+      <div className="flex items-center gap-1.5">
+        <span className="text-[10px] text-gray-400 font-mono w-11 text-right flex-shrink-0">
+          {activeCount} active
+        </span>
+        
+        <div className="w-14 h-2 bg-gray-800 rounded-sm overflow-hidden flex-shrink-0">
+          <div 
+            className={`h-full transition-all duration-300 ${
+              hpPercent > 66 ? 'bg-accent-cyan' : hpPercent > 33 ? 'bg-accent-yellow' : 'bg-accent-red'
+            }`}
+            style={{ width: `${hpPercent}%` }}
+          />
+        </div>
+        
+        {/* Spacer to align with button area */}
+        <div className="w-9 flex-shrink-0" />
       </div>
     </button>
   );

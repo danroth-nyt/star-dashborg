@@ -295,6 +295,11 @@ export function SpaceCombatProvider({ children }) {
 
   // Decrement hyperdrive
   const decrementHyperdrive = useCallback(() => {
+    // Play hyperdrive power down sound
+    const audio = new Audio(`${import.meta.env.BASE_URL}sounds/hyperdrive-power-down.mp3`);
+    audio.volume = 0.5;
+    audio.play().catch(() => {}); // Silently fail if autoplay blocked
+    
     updateSpaceCombat((prev) => ({
       ...prev,
       hyperdriveCharge: Math.max(0, prev.hyperdriveCharge - 1),
@@ -529,6 +534,19 @@ export function SpaceCombatProvider({ children }) {
 
       const newHp = Math.max(0, Math.min(enemy.hp.max, enemy.hp.current + delta));
       const newStatus = newHp === 0 ? 'destroyed' : (newHp > 0 && enemy.status === 'destroyed') ? 'active' : enemy.status;
+
+      // Play sound effects
+      if (delta < 0) {
+        // Enemy takes damage - play heavy laser fire sound
+        const audio = new Audio(`${import.meta.env.BASE_URL}sounds/heavy-laser-fire.mp3`);
+        audio.volume = 0.5;
+        audio.play().catch(() => {}); // Silently fail if autoplay blocked
+      } else if (delta > 0) {
+        // Enemy heals - play shield power-up sound
+        const audio = new Audio(`${import.meta.env.BASE_URL}sounds/shield-power-up.mp3`);
+        audio.volume = 0.5;
+        audio.play().catch(() => {});
+      }
 
       // Broadcast immediately for instant sync with other clients
       if (broadcastChannelRef.current) {
