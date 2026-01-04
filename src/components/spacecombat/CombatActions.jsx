@@ -209,21 +209,46 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
       logMessage += `${success ? 'SUCCESS' : 'FAIL'} (${rollDisplay} + ${abilityScore} = ${total} vs ${drDisplay})`;
     }
 
+    // Consume torpedo when fired (regardless of hit/miss)
+    if (action.requiresTorpedo) {
+      fireTorpedo();
+      // Also consume special torpedo from inventory if not standard
+      if (selectedTorpedoType !== 'standard') {
+        updateGameState((prevState) => {
+          const newShip = { ...prevState.ship };
+          newShip.torpedoInventory = {
+            ...newShip.torpedoInventory,
+            [selectedTorpedoType]: Math.max(0, (newShip.torpedoInventory[selectedTorpedoType] || 0) - 1),
+          };
+          return { ...prevState, ship: newShip };
+        });
+        const torpedoName = TORPEDO_TYPES[selectedTorpedoType].name;
+        logMessage += ` - Used ${torpedoName}!`;
+      }
+    }
+
     // Handle damage rolls for attacks
     if (success && action.damage) {
-      const damageDiceMatch = action.damage.match(/(\d+)d(\d+)/);
-      if (damageDiceMatch) {
-        const [, count, sides] = damageDiceMatch;
-        let damageTotal = 0;
-        for (let i = 0; i < parseInt(count); i++) {
-          damageTotal += rollDice(parseInt(sides));
+      // Determine damage dice - use torpedo type damage for torpedo actions
+      let damageString = action.damage;
+      if (action.id === 'fireTorpedo' && selectedTorpedoType) {
+        const torpedoData = TORPEDO_TYPES[selectedTorpedoType];
+        if (torpedoData && torpedoData.damage && torpedoData.damage !== '0') {
+          damageString = torpedoData.damage;
         }
-        logMessage += ` - Dealt ${damageTotal} damage!`;
-        
-        // Use torpedo if required
-        if (action.requiresTorpedo) {
-          fireTorpedo();
+      }
+
+      // Only roll damage if damageString is not '0' (e.g., Chaff torpedo)
+      if (damageString && damageString !== '0') {
+        const damageDiceMatch = damageString.match(/(\d+)d(\d+)/);
+        if (damageDiceMatch) {
+          const [, count, sides] = damageDiceMatch;
+          const damageTotal = rollDice(parseInt(count), parseInt(sides));
+          logMessage += ` - Dealt ${damageTotal} damage!`;
         }
+      } else if (action.id === 'fireTorpedo' && selectedTorpedoType === 'chaff') {
+        // Special log for chaff torpedo (no damage, defensive effect)
+        logMessage += ` - Defensive screen deployed!`;
       }
     }
 
@@ -237,18 +262,6 @@ export default function CombatActions({ stationId, actionIds, assignedCharacterI
         const torpedoCount = rollD(2);
         loadTorpedoes(torpedoCount);
         logMessage += ` - Loaded ${torpedoCount} torpedo${torpedoCount > 1 ? 'es' : ''}!`;
-      } else if (action.id === 'fireTorpedo' && selectedTorpedoType !== 'standard') {
-        // Use special torpedo from inventory
-        updateGameState((prevState) => {
-          const newShip = { ...prevState.ship };
-          newShip.torpedoInventory = {
-            ...newShip.torpedoInventory,
-            [selectedTorpedoType]: Math.max(0, (newShip.torpedoInventory[selectedTorpedoType] || 0) - 1),
-          };
-          return { ...prevState, ship: newShip };
-        });
-        const torpedoName = TORPEDO_TYPES[selectedTorpedoType].name;
-        logMessage += ` - Used ${torpedoName}!`;
       }
     }
 
