@@ -197,20 +197,19 @@ export default function Dashboard({ roomCode }) {
   // Mobile touch drag - attach listeners with passive: false
   useEffect(() => {
     const handleTouchStart = (e) => {
-      const target = e.target.closest('[data-panel-header]');
+      // Check if touch target is the grip handle or within it
+      const gripHandle = e.target.closest('[data-grip-handle]');
+      if (!gripHandle) return;
+      
+      // Then find the panel header to get the panel ID
+      const target = gripHandle.closest('[data-panel-header]');
       if (!target) return;
       
       const panelId = target.dataset.panelId;
       if (!panelId) return;
       
-      // Only start drag if touching near the grip icon (left 70px)
-      const touch = e.touches[0];
-      const rect = target.getBoundingClientRect();
-      const touchX = touch.clientX - rect.left;
-      
-      if (touchX > 70) return;
-      
       e.preventDefault();
+      const touch = e.touches[0];
       dragStateRef.current = { panelId, startY: touch.clientY, reorderInProgress: false };
       setTouchDraggedPanel(panelId);
     };
