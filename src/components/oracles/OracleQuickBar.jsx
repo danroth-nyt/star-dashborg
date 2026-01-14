@@ -93,10 +93,10 @@ export default function OracleQuickBar() {
           Ask Oracle
         </button>
         {/* Oracle Roll Mode Toggle - fits width of Ask Oracle button */}
-        <div className="grid grid-cols-3 gap-1">
+        <div className="flex gap-0.5 w-full">
           <button
             onClick={() => setRollMode('normal')}
-            className={`px-1 py-1 min-w-[32px] font-orbitron font-bold uppercase text-[10px] sm:text-xs border-2 transition-all ${
+            className={`flex-1 px-1 py-1 font-orbitron font-bold uppercase text-[10px] sm:text-xs border-2 transition-all ${
               rollMode === 'normal'
                 ? 'bg-accent-cyan text-bg-primary border-accent-cyan'
                 : 'bg-transparent text-accent-cyan border-accent-cyan hover:bg-accent-cyan/20'
@@ -107,7 +107,7 @@ export default function OracleQuickBar() {
           </button>
           <button
             onClick={() => setRollMode('advantage')}
-            className={`px-1 py-1 min-w-[32px] font-orbitron font-bold uppercase text-[10px] sm:text-xs border-2 transition-all ${
+            className={`flex-1 px-1 py-1 font-orbitron font-bold uppercase text-[10px] sm:text-xs border-2 transition-all ${
               rollMode === 'advantage'
                 ? 'bg-accent-yellow text-bg-primary border-accent-yellow'
                 : 'bg-transparent text-accent-yellow border-accent-yellow hover:bg-accent-yellow/20'
@@ -118,7 +118,7 @@ export default function OracleQuickBar() {
           </button>
           <button
             onClick={() => setRollMode('disadvantage')}
-            className={`px-1 py-1 min-w-[32px] font-orbitron font-bold uppercase text-[10px] sm:text-xs border-2 transition-all ${
+            className={`flex-1 px-1 py-1 font-orbitron font-bold uppercase text-[10px] sm:text-xs border-2 transition-all ${
               rollMode === 'disadvantage'
                 ? 'bg-accent-red text-bg-primary border-accent-red'
                 : 'bg-transparent text-accent-red border-accent-red hover:bg-accent-red/20'

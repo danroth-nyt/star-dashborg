@@ -19,7 +19,9 @@ import {
   pvFactionStructures,
   pvFactionAdjectives,
   pvFactionNouns,
-  pvFactionTemplates
+  pvFactionTemplates,
+  pvTechnobabbleFirstParts,
+  pvTechnobabbleSecondParts
 } from './perilousVoidOracles';
 import { sfIncitingIncidents } from './starforgedOracles';
 
@@ -1570,6 +1572,23 @@ export function generateSpaceOperaName() {
     firstPart,
     secondPart,
     fullName: `${firstPart}${secondPart}`,
+    source: 'perilousVoid'
+  };
+}
+
+// Generate Technobabble (Artifact/Gadget)
+export function generateTechnobabble() {
+  const firstRoll = rollDice(100);
+  const secondRoll = rollDice(100);
+  const firstPart = pvTechnobabbleFirstParts[firstRoll - 1];
+  const secondPart = pvTechnobabbleSecondParts[secondRoll - 1];
+  
+  return {
+    firstRoll,
+    secondRoll,
+    firstPart,
+    secondPart,
+    fullName: `${firstPart} ${secondPart}`,
     source: 'perilousVoid'
   };
 }

@@ -28,7 +28,8 @@ import {
   generatePVNPCSurname,
   generateSpaceOperaName,
   generatePVFactionName,
-  generateScene
+  generateScene,
+  generateTechnobabble
 } from '../../data/oracles';
 import { useGame } from '../../context/GameContext';
 import Accordion from '../ui/Accordion';
@@ -145,6 +146,13 @@ function MoraleButton({ morale, label, onCheck }) {
 
 function CoreOraclesTab() {
   const history = useOracleHistoryContext();
+  const { gameState } = useGame();
+
+  const handleTechnobabble = () => {
+    const tech = generateTechnobabble();
+    // OracleTable handles logging via history.addResult
+    return tech;
+  };
   
   return (
     <div className="space-y-4">
@@ -197,6 +205,18 @@ function CoreOraclesTab() {
           diceType="d4"
         />
       </Accordion>
+
+      {gameState.includePVOracles && (
+        <Accordion title="Technobabble Generator (2d100)" defaultOpen={false}>
+          <OracleTable
+            title="Artifact / Gadget"
+            table={[]}
+            variant="yellow"
+            diceType="2d100"
+            rollFunction={handleTechnobabble}
+          />
+        </Accordion>
+      )}
 
       <Accordion title="Visual Oracle / Boost (d20)" defaultOpen={false}>
         <VisualBoostOracle />

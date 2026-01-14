@@ -38,12 +38,11 @@ function formatResultForCopy(result) {
     lines.push(`DETAIL: ${result.detail}`);
   }
   
-  // Affirmation oracle (detail, size, weather, npcReaction)
-  if (result.detail && result.size && result.weather && result.npcReaction) {
+  // Affirmation oracle (detail, size, weather)
+  if (result.detail && result.size && result.weather) {
     lines.push(`DETAIL: ${result.detail}`);
     lines.push(`SIZE: ${result.size}`);
     lines.push(`WEATHER: ${result.weather}`);
-    lines.push(`NPC REACTION: ${result.npcReaction}`);
   }
   
   // Quick Mission (action, target)
@@ -412,9 +411,9 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
           </div>
         )}
 
-        {/* Additional Fields - Two Column Layout for Affirmation Oracle */}
-        {result.detail && result.size && result.weather && result.npcReaction && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-3">
+        {/* Additional Fields - Affirmation Oracle (Detail, Size, Weather) */}
+        {result.detail && result.size && result.weather && (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-3">
             <div className="space-y-1">
               <div className="text-sm font-orbitron uppercase text-gray-400">
                 DETAIL:
@@ -439,15 +438,6 @@ export default function OracleResultDisplay({ result, variant = 'cyan', classNam
               </div>
               <div className="text-base text-text-primary terminal-text break-words">
                 {result.weather}
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <div className="text-sm font-orbitron uppercase text-gray-400">
-                NPC REACTION:
-              </div>
-              <div className="text-base text-text-primary terminal-text break-words">
-                {result.npcReaction}
               </div>
             </div>
           </div>

@@ -388,6 +388,37 @@ export const pvFactionTemplates = [
   "[Structure] of the [Adjective] [Noun]", "[Structure] of the [Adjective] [Noun]", "[Structure] of the [Adjective] [Noun]", "[Structure] of the [Adjective] [Noun]", "[Structure] of the [Adjective] [Noun]"
 ];
 
+// ==========================================
+// TECHNOBABBLE GENERATOR (Pages 156-157)
+// Roll 2d100: First part + Second part
+// ==========================================
+
+export const pvTechnobabbleFirstParts = [
+  "Abyssal", "Aether", "Alloy", "Amethyst", "Antimatter", "Astro", "Atomic", "Auxiliary", "Binary", "Bio",
+  "Bio-kinetic", "Bio-mechanical", "Bio-morphic", "Bionic", "Chrono", "Cluster", "Cosmic", "Cryo", "Cryogenic", "Crystal",
+  "Cyber", "Dark", "Diamond", "Dingle", "Electro", "Electro-magnetic", "Electrostatic", "Emerald", "Epsilon", "Eternal",
+  "Ethereal", "Etheric", "Exo", "Exotic", "Flux", "Fusion", "Genesis", "Gravitic", "Graviton", "Gravity",
+  "Gyroscopic", "Harmonic", "Helix", "Holographic", "Hybrid", "Hyper", "Hyperdrive", "Infinite", "Infra", "Infrared",
+  "Ion", "Ionic", "Magnetic", "Matrix", "Metamorphic", "Micro", "Mini", "Modular", "Morphic", "Nanite",
+  "Nano", "Nebula", "Neo", "Neural", "Neutron", "Nova", "Omni", "Optronic", "Oscillation", "Osmotic",
+  "Phase", "Photon", "Plasma", "Plasmatic", "Plasmic", "Polaron", "Positronic", "Primary", "Proton", "Psi",
+  "Quantum", "Quasar", "Resonance", "Singularity", "Sonic", "Stellar", "Subsonic", "Symbiotic", "Tachyon", "Thermal",
+  "Thermo", "Torsion", "Trinary", "Turbo", "Universal", "Void", "Warp", "Xenon", "Zephyr", "Zeta"
+];
+
+export const pvTechnobabbleSecondParts = [
+  "Accelerator", "Adapter", "Amplifier", "Amulet", "Analyzer", "Antenna", "Arm", "Armature", "Array", "Augmenter",
+  "Beacon", "Biolink", "Blade", "Booster", "Brain", "Calibrator", "Capacitor", "Catalyst", "Circuit", "Codex",
+  "Coil", "Compass", "Compensator", "Conductor", "Conduit", "Converter", "Core", "Crystalizer", "Deflector", "Device",
+  "Diffuser", "Dilator", "Disk", "Disruptor", "Emitter", "Encabulator", "Energizer", "Enhancer", "Equilibrator", "Essence",
+  "Extractor", "Field", "Filter", "Focus", "Gauntlet", "Generator", "Grid", "Harmonizer", "Harp", "Hive",
+  "Impulsor", "Inceptor", "Includer", "Inducer", "Infuser", "Inhibitor", "Injector", "Integrator", "Interface", "Inverter",
+  "Ionizer", "Isolator", "Lens", "Locus", "Magnetizer", "Manipulator", "Matrix", "Modulator", "Monitor", "Nexus",
+  "Node", "Nullifier", "Orb", "Oscillator", "Overlay", "Overthruster", "Prism", "Processor", "Radiator", "Reactor",
+  "Regulator", "Relay", "Relocator", "Replicator", "Resistor", "Resonator", "Scanner", "Scepter", "Shard", "Shield",
+  "Shifter", "Spindle", "Stabilizer", "Stone", "Synchronizer", "Transceiver", "Transducer", "Transformer", "Transmitter", "Transmuter"
+];
+
 // Generate Inciting Incident
 export function generatePVIncitingIncident() {
   const roll = rollDice(pvIncitingIncidents.length);

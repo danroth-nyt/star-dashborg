@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Underline from '@tiptap/extension-underline';
@@ -35,6 +35,7 @@ export default function SessionJournal({ roomCode }) {
   const { character } = useCharacter();
   const [localJournal, setLocalJournal] = useState(gameState.journal || '');
   const debouncedJournal = useDebounce(localJournal, 2000);
+  const editorContainerRef = useRef(null);
 
   // Presence tracking for collaborative editing
   const { trackEditing, stopEditing, getFieldEditor } = usePresence(
@@ -45,6 +46,21 @@ export default function SessionJournal({ roomCode }) {
 
   const editorLock = getFieldEditor('sessionJournal');
   const isLocked = editorLock && editorLock.userId !== session?.user?.id;
+
+  // Handle editor focus - scroll into view on mobile when keyboard appears
+  const handleEditorFocus = () => {
+    trackEditing('sessionJournal');
+    
+    // Scroll into view on mobile when keyboard appears
+    if (window.innerWidth < 1024 && editorContainerRef.current) {
+      setTimeout(() => {
+        editorContainerRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'center'
+        });
+      }, 300); // Delay to allow keyboard animation
+    }
+  };
 
   const editor = useEditor({
     extensions: [
@@ -154,11 +170,14 @@ export default function SessionJournal({ roomCode }) {
       </div>
 
       {/* Editor */}
-      <div className="h-[240px] lg:flex-1 lg:h-auto lg:min-h-0 bg-bg-primary border-2 border-accent-yellow text-text-primary focus-within:border-accent-cyan focus-within:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all duration-300 overflow-auto">
+      <div 
+        ref={editorContainerRef}
+        className="h-[240px] lg:flex-1 lg:h-auto lg:min-h-0 bg-bg-primary border-2 border-accent-yellow text-text-primary focus-within:border-accent-cyan focus-within:shadow-[0_0_15px_rgba(0,240,255,0.4)] transition-all duration-300 overflow-auto"
+      >
         <EditorContent 
           editor={editor} 
           className="h-full"
-          onFocus={() => trackEditing('sessionJournal')}
+          onFocus={handleEditorFocus}
           onBlur={() => stopEditing('sessionJournal')}
         />
       </div>

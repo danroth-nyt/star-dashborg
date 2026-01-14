@@ -63,7 +63,10 @@ export default function Panel({
         >
           <div className="flex items-center gap-2 flex-1 min-w-0">
             {showGrip && (
-              <div className="flex items-center justify-center shrink-0 p-1 -ml-1 rounded hover:bg-current/10 active:bg-current/20 transition-colors">
+              <div 
+                data-grip-handle="true"
+                className="flex items-center justify-center shrink-0 p-1 -ml-1 rounded hover:bg-current/10 active:bg-current/20 transition-colors"
+              >
                 <GripVertical className="w-5 h-5 opacity-60" />
               </div>
             )}
